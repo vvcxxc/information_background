@@ -44,6 +44,22 @@ export default defineConfig({
       ],
     },
     {
+      path: '/informationManagement',
+      component: '../layouts/BasicLayout',
+      routes: [
+        {
+          path: '/informationManagement/articleManagement',
+          routes: [
+            {
+              name: 'addArticle',
+              path: '/informationManagement/articleManagement/addArticle',
+              component: './informationManagement/articleManagement/addArticle',
+            },
+          ]
+        }
+      ],
+    },
+    {
       path: '/',
       component: '../layouts/SecurityLayout',
       routes: [
