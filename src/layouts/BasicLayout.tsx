@@ -10,8 +10,7 @@ import ProLayout, {
   DefaultFooter,
 } from '@ant-design/pro-layout';
 import React, { useEffect } from 'react';
-import { Link, useIntl, connect, Dispatch } from 'umi';
-import { GithubOutlined } from '@ant-design/icons';
+import { Link, connect, Dispatch } from 'umi';
 import { Result, Button } from 'antd';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
@@ -50,37 +49,13 @@ export type BasicLayoutContext = { [K in 'location']: BasicLayoutProps[K] } & {
  * use Authorized check all menu item
  */
 
-const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
-  menuList.map((item) => {
-    const localItem = { ...item, children: item.children ? menuDataRender(item.children) : [] };
-    return Authorized.check(item.authority, localItem, null) as MenuDataItem;
-  });
+// const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
+//   menuList.map((item) => {
+//     const localItem = { ...item, children: item.children ? menuDataRender(item.children) : [] };
+//     return Authorized.check(item.authority, localItem, null) as MenuDataItem;
+//   });
 
-const defaultFooterDom = (
-  <DefaultFooter
-    copyright="2019 蚂蚁金服体验技术部出品"
-    links={[
-      {
-        key: 'Ant Design Pro',
-        title: 'Ant Design Pro',
-        href: 'https://pro.ant.design',
-        blankTarget: true,
-      },
-      {
-        key: 'github',
-        title: <GithubOutlined />,
-        href: 'https://github.com/ant-design/ant-design-pro',
-        blankTarget: true,
-      },
-      {
-        key: 'Ant Design',
-        title: 'Ant Design',
-        href: 'https://ant.design',
-        blankTarget: true,
-      },
-    ]}
-  />
-);
+const defaultFooterDom = <DefaultFooter copyright="资讯管理平台" />;
 
 const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
   const {
@@ -106,6 +81,37 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
    * init variables
    */
 
+  /**
+   * 临时的菜单栏
+   */
+
+  const data = [
+    {
+      path: '/informationManagement',
+      name: '资讯管理',
+      children: [
+        {
+          path: '/informationManagement/articleManagement',
+          name: '文章管理',
+          children: [
+            {
+              path: '/informationManagement/articleManagement/articleList',
+              name: '文章列表',
+            },
+          ],
+        },
+        {
+          path: '/informationManagement/classifyToManage',
+          name: '分类管理',
+        },
+        {
+          path: '/informationManagement/roleManagement',
+          name: '角色管理',
+        },
+      ],
+    },
+  ];
+
   const handleMenuCollapse = (payload: boolean): void => {
     if (dispatch) {
       dispatch({
@@ -118,12 +124,9 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
   const authorized = getAuthorityFromRouter(props.route.routes, location.pathname || '/') || {
     authority: undefined,
   };
-  const { formatMessage } = useIntl();
-
   return (
     <ProLayout
       logo={logo}
-      formatMessage={formatMessage}
       menuHeaderRender={(logoDom, titleDom) => (
         <Link to="/">
           {logoDom}
@@ -141,7 +144,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
       breadcrumbRender={(routers = []) => [
         {
           path: '/',
-          breadcrumbName: formatMessage({ id: 'menu.home' }),
+          breadcrumbName: '首页',
         },
         ...routers,
       ]}
@@ -153,8 +156,8 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
           <span>{route.breadcrumbName}</span>
         );
       }}
-      footerRender={() => defaultFooterDom}
-      menuDataRender={menuDataRender}
+      footerRender={() => defaultFooterDom} // menuDataRender={menuDataRender}
+      menuDataRender={() => data}
       rightContentRender={() => <RightContent />}
       {...props}
       {...settings}
