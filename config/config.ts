@@ -79,6 +79,42 @@ export default defineConfig({
               ],
             },
             {
+              path: '/informationManagement',
+              // component: '../layouts/BasicLayout',
+              routes: [
+                {
+                  path: '/informationManagement/articleManagement',
+                  routes: [
+                    {
+                      name: 'articleList',
+                      path: '/informationManagement/articleManagement/articleList',
+                      component: './informationManagement/articleManagement/articleList',
+                    },
+                  ],
+                },
+                {
+                  path: '/informationManagement/finearticleManagement',
+                  routes: [
+                    {
+                      name: 'fineArticleList',
+                      path: '/informationManagement/finearticleManagement/fineArticleList',
+                      component: './informationManagement/articleManagement/fineArticleList',
+                    },
+                  ],
+                },
+                {
+                  path: '/informationManagement/bannerManagement',
+                  routes: [
+                    {
+                      name: 'fineArticleList',
+                      path: '/informationManagement/bannerManagement/bannerList',
+                      component: './informationManagement/articleManagement/bannerList',
+                    },
+                  ],
+                },
+              ],
+            },
+            {
               component: './404',
             },
           ],

@@ -7,7 +7,6 @@ import ProLayout, {
   MenuDataItem,
   BasicLayoutProps as ProLayoutProps,
   Settings,
-  DefaultFooter,
 } from '@ant-design/pro-layout';
 import React, { useEffect } from 'react';
 import { Link, connect, Dispatch } from 'umi';
@@ -54,8 +53,6 @@ export type BasicLayoutContext = { [K in 'location']: BasicLayoutProps[K] } & {
 //     const localItem = { ...item, children: item.children ? menuDataRender(item.children) : [] };
 //     return Authorized.check(item.authority, localItem, null) as MenuDataItem;
 //   });
-
-const defaultFooterDom = <DefaultFooter copyright="资讯管理平台" />;
 
 const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
   const {
@@ -156,7 +153,6 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
           <span>{route.breadcrumbName}</span>
         );
       }}
-      footerRender={() => defaultFooterDom} // menuDataRender={menuDataRender}
       menuDataRender={() => data}
       rightContentRender={() => <RightContent />}
       {...props}
