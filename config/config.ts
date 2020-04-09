@@ -112,6 +112,26 @@ export default defineConfig({
                     },
                   ],
                 },
+                {
+                  path: '/informationManagement/classifyToManage',
+                  routes: [
+                    {
+                      name: 'classifyList',
+                      path: '/informationManagement/classifyToManage/classifyList',
+                      component: './informationManagement/classifyToManage/classifyList',
+                    },
+                  ],
+                },
+                {
+                  path: '/informationManagement/roleManagement',
+                  routes: [
+                    {
+                      name: 'roleList',
+                      path: '/informationManagement/roleManagement/roleList',
+                      component: './informationManagement/roleManagement/roleList',
+                    },
+                  ],
+                },
               ],
             },
             {
