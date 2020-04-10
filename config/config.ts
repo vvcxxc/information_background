@@ -103,13 +103,21 @@ export default defineConfig({
                   ],
                 },
                 {
-                  path: '/informationManagement/bannerManagement',
+                  path: '/informationManagement/articleManagement/bannerManagement',
+                  name: 'bannerManagement',
                   routes: [
                     {
-                      name: 'fineArticleList',
-                      path: '/informationManagement/bannerManagement/bannerList',
-                      component: './informationManagement/articleManagement/bannerList',
+                      name: 'bannerList',
+                      path: '/informationManagement/articleManagement/bannerManagement/bannerList',
+                      component: './informationManagement/articleManagement/bannerManagement/bannerList',
                     },
+                    {
+                      name: 'addBanner',
+                      path: '/informationManagement/articleManagement/bannerManagement/addBanner',
+                      component: './informationManagement/articleManagement/bannerManagement/addBanner',
+                    }
+
+                    ,
                   ],
                 },
               ],

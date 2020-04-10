@@ -4,6 +4,8 @@
  */
 import { extend } from 'umi-request';
 import { notification } from 'antd';
+import {history} from 'umi';
+import configs from '../../env';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -28,6 +30,7 @@ const codeMessage = {
  */
 const errorHandler = (error: { response: Response }): Response => {
   const { response } = error;
+  console.log(response)
   if (response && response.status) {
     const errorText = codeMessage[response.status] || response.statusText;
     const { status, url } = response;
@@ -36,6 +39,9 @@ const errorHandler = (error: { response: Response }): Response => {
       message: `请求错误 ${status}: ${url}`,
       description: errorText,
     });
+    if (response.status == 401) {
+      history.push('/user/login');
+    }
   } else if (!response) {
     notification.error({
       description: '您的网络发生异常，无法连接服务器',
@@ -50,7 +56,49 @@ const errorHandler = (error: { response: Response }): Response => {
  */
 const request = extend({
   errorHandler, // 默认错误处理
-  credentials: 'include', // 默认请求是否带上cookie
+  // credentials: 'include', // 默认请求是否带上cookie
+});
+
+// request拦截器, 改变url 或 options.
+request.interceptors.request.use((url, options) => {
+  const API = configs[process.env.API_ENV].API || 'http://test.platform_admin_api.tdianyi.com';
+  const token = localStorage.getItem('token');
+  let Url = '';
+  if (url.includes('http')) {
+    Url = url;
+  } else {
+    Url = API + url;
+  }
+  if (token) {
+    const headers = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: token,
+    };
+    return {
+      url: Url,
+      options: { ...options, headers: headers },
+    };
+  } else {
+    const headers = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: '',
+    };
+    return {
+      url: Url,
+      options: { ...options, headers: headers },
+    };
+  }
+});
+
+// // response拦截器, 处理response
+request.interceptors.response.use((response, options) => {
+  // let token = response.headers.get("x-auth-token");
+  // if (token) {
+  //   localStorage.setItem("x-auth-token", token);
+  // }
+  return response;
 });
 
 export default request;
