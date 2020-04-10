@@ -20,7 +20,7 @@
     "lint:prettier": "prettier --check \"**/*\" --end-of-line auto",
     "lint:style": "stylelint --fix \"src/**/*.less\" --syntax less",
     "prettier": "prettier -c --write \"**/*\"",
-    "start": "umi dev",
+    "start": "cross-env API_ENV=local umi dev",
     "start:dev": "cross-env REACT_APP_ENV=dev MOCK=none umi dev",
     "start:no-mock": "cross-env MOCK=none umi dev",
     "start:no-ui": "cross-env UMI_UI=none umi dev",
@@ -48,12 +48,14 @@
     "not ie <= 10"
   ],
   "dependencies": {
+    "@ant-design/compatible": "^1.0.2",
     "@ant-design/icons": "^4.0.0",
     "@ant-design/pro-layout": "^5.0.8",
     "@ant-design/pro-table": "^2.2.0",
     "antd": "^4.0.0",
     "braft-editor": "^2.3.9",
     "classnames": "^2.2.6",
+    "dva": "^2.4.1",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
     "omit.js": "^1.0.2",

@@ -34,7 +34,6 @@ export default defineConfig({
   routes: [
     {
       path: '/user',
-      component: '../layouts/UserLayout',
       routes: [
         {
           name: 'login',
@@ -91,6 +90,50 @@ export default defineConfig({
                   icon: 'smile',
                   component: './Welcome',
                   authority: ['admin'],
+                },
+              ],
+            },
+            {
+              path: '/informationManagement',
+              // component: '../layouts/BasicLayout',
+              routes: [
+                {
+                  path: '/informationManagement/articleManagement',
+                  routes: [
+                    {
+                      name: 'articleList',
+                      path: '/informationManagement/articleManagement/articleList',
+                      component: './informationManagement/articleManagement/articleList',
+                    },
+                  ],
+                },
+                {
+                  path: '/informationManagement/finearticleManagement',
+                  routes: [
+                    {
+                      name: 'fineArticleList',
+                      path: '/informationManagement/finearticleManagement/fineArticleList',
+                      component: './informationManagement/articleManagement/fineArticleList',
+                    },
+                  ],
+                },
+                {
+                  path: '/informationManagement/articleManagement/bannerManagement',
+                  name: 'bannerManagement',
+                  routes: [
+                    {
+                      name: 'bannerList',
+                      path: '/informationManagement/articleManagement/bannerManagement/bannerList',
+                      component: './informationManagement/articleManagement/bannerManagement/bannerList',
+                    },
+                    {
+                      name: 'addBanner',
+                      path: '/informationManagement/articleManagement/bannerManagement/addBanner',
+                      component: './informationManagement/articleManagement/bannerManagement/addBanner',
+                    }
+
+                    ,
+                  ],
                 },
               ],
             },
