@@ -89,34 +89,53 @@ export default defineConfig({
                       path: '/informationManagement/articleManagement/articleList',
                       component: './informationManagement/articleManagement/articleList',
                     },
-                  ],
-                },
-                {
-                  path: '/informationManagement/finearticleManagement',
-                  routes: [
-                    {
+                     {
                       name: 'fineArticleList',
-                      path: '/informationManagement/finearticleManagement/fineArticleList',
+                      path: '/informationManagement/articleManagement/fineArticleList',
                       component: './informationManagement/articleManagement/fineArticleList',
                     },
+                    {
+                      name: 'bannerManagement',
+                      path: '/informationManagement/articleManagement/bannerManagement',
+                      routes: [
+                        {
+                          name: 'bannerList',
+                          path: '/informationManagement/articleManagement/bannerManagement/bannerList',
+                          component: './informationManagement/articleManagement/bannerManagement/bannerList',
+                        },
+                      ],
+                    },
+                  ],
+                },
+                // {
+                //   path: '/informationManagement/finearticleManagement',
+                //   routes: [
+                //     {
+                //       name: 'fineArticleList',
+                //       path: '/informationManagement/finearticleManagement/fineArticleList',
+                //       component: './informationManagement/articleManagement/fineArticleList',
+                //     },
+                //   ],
+                // },
+
+                {
+                  path: '/informationManagement/classifyToManage',
+                  routes: [
+                    {
+                      name: 'classifyList',
+                      path: '/informationManagement/classifyToManage/classifyList',
+                      component: './informationManagement/classifyToManage/classifyList',
+                    },
                   ],
                 },
                 {
-                  path: '/informationManagement/articleManagement/bannerManagement',
-                  name: 'bannerManagement',
+                  path: '/informationManagement/roleManagement',
                   routes: [
                     {
-                      name: 'bannerList',
-                      path: '/informationManagement/articleManagement/bannerManagement/bannerList',
-                      component: './informationManagement/articleManagement/bannerManagement/bannerList',
+                      name: 'roleList',
+                      path: '/informationManagement/roleManagement/roleList',
+                      component: './informationManagement/roleManagement/roleList',
                     },
-                    {
-                      name: 'addBanner',
-                      path: '/informationManagement/articleManagement/bannerManagement/addBanner',
-                      component: './informationManagement/articleManagement/bannerManagement/addBanner',
-                    }
-
-                    ,
                   ],
                 },
               ],
