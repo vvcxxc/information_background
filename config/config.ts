@@ -34,6 +34,7 @@ export default defineConfig({
   routes: [
     {
       path: '/user',
+      component: '../layouts/UserLayout',
       routes: [
         {
           name: 'login',
@@ -89,16 +90,6 @@ export default defineConfig({
                       path: '/informationManagement/articleManagement/articleList',
                       component: './informationManagement/articleManagement/articleList',
                     },
-                    {
-                      name: 'bannerList',
-                      path: '/informationManagement/articleManagement/bannerManagement/bannerList',
-                      component: './informationManagement/articleManagement/bannerManagement/bannerList',
-                    },
-                    {
-                      name: 'addBanner',
-                      path: '/informationManagement/articleManagement/bannerManagement/addBanner',
-                      component: './informationManagement/articleManagement/bannerManagement/addBanner',
-                    }
                   ],
                 },
                 {
@@ -108,6 +99,36 @@ export default defineConfig({
                       name: 'fineArticleList',
                       path: '/informationManagement/finearticleManagement/fineArticleList',
                       component: './informationManagement/articleManagement/fineArticleList',
+                    },
+                  ],
+                },
+                {
+                  path: '/informationManagement/bannerManagement',
+                  routes: [
+                    {
+                      name: 'fineArticleList',
+                      path: '/informationManagement/bannerManagement/bannerList',
+                      component: './informationManagement/articleManagement/bannerList',
+                    },
+                  ],
+                },
+                {
+                  path: '/informationManagement/classifyToManage',
+                  routes: [
+                    {
+                      name: 'classifyList',
+                      path: '/informationManagement/classifyToManage/classifyList',
+                      component: './informationManagement/classifyToManage/classifyList',
+                    },
+                  ],
+                },
+                {
+                  path: '/informationManagement/roleManagement',
+                  routes: [
+                    {
+                      name: 'roleList',
+                      path: '/informationManagement/roleManagement/roleList',
+                      component: './informationManagement/roleManagement/roleList',
                     },
                   ],
                 },
