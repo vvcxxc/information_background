@@ -107,7 +107,7 @@ export default defineConfig({
                     {
                       name: 'fineArticleList',
                       path: '/informationManagement/bannerManagement/bannerList',
-                      component: './informationManagement/articleManagement/bannerList',
+                      component: './informationManagement/articleManagement/bannerManagement/bannerList',
                     },
                   ],
                 },
