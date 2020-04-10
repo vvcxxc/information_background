@@ -2,14 +2,16 @@ import React, { Component } from 'react';
 import { Checkbox, Select, Radio, DatePicker, Upload } from 'antd';
 import { PictureOutlined } from '@ant-design/icons';
 import styles from './index.less';
-import BraftEditor from 'braft-editor'
-import { ContentUtils } from 'braft-utils'
-import { ImageUtils } from 'braft-finder'
+import BraftEditor from 'braft-editor';
+import { ContentUtils } from 'braft-utils';
+import { ImageUtils } from 'braft-finder';
+import 'braft-editor/dist/index.css';
 import request from '@/utils/request';
-
+import { getTerraceRole } from './service';
 export default class AddArticle extends React.Component {
 
     state = {
+        pageType: 1,//1发布2编辑
         title: '',//标题
         auth: '',//作者
         classHuizhangNum: '',//排序分类会长
@@ -39,6 +41,11 @@ export default class AddArticle extends React.Component {
                 localStorage.setItem('oss_data', JSON.stringify(data))
             });
         }
+
+        getTerraceRole({ terrace_id: 1, is_category: true })
+            .then((res: any) => {
+                console.log('res', res)
+            })
         // 假设此处从服务端获取html格式的编辑器内容
         // const htmlContent = await fetchEditorContent()
         // 使用BraftEditor.createEditorState将html字符串转换为编辑器需要的editorStat
@@ -247,7 +254,7 @@ export default class AddArticle extends React.Component {
                     </div>
                 </div>
                 <div className={styles.StartBox}>
-                    <div className={styles.startWords}>标题图片</div>
+                    <div className={styles.startWords}>文章内容</div>
                     <div className={styles.startArticle}>
                         <BraftEditor
                             value={this.state.editorState}
@@ -268,7 +275,9 @@ export default class AddArticle extends React.Component {
                     </div>
                 </div>
                 <div className={styles.btnBox} onClick={this.submitContent}>
-                    <div className={styles.btnIcon}>文章上架</div>
+                    {
+                        this.state.pageType == 2 ? <div className={styles.btnIcon}>确认修改</div> : <div className={styles.btnIcon}>文章上架</div>
+                    }
                 </div>
             </div>
         )
