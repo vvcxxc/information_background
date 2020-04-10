@@ -1,10 +1,9 @@
-import { Reducer } from 'redux';
-import { Effect } from 'dva';
-import { notification } from 'antd';
+import { stringify } from 'querystring';
+import { history, Reducer, Effect } from 'umi';
+
 import { fakeAccountLogin } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
-import { history } from 'umi';
 
 export interface StateType {
   status?: 'ok' | 'error';
@@ -17,6 +16,7 @@ export interface LoginModelType {
   state: StateType;
   effects: {
     login: Effect;
+    logout: Effect;
   };
   reducers: {
     changeLoginStatus: Reducer<StateType>;
@@ -32,29 +32,44 @@ const Model: LoginModelType = {
 
   effects: {
     *login({ payload }, { call, put }) {
-      console.log(payload)
-      const res = yield call(fakeAccountLogin, payload)
-      if(res.data){
-        localStorage.setItem('token',`${res.data.token_type} ${res.data.access_token}`)
-        // yield put({
-        //   type: 'user/saveCurrentUser',
-        //   payload:{
-        //     name: payload.username,
-        //     avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-        //   }
-        // })
-        history.push('/informationManagement/articleManagement/articleList')
-      }else{
-        notification.error({
-          message: res.message,
+      const response = yield call(fakeAccountLogin, payload);
+      yield put({
+        type: 'changeLoginStatus',
+        payload: response,
+      });
+      // Login successfully
+      if (response.status === 'ok') {
+        const urlParams = new URL(window.location.href);
+        const params = getPageQuery();
+        let { redirect } = params as { redirect: string };
+        if (redirect) {
+          const redirectUrlParams = new URL(redirect);
+          if (redirectUrlParams.origin === urlParams.origin) {
+            redirect = redirect.substr(urlParams.origin.length);
+            if (redirect.match(/^\/.*#/)) {
+              redirect = redirect.substr(redirect.indexOf('#') + 1);
+            }
+          } else {
+            window.location.href = '/';
+            return;
+          }
+        }
+        history.replace(redirect || '/');
+      }
+    },
+
+    logout() {
+      const { redirect } = getPageQuery();
+      // Note: There may be security issues, please note
+      if (window.location.pathname !== '/user/login' && !redirect) {
+        history.replace({
+          pathname: '/user/login',
+          search: stringify({
+            redirect: window.location.href,
+          }),
         });
       }
     },
-    // *logout(_, { put }) {
-    //   const { redirect } = getPageQuery();
-    //   localStorage.removeItem('token')
-    //   router.push('/user/login')
-    // },
   },
 
   reducers: {
