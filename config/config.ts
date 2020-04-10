@@ -34,6 +34,7 @@ export default defineConfig({
   routes: [
     {
       path: '/user',
+      component: '../layouts/UserLayout',
       routes: [
         {
           name: 'login',
@@ -118,21 +119,33 @@ export default defineConfig({
                   ],
                 },
                 {
-                  path: '/informationManagement/articleManagement/bannerManagement',
-                  name: 'bannerManagement',
+                  path: '/informationManagement/bannerManagement',
                   routes: [
                     {
-                      name: 'bannerList',
-                      path: '/informationManagement/articleManagement/bannerManagement/bannerList',
-                      component: './informationManagement/articleManagement/bannerManagement/bannerList',
+                      name: 'fineArticleList',
+                      path: '/informationManagement/bannerManagement/bannerList',
+                      component: './informationManagement/articleManagement/bannerList',
                     },
+                  ],
+                },
+                {
+                  path: '/informationManagement/classifyToManage',
+                  routes: [
                     {
-                      name: 'addBanner',
-                      path: '/informationManagement/articleManagement/bannerManagement/addBanner',
-                      component: './informationManagement/articleManagement/bannerManagement/addBanner',
-                    }
-
-                    ,
+                      name: 'classifyList',
+                      path: '/informationManagement/classifyToManage/classifyList',
+                      component: './informationManagement/classifyToManage/classifyList',
+                    },
+                  ],
+                },
+                {
+                  path: '/informationManagement/roleManagement',
+                  routes: [
+                    {
+                      name: 'roleList',
+                      path: '/informationManagement/roleManagement/roleList',
+                      component: './informationManagement/roleManagement/roleList',
+                    },
                   ],
                 },
               ],
