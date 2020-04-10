@@ -51,7 +51,7 @@ const errorHandler = (error: { response: Response }): Response => {
 };
 
 /**
- * 配置request请求时的默认参数
+ * 配置request请求时的默认参数  
  */
 const request = extend({
   errorHandler, // 默认错误处理
