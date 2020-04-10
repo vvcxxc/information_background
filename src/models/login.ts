@@ -2,8 +2,7 @@ import { stringify } from 'querystring';
 import { history, Reducer, Effect } from 'umi';
 import { fakeAccountLogin } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
-import { getPageQuery } from '@/utils/utils';
-
+import { notification } from 'antd';
 import configs from '../../env';
 export interface StateType {
   status?: 'ok' | 'error';
