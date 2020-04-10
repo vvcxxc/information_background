@@ -5,7 +5,6 @@ import styles from './index.less';
 import BraftEditor from 'braft-editor'
 import { ContentUtils } from 'braft-utils'
 import { ImageUtils } from 'braft-finder'
-import 'braft-editor/dist/index.css'
 import request from '@/utils/request';
 
 export default class AddArticle extends React.Component {
