@@ -52,13 +52,14 @@ const UserModel: UserModelType = {
       const response = yield call(queryCurrent);
       yield put({
         type: 'saveCurrentUser',
-        payload: response,
+        payload: response.data,
       });
     },
   },
 
   reducers: {
     saveCurrentUser(state, action) {
+      console.log(action,'222')
       return {
         ...state,
         currentUser: action.payload || {},

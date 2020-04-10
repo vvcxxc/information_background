@@ -34,7 +34,6 @@ export default defineConfig({
   routes: [
     {
       path: '/user',
-      component: '../layouts/UserLayout',
       routes: [
         {
           name: 'login',
@@ -108,7 +107,7 @@ export default defineConfig({
                     {
                       name: 'fineArticleList',
                       path: '/informationManagement/bannerManagement/bannerList',
-                      component: './informationManagement/articleManagement/bannerList',
+                      component: './informationManagement/articleManagement/bannerManagement/bannerList',
                     },
                   ],
                 },
