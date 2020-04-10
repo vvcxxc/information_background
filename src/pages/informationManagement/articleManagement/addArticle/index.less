@@ -1,6 +1,7 @@
 .addArticle {
     width: 100%;
-    height: 100vh;
+    height: auto;
+    min-height: 100vh;
     background: #fff;
     padding: 30px;
     box-sizing: border-box;
@@ -10,29 +11,144 @@
         height: auto;
         display: flex;
         flex-direction: row;
+        align-items: center;
         justify-content: flex-start;
-        align-items: flex-start;
+        margin-bottom: 25px;
 
         .titleWords {
-            font-weight: 400;
-            font-style: normal;
-            font-size: 13px;
-            color: #333333;
-            text-align: left;
-            width: 85px;
+            width: 100px;
+            height: 20px;
+            font-size: 20px;
             line-height: 1;
+            text-align: left;
         }
 
-        .titleInput {
-            width: 460px;
+        .titleInputLong {
+            width: 450px;
             height: 30px;
-            border: 1px solid #a9a9a9;
+            border: solid 1px #ccc;
+            padding-left: 5px;
+            line-height: 30px;
+            font-size: 16px;
+        }
+
+        .titleInputShort {
+            width: 200px;
+            height: 30px;
+            border: solid 1px #ccc;
+            padding-left: 5px;
+            line-height: 30px;
+            font-size: 16px;
+        }
+
+        .titleIsBox {
+            width: 200px;
+            height: 30px;
+        }
+
+        .titleDate {
+            width: 200px;
+            height: 30px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
         }
     }
 
-    .articleArea {
-        width: 800px;
-        height: 500px;
-        border: 2px solid #a9a9a9;
+    .StartBox {
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        margin-bottom: 25px;
+
+        .startWords {
+            width: 100px;
+            height: 20px;
+            font-size: 20px;
+            line-height: 1;
+            text-align: left;
+        }
+
+        .startWordsUnder {
+            width: 100px;
+            height: 30px;
+            padding-top: 10px;
+            font-size: 20px;
+            line-height: 1;
+            text-align: left;
+        }
+
+        .startInputFiles {
+            width: auto;
+            height: 130px;
+        }
+
+        .startChooseBox {
+            width: 550px;
+            height: 70px;
+
+            .chooseContent {
+                width: 100%;
+                height: 30px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+                margin-bottom: 10px;
+
+                .chooseRadio {
+                    margin-right: 15px;
+                }
+
+                .chooseSelect {
+                    width: 300px;
+                    height: 30px;
+                    margin-right: 20px;
+
+                    .chooseSelectItem {
+                        width: 300px;
+                        height: 25px;
+                    }
+                }
+
+                .chooseSelectInput {
+                    width: 150px;
+                    height: 30px;
+                    border: solid 1px #ccc;
+                    padding-left: 5px;
+                    line-height: 30px;
+                    font-size: 16px;
+                }
+            }
+        }
+
+        .startArticle {
+            width: 650px;
+            height: auto;
+            border: solid 1px #ccc;
+        }
+    }
+
+    .btnBox {
+        width: 100%;
+        height: auto;
+        padding-left: 100px;
+        box-sizing: border-box;
+
+        .btnIcon {
+            width: 90px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #a6c7ff;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #fff;
+        }
     }
 }
