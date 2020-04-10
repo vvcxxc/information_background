@@ -34,7 +34,6 @@ const errorHandler = (error: { response: Response }): Response => {
   if (response && response.status) {
     const errorText = codeMessage[response.status] || response.statusText;
     const { status, url } = response;
-
     notification.error({
       message: `请求错误 ${status}: ${url}`,
       description: errorText,
@@ -61,7 +60,7 @@ const request = extend({
 
 // request拦截器, 改变url 或 options.
 request.interceptors.request.use((url, options) => {
-  const API = configs[process.env.API_ENV].API || 'http://test.platform_admin_api.tdianyi.com';
+  const API = configs[process.env.API_ENV].API || 'http://test.api.counsel_terrace.tdianyi.com';
   const token = localStorage.getItem('token');
   let Url = '';
   if (url.includes('http')) {
