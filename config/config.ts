@@ -102,12 +102,12 @@ export default defineConfig({
                   ],
                 },
                 {
-                  path: '/informationManagement/bannerManagement',
+                  path: '/informationManagement/articleManagement/bannerManagement',
                   routes: [
                     {
                       name: 'fineArticleList',
-                      path: '/informationManagement/bannerManagement/bannerList',
-                      component: './informationManagement/articleManagement/bannerList',
+                      path: '/informationManagement/articleManagement/bannerManagement/bannerList',
+                      component: './informationManagement/articleManagement/bannerManagement/bannerList',
                     },
                   ],
                 },
