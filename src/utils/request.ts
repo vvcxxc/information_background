@@ -60,7 +60,6 @@ const request = extend({
 
 // request拦截器, 改变url 或 options.
 request.interceptors.request.use((url, options) => {
-  console.log(process.env.API_ENV)
   const API = configs[process.env.API_ENV].API || 'http://test.api.counsel_terrace.tdianyi.com';
   // const API = 'http://test.api.counsel_terrace.tdianyi.com';
   const token = localStorage.getItem('token');

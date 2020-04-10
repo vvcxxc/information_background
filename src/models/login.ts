@@ -3,7 +3,6 @@ import { history, Reducer, Effect } from 'umi';
 import { fakeAccountLogin } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
 import { notification } from 'antd';
-import configs from '../../env';
 export interface StateType {
   status?: 'ok' | 'error';
   type?: string;
@@ -31,9 +30,7 @@ const Model: LoginModelType = {
 
   effects: {
     *login({ payload }, { call, put }) {
-      console.log(payload)
       const res = yield call(fakeAccountLogin, payload)
-      console.log(43523)
       if(res.data){
         localStorage.setItem('token',`${res.data.token_type} ${res.data.access_token}`)
         // yield put({
@@ -50,6 +47,10 @@ const Model: LoginModelType = {
         });
       }
     },
+    logout() {
+      history.push('/user/login')
+      localStorage.removeItem('token')
+    }
   },
 
   reducers: {
