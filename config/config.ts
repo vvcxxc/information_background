@@ -89,22 +89,6 @@ export default defineConfig({
                       path: '/informationManagement/articleManagement/articleList',
                       component: './informationManagement/articleManagement/articleList',
                     },
-                  ],
-                },
-                {
-                  path: '/informationManagement/finearticleManagement',
-                  routes: [
-                    {
-                      name: 'fineArticleList',
-                      path: '/informationManagement/finearticleManagement/fineArticleList',
-                      component: './informationManagement/articleManagement/fineArticleList',
-                    },
-                  ],
-                },
-                {
-                  path: '/informationManagement/articleManagement/bannerManagement',
-                  name: 'bannerManagement',
-                  routes: [
                     {
                       name: 'bannerList',
                       path: '/informationManagement/articleManagement/bannerManagement/bannerList',
@@ -115,8 +99,16 @@ export default defineConfig({
                       path: '/informationManagement/articleManagement/bannerManagement/addBanner',
                       component: './informationManagement/articleManagement/bannerManagement/addBanner',
                     }
-
-                    ,
+                  ],
+                },
+                {
+                  path: '/informationManagement/finearticleManagement',
+                  routes: [
+                    {
+                      name: 'fineArticleList',
+                      path: '/informationManagement/finearticleManagement/fineArticleList',
+                      component: './informationManagement/articleManagement/fineArticleList',
+                    },
                   ],
                 },
               ],
