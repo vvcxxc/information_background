@@ -36,13 +36,13 @@ const Model: LoginModelType = {
       const res = yield call(fakeAccountLogin, payload)
       if(res.data){
         localStorage.setItem('token',`${res.data.token_type} ${res.data.access_token}`)
-        yield put({
-          type: 'user/saveCurrentUser',
-          payload:{
-            name: payload.username,
-            avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-          }
-        })
+        // yield put({
+        //   type: 'user/saveCurrentUser',
+        //   payload:{
+        //     name: payload.username,
+        //     avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+        //   }
+        // })
         history.push('/informationManagement/articleManagement/articleList')
       }else{
         notification.error({

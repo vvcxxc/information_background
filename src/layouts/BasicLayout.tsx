@@ -100,7 +100,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
               name: '精品文章管理',
             },
             {
-              path: '/informationManagement/bannerManagement/bannerList',
+              path: '/informationManagement/articleManagement/bannerManagement/bannerList',
               name: 'banner管理',
             },
           ],
