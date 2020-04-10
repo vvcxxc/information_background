@@ -1,11 +1,10 @@
-import { Reducer } from 'redux';
-import { Effect } from 'dva';
-import { notification } from 'antd';
+import { stringify } from 'querystring';
+import { history, Reducer, Effect } from 'umi';
 import { fakeAccountLogin } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
-import { history } from 'umi';
 
+import configs from '../../env';
 export interface StateType {
   status?: 'ok' | 'error';
   type?: string;
@@ -17,6 +16,7 @@ export interface LoginModelType {
   state: StateType;
   effects: {
     login: Effect;
+    logout: Effect;
   };
   reducers: {
     changeLoginStatus: Reducer<StateType>;
@@ -34,15 +34,16 @@ const Model: LoginModelType = {
     *login({ payload }, { call, put }) {
       console.log(payload)
       const res = yield call(fakeAccountLogin, payload)
+      console.log(43523)
       if(res.data){
         localStorage.setItem('token',`${res.data.token_type} ${res.data.access_token}`)
-        yield put({
-          type: 'user/saveCurrentUser',
-          payload:{
-            name: payload.username,
-            avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-          }
-        })
+        // yield put({
+        //   type: 'user/saveCurrentUser',
+        //   payload:{
+        //     name: payload.username,
+        //     avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+        //   }
+        // })
         history.push('/informationManagement/articleManagement/articleList')
       }else{
         notification.error({
@@ -50,11 +51,6 @@ const Model: LoginModelType = {
         });
       }
     },
-    // *logout(_, { put }) {
-    //   const { redirect } = getPageQuery();
-    //   localStorage.removeItem('token')
-    //   router.push('/user/login')
-    // },
   },
 
   reducers: {
