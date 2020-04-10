@@ -34,6 +34,7 @@ const Model: LoginModelType = {
     *login({ payload }, { call, put }) {
       console.log(payload)
       const res = yield call(fakeAccountLogin, payload)
+      console.log(43523)
       if(res.data){
         localStorage.setItem('token',`${res.data.token_type} ${res.data.access_token}`)
         // yield put({
