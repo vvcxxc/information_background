@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Input, Button, Select } from 'antd';
+import { Table, Row, Col, Input, Button, Select, Divider } from 'antd';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
+import { getListData, getArticleCategory } from './http';
+import styles from './index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -19,9 +21,45 @@ export default Form.create()(
       state = {
         loading: false,
         total: 0,
+        dataList: [],
+        articleCategoryList: []
       };
 
-      componentDidMount() {}
+      componentDidMount() {
+        const {
+          articleTitle,
+          publishAuthor,
+          publishStatus,
+          articleCategory,
+          currentPage,
+          currentPageSize,
+        } = this.props.articleList;
+        this.requestListData(articleTitle,publishAuthor,publishStatus,articleCategory,currentPage,currentPageSize);
+
+        this.requestArticleCategory();
+      }
+
+
+      requestListData = async (article_title: any, article_author: any, is_show: any, category_id: any, page: any, per_page: any) => {
+        await this.setState({
+          loading: true
+        })
+        getListData(article_title, article_author, is_show, category_id, page, per_page).then((res: any) => {
+          this.setState({
+            dataList: res.data,
+            loading: false,
+            total: res.meta.pagination.total
+          })
+        })
+      }
+
+      requestArticleCategory = () => {
+        getArticleCategory().then((res: any) => {
+          this.setState({
+            articleCategoryList: res.data
+          })
+        })
+      }
 
       /**
        * 查询
@@ -40,9 +78,10 @@ export default Form.create()(
             articleCategory,
           },
         });
+        // console.log(this.props);
 
-        // const { currentPage, currentPageSize } = this.props.articleList;
-        // this.getListData(articleTitle, publishAuthor, publishStatus, articleCategory,currentPage, currentPageSize);
+        const { currentPage, currentPageSize } = this.props.articleList;
+        this.requestListData(articleTitle, publishAuthor, publishStatus, articleCategory, currentPage, currentPageSize);
       };
 
       /**
@@ -60,61 +99,93 @@ export default Form.create()(
       /**
        * 表格改变
        */
-      handleChange = async () => {};
+      handleChange = async (pagination: any) => {
+        await this.props.dispatch({
+          type: 'articleList/setPaginationCurrent',
+          payload: {
+            currentPage: pagination.current,
+            currentPageSize: pagination.pageSize,
+          },
+        });
+
+        const { currentPage, currentPageSize } = this.props.articleList;
+        let articleTitle = this.props.form.getFieldValue('articleTitle');
+        let publishAuthor = this.props.form.getFieldValue('publishAuthor');
+        let publishStatus = this.props.form.getFieldValue('publishStatus');
+        let articleCategory = this.props.form.getFieldValue('articleCategory');
+        this.requestListData(articleTitle, publishAuthor, publishStatus, articleCategory, currentPage, currentPageSize);
+      };
 
       render() {
         const columns = [
           {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            render: (text) => <a>{text}</a>,
+            title: '编号',
+            dataIndex: 'id',
+            key: 'id',
           },
           {
-            title: 'Age',
-            dataIndex: 'age',
-            key: 'age',
+            title: '文章标题',
+            dataIndex: 'article_title',
+            key: 'article_title',
           },
           {
-            title: 'Address',
-            dataIndex: 'address',
-            key: 'address',
+            title: '发布作者',
+            dataIndex: 'article_author',
+            key: 'article_author',
+          },
+          {
+            title: '标题图片',
+            dataIndex: 'author_cover',
+            key: 'author_cover',
+            render: (text: any, record: any) => (
+              <img className={styles.img_cover} src={record.author_cover} alt="" />
+            )
+          },
+          {
+            title: '发布状态',
+            dataIndex: 'is_show',
+            key: 'is_show',
+
+          },
+          {
+            title: '发布时间',
+            dataIndex: 'publish_time',
+            key: 'publish_time',
+          },
+          {
+            title: '阅读量',
+            dataIndex: 'read_num',
+            key: 'read_num',
+          },
+          {
+            title: '所属分类',
+            dataIndex: 'category_name',
+            key: 'category_name',
+            render: (text: any, record: any) => {
+              return record.data_category.map((item: any) => (
+                <span>{item.category.category_name}，</span>
+              )
+              )
+            }
           },
           {
             title: 'Action',
             key: 'action',
-            render: (text, record) => (
+            render: (text: any, record: any) => (
               <span>
-                <a style={{ marginRight: 16 }}>Invite {record.name}</a>
-                <a>Delete</a>
+                <a>查看</a>
+                <Divider type="vertical" />
+                <a>下架</a>
+                <Divider type="vertical" />
+                <a>编辑</a>
+                <Divider type="vertical" />
+                <a>删除</a>
               </span>
             ),
           },
         ];
 
-        const data = [
-          {
-            key: '1',
-            name: 'John Brown',
-            age: 32,
-            address: 'New York No. 1 Lake Park',
-            tags: ['nice', 'developer'],
-          },
-          {
-            key: '2',
-            name: 'Jim Green',
-            age: 42,
-            address: 'London No. 1 Lake Park',
-            tags: ['loser'],
-          },
-          {
-            key: '3',
-            name: 'Joe Black',
-            age: 32,
-            address: 'Sidney No. 1 Lake Park',
-            tags: ['cool', 'teacher'],
-          },
-        ];
+
         const {
           form: { getFieldDecorator },
         } = this.props;
@@ -128,9 +199,9 @@ export default Form.create()(
           currentPageSize,
         } = this.props.articleList;
 
-        const { loading, total } = this.state;
+        const { loading, total, dataList, articleCategoryList } = this.state;
         return (
-          <div>
+          <div className={styles.article_list}>
             <Form>
               <Row
                 gutter={{
@@ -170,8 +241,8 @@ export default Form.create()(
                           width: '100%',
                         }}
                       >
-                        <Option value="0">已发布</Option>
-                        <Option value="1">未发布</Option>
+                        <Option value="1">已发布</Option>
+                        <Option value="0">未发布</Option>
                       </Select>,
                     )}
                   </FormItem>
@@ -185,8 +256,11 @@ export default Form.create()(
                           width: '100%',
                         }}
                       >
-                        <Option value="0">创客</Option>
-                        <Option value="1">会长</Option>
+                        {
+                          articleCategoryList.map((item: any) => (
+                            <option value={item.id}>{item.category_name}</option>
+                          ))
+                        }
                       </Select>,
                     )}
                   </FormItem>
@@ -210,7 +284,7 @@ export default Form.create()(
             </Form>
             <Table
               columns={columns}
-              dataSource={data}
+              dataSource={dataList}
               loading={loading}
               onChange={this.handleChange}
               pagination={{
