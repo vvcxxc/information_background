@@ -96,7 +96,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
               name: '文章列表',
             },
             {
-              path: '/informationManagement/finearticleManagement/fineArticleList',
+              path: '/informationManagement/articleManagement/fineArticleList',
               name: '精品文章管理',
             },
             {

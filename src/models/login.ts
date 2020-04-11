@@ -1,11 +1,8 @@
-import { Reducer } from 'redux';
-import { Effect } from 'dva';
-import { notification } from 'antd';
+import { stringify } from 'querystring';
+import { history, Reducer, Effect } from 'umi';
 import { fakeAccountLogin } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
-import { getPageQuery } from '@/utils/utils';
-import { history } from 'umi';
-
+import { notification } from 'antd';
 export interface StateType {
   status?: 'ok' | 'error';
   type?: string;
@@ -17,6 +14,7 @@ export interface LoginModelType {
   state: StateType;
   effects: {
     login: Effect;
+    logout: Effect;
   };
   reducers: {
     changeLoginStatus: Reducer<StateType>;
@@ -32,7 +30,6 @@ const Model: LoginModelType = {
 
   effects: {
     *login({ payload }, { call, put }) {
-      console.log(payload)
       const res = yield call(fakeAccountLogin, payload)
       if(res.data){
         localStorage.setItem('token',`${res.data.token_type} ${res.data.access_token}`)
@@ -50,11 +47,10 @@ const Model: LoginModelType = {
         });
       }
     },
-    // *logout(_, { put }) {
-    //   const { redirect } = getPageQuery();
-    //   localStorage.removeItem('token')
-    //   router.push('/user/login')
-    // },
+    logout() {
+      history.push('/user/login')
+      localStorage.removeItem('token')
+    }
   },
 
   reducers: {
