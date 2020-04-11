@@ -6,6 +6,17 @@ import request from '@/utils/request';
 export async function getTerraceRole(data: object) {
     return request('/admin/common/getTerraceRole', {
         method: 'GET',
-        data,
+        params: data,
     });
 }
+
+/**
+*  添加文章
+*/
+export async function addArticle(data: object) {
+    return request('/admin/article', {
+        method: 'POST',
+        params: data,
+    });
+}
+

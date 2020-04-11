@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Checkbox, Select, Radio, DatePicker, Upload } from 'antd';
+import { Checkbox, Select, Radio, DatePicker, TimePicker, Upload, notification, Spin } from 'antd';
 import { PictureOutlined } from '@ant-design/icons';
 import styles from './index.less';
 import BraftEditor from 'braft-editor';
@@ -7,11 +7,31 @@ import { ContentUtils } from 'braft-utils';
 import { ImageUtils } from 'braft-finder';
 import 'braft-editor/dist/index.css';
 import request from '@/utils/request';
-import { getTerraceRole } from './service';
+import moment from 'moment';
+import 'moment/locale/zh-cn';
+import { getTerraceRole, addArticle } from './service';
 export default class AddArticle extends React.Component {
 
     state = {
-        pageType: 1,//1发布2编辑
+        showLoading: false,
+        classList: [
+            {
+                id: 0,
+                role_name: "",
+                selectCheck: false,//分类选择框
+                selectValue: '',//分类下拉框文章分类id //article_category[i].id
+                inputNum: 0,//分类输入框数字排序
+                qualityCheck: false,
+                qualityInputNum: 0,
+                article_category: [
+                    {
+                        id: 0,
+                        terrace_id: 0,
+                        terrace_role_id: 0,
+                    }
+                ]
+            }
+        ],
         title: '',//标题
         auth: '',//作者
         classHuizhangNum: '',//排序分类会长
@@ -19,15 +39,11 @@ export default class AddArticle extends React.Component {
         qualityHuizhangNum: '',//排序精品会长
         qualityChuangkeNum: '',//排序精品创客
         readNum: '',//阅读数
-        classHuizhang: false,//分类会长勾选
-        selectClassHuizhang: '',//分类会长下拉
-        classChuangke: false,//分类创客勾选
-        selectClassChuangke: '',//分类创客下拉
-        qualityHuizhang: false,//精品会长勾选
-        qualityChuangke: false,//精品创客勾选
+
         isShelvesValue: 1,//上架1是2否
         editorState: BraftEditor.createEditorState(null), // 创建一个空的editorState作为初始值
         dateString: '',//发布日期
+        timeString: '',//发布日期时间
         titleFileList: [],//封面图数组
         titleFileImg: '',//封面图地址
         articleFileList: []//文章图数组
@@ -44,8 +60,9 @@ export default class AddArticle extends React.Component {
 
         getTerraceRole({ terrace_id: 1, is_category: true })
             .then((res: any) => {
-                console.log('res', res)
+                if (res.data && res.data.length) { this.setState({ classList: res.data }) }
             })
+            .catch(err => this.showMessage('请求失败', '请求角色分类失败'))
         // 假设此处从服务端获取html格式的编辑器内容
         // const htmlContent = await fetchEditorContent()
         // 使用BraftEditor.createEditorState将html字符串转换为编辑器需要的editorStat
@@ -57,33 +74,44 @@ export default class AddArticle extends React.Component {
     editorInput = (type: any, e: any) => {
         this.setState({ [type]: e.target.value })
     }
-    //分类会长选择
-    onChangeClassHuizhang = (e: any) => {
-        this.setState({ classHuizhang: e.target.checked })
+    //分类选择
+    onChangeClassHuizhang = (num: any, e: any) => {
+        let classList = this.state.classList;
+        classList[num].selectCheck = e.target.checked
+        this.setState({ classList })
     }
-    //分类会长下拉
-    selectClassHuizhang = (value: any) => {
-        this.setState({ selectClassHuizhang: value })
+
+    //分类下拉
+    selectClassHuizhang = (num: any, value: any) => {
+        let classList = this.state.classList;
+        classList[num].selectValue = value;
+        this.setState({ classList })
     }
-    //分类创客选择
-    onChangeClassChuangke = (e: any) => {
-        this.setState({ classChuangke: e.target.checked })
+
+    //分类输入数字排序
+    editorInputNum = (num: any, e: any) => {
+        let classList = this.state.classList;
+        classList[num].inputNum = e.target.value;
+        this.setState({ classList })
     }
-    //分类创客下拉
-    selectClassChuangke = (value: any) => {
-        this.setState({ selectClassChuangke: value })
+    //精品选择
+    onChangeQualityHuizhang = (num: any, e: any) => {
+        let classList = this.state.classList;
+        classList[num].qualityCheck = e.target.checked;
+        this.setState({ classList })
     }
-    //精品会长选择
-    onChangeQualityHuizhang = (e: any) => {
-        this.setState({ qualityHuizhang: e.target.checked })
-    }
-    //精品创客选择
-    onChangeQualityChuangke = (e: any) => {
-        this.setState({ qualityChuangke: e.target.checked })
+    //精品输入数字排序
+    editorInputQualityNum = (num: any, e: any) => {
+        let classList = this.state.classList;
+        classList[num].qualityInputNum = e.target.value;
+        this.setState({ classList })
     }
     //日期
     onChangeDate = (date: any, dateString: any) => {
         this.setState({ dateString })
+    }
+    onChangeTime = (time: any, timeString: any) => {
+        this.setState({ timeString: timeString })
     }
     //是否上架
     onChangeShelvesValue = (e: any) => {
@@ -121,9 +149,10 @@ export default class AddArticle extends React.Component {
     }
     //标题图片
     titleImageChange = (info: any) => {
+        this.setState({ showLoading: true });
         let fileList = [...info.fileList];
         if (info.file.status === 'done') {
-            this.setState({ titleFileList: fileList, titleFileImg: info.file.response.data.path })
+            this.setState({ titleFileList: fileList, titleFileImg: info.file.response.data.path, showLoading: false })
         }
         this.setState({ titleFileList: fileList })
     };
@@ -145,17 +174,74 @@ export default class AddArticle extends React.Component {
     articleChange = (editorState: any) => {
         this.setState({ editorState })
     }
+    showMessage = (message: string, description: string) => {
+        notification.open({
+            message,
+            description
+        });
+    }
     //提交
     submitContent = async () => {
-        const { title, auth, classHuizhangNum, classChuangkeNum, qualityHuizhangNum, qualityChuangkeNum, readNum, classHuizhang, selectClassHuizhang, classChuangke, selectClassChuangke, qualityHuizhang, qualityChuangke, isShelvesValue, editorState, dateString, titleFileImg } = this.state;
-        console.log(this.state)
-        const htmlContent = this.state.editorState.toHTML()
-        // const result = await saveEditorContent(htmlContent)
+        if (!this.state.title) {
+            this.showMessage('发布失败', '请填写标题')
+            return;
+        }
+        if (!this.state.auth) {
+            this.showMessage('发布失败', '请填写作者')
+            return;
+        }
+        if (!this.state.titleFileImg) {
+            this.showMessage('发布失败', '请上传标题图片')
+            return;
+        }
+        if (!this.state.dateString || !this.state.timeString) {
+            this.showMessage('发布失败', '请上选择发布时间')
+            return;
+        }
+        let classList = this.state.classList;
+        let data_category = [], data_role = [];
+        for (let i in classList) {
+            classList[i].selectCheck && data_category.push({ category_id: classList[i].selectValue, data_category: classList[i].inputNum ? classList[i].inputNum : '0' })
+            classList[i].qualityCheck && data_role.push({ role_id: classList[i].id, rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0' })
+        }
+        if (!data_role.length) {
+            this.showMessage('发布失败', '请选择文章分类')
+            return;
+        }
+        if (!data_role.length) {
+            this.showMessage('发布失败', '请选择精品设置')
+            return;
+        }
+        this.setState({ showLoading: true });
+        let data = {
+            terrace_id: 1,//平台id
+            article_title: this.state.title,
+            article_author: this.state.auth,
+            author_cover: this.state.titleFileImg,
+            content: this.state.editorState.toHTML(),
+            publish_time: this.state.dateString + ' ' + this.state.timeString,
+            read_num: this.state.readNum,
+            data_category: JSON.stringify(data_category),
+            data_role: JSON.stringify(data_role),
+            is_show: this.state.isShelvesValue == 1 ? 1 : 0,
+        }
+        addArticle(data)
+            .then((res: any) => {
+                this.setState({ showLoading: false });
+                if (res.code == 200) {
+                    console.log('susccess')
+                } else {
+                    notification.open({
+                        message: '发布失败',
+                        description: res.message,
+                    });
+                }
+            }).catch(err => this.setState({ showLoading: false }))
     }
 
     render() {
         const { Option } = Select;
-        const { editorState } = this.state
+        const { editorState, classList } = this.state
         const controls = ['bold', 'italic', 'underline', 'text-color', 'separator', 'link', 'separator']
         const extendControls = [
             {
@@ -179,6 +265,10 @@ export default class AddArticle extends React.Component {
         ]
         return (
             <div className={styles.addArticle}>
+                {
+                    this.state.showLoading ? <div className={styles.loadingBox} ><Spin /></div> : null
+                }
+
                 <div className={styles.titleBox}>
                     <div className={styles.titleWords}>文章标题</div>
                     <input className={styles.titleInputLong} maxLength={30} type="text" placeholder="请输入文章标题" onChange={this.editorInput.bind(this, 'title')} />
@@ -208,40 +298,40 @@ export default class AddArticle extends React.Component {
                 <div className={styles.StartBox}>
                     <div className={styles.startWordsUnder}>文章分类</div>
                     <div className={styles.startChooseBox}>
-
-                        <div className={styles.chooseContent}>
-                            <Checkbox className={styles.chooseRadio} onChange={this.onChangeClassHuizhang}>会长</Checkbox>
-                            <div className={styles.chooseSelect} style={{ display: this.state.classHuizhang ? 'block' : 'none' }}>
-                                <Select className={styles.chooseSelectItem} onChange={this.selectClassHuizhang}>
-                                    <Option value="jack">Jack</Option>
-                                    <Option value="lucy">Lucy</Option>
-                                </Select>
-                            </div>
-                            <input style={{ display: this.state.classHuizhang ? 'block' : 'none' }} className={styles.chooseSelectInput} type="number" placeholder="输入数字排序" onChange={this.editorInput.bind(this, 'classHuizhangNum')} />
-                        </div>
-                        <div className={styles.chooseContent}>
-                            <Checkbox className={styles.chooseRadio} onChange={this.onChangeClassChuangke}>创客</Checkbox>
-                            <div className={styles.chooseSelect} style={{ display: this.state.classChuangke ? 'block' : 'none' }}>
-                                <Select className={styles.chooseSelectItem} onChange={this.selectClassChuangke}>
-                                    <Option value="jack">Jack</Option>
-                                    <Option value="lucy">Lucy</Option>
-                                </Select>
-                            </div>
-                            <input style={{ display: this.state.classChuangke ? 'block' : 'none' }} className={styles.chooseSelectInput} type="number" placeholder="输入数字排序" onChange={this.editorInput.bind(this, 'classChuangkeNum')} />
-                        </div>
+                        {
+                            classList.map((item: any, index: any) => {
+                                return (
+                                    <div className={styles.chooseContent} key={item.id}>
+                                        <Checkbox className={styles.chooseRadio} onChange={this.onChangeClassHuizhang.bind(this, index)}>{item.role_name}</Checkbox>
+                                        <div className={styles.chooseSelect} style={{ display: item.selectCheck ? 'block' : 'none' }}>
+                                            <Select className={styles.chooseSelectItem} onChange={this.selectClassHuizhang.bind(this, index)}>
+                                                {
+                                                    item.article_category.map((item2: any, index: any) => {
+                                                        return (<Option value={item2.id} key={item2.id}>{item2.category_name}</Option>)
+                                                    })
+                                                }
+                                            </Select>
+                                        </div>
+                                        <input style={{ display: item.selectCheck ? 'block' : 'none' }} className={styles.chooseSelectInput} type="number" placeholder="输入数字排序" onChange={this.editorInputNum.bind(this, index)} defaultValue='0' />
+                                    </div>
+                                )
+                            })
+                        }
                     </div>
                 </div>
                 <div className={styles.StartBox}>
                     <div className={styles.startWordsUnder}>精品设置</div>
                     <div className={styles.startChooseBox}>
-                        <div className={styles.chooseContent}>
-                            <Checkbox className={styles.chooseRadio} onChange={this.onChangeQualityHuizhang}>会长</Checkbox>
-                            <input style={{ display: this.state.qualityHuizhang ? 'block' : 'none' }} className={styles.chooseSelectInput} type="number" placeholder="输入数字排序" onChange={this.editorInput.bind(this, 'qualityHuizhangNum')} />
-                        </div>
-                        <div className={styles.chooseContent}>
-                            <Checkbox className={styles.chooseRadio} onChange={this.onChangeQualityChuangke}>创客</Checkbox>
-                            <input style={{ display: this.state.qualityChuangke ? 'block' : 'none' }} className={styles.chooseSelectInput} type="number" placeholder="输入数字排序" onChange={this.editorInput.bind(this, 'qualityChuangkeNum')} />
-                        </div>
+                        {
+                            classList.map((item: any, index: any) => {
+                                return (
+                                    <div className={styles.chooseContent} key={item.id}>
+                                        <Checkbox className={styles.chooseRadio} onChange={this.onChangeQualityHuizhang.bind(this, index)}>{item.role_name}</Checkbox>
+                                        <input style={{ display: item.qualityCheck ? 'block' : 'none' }} className={styles.chooseSelectInput} type="number" placeholder="输入数字排序" onChange={this.editorInputQualityNum.bind(this, index)} defaultValue='0' />
+                                    </div>
+                                )
+                            })
+                        }
                     </div>
                 </div>
                 <div className={styles.titleBox}>
@@ -266,18 +356,17 @@ export default class AddArticle extends React.Component {
                 </div>
                 <div className={styles.titleBox}>
                     <div className={styles.titleWords}>阅读人数</div>
-                    <input className={styles.titleInputShort} type="number" placeholder="阅读人数（选填）" onChange={this.editorInput.bind(this, 'readNum')} />
+                    <input className={styles.titleInputShort} type="number" placeholder="阅读人数" onChange={this.editorInput.bind(this, 'readNum')} />
                 </div>
                 <div className={styles.titleBox}>
                     <div className={styles.titleWords}>发布日期</div>
                     <div className={styles.titleDate} >
-                        <DatePicker onChange={this.onChangeDate} placeholder="发布日期（选填）" />
+                        <DatePicker onChange={this.onChangeDate} placeholder="发布日期" />
+                        <TimePicker onChange={this.onChangeTime} placeholder="发布时间" defaultOpenValue={moment('00-00-00', 'HH-mm-ss')} />
                     </div>
                 </div>
                 <div className={styles.btnBox} onClick={this.submitContent}>
-                    {
-                        this.state.pageType == 2 ? <div className={styles.btnIcon}>确认修改</div> : <div className={styles.btnIcon}>文章上架</div>
-                    }
+                    <div className={styles.btnIcon}>文章上架</div>
                 </div>
             </div>
         )
