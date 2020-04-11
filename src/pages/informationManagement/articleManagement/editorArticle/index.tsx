@@ -6,13 +6,16 @@ import { PictureOutlined } from '@ant-design/icons';
 import styles from './index.less';
 import BraftEditor from 'braft-editor';
 import { ContentUtils } from 'braft-utils';
+import { ImageUtils } from 'braft-finder';
 import 'braft-editor/dist/index.css';
 import request from '@/utils/request';
-import { getTerraceRole, addArticle } from './service';
+import moment from 'moment';
+import { getTerraceRole, getArticle, editorArticle } from './service';
 export default class AddArticle extends React.Component {
 
     state = {
         showLoading: false,
+        articleId: 0,
         classList: [
             {
                 id: 0,
@@ -38,17 +41,20 @@ export default class AddArticle extends React.Component {
         qualityHuizhangNum: '',//排序精品会长
         qualityChuangkeNum: '',//排序精品创客
         readNum: '',//阅读数
-
         isShelvesValue: 1,//上架1是2否
         editorState: BraftEditor.createEditorState(null), // 创建一个空的editorState作为初始值
         dateString: '',//发布日期
         timeString: '',//发布日期时间
         titleFileList: [],//封面图数组
         titleFileImg: '',//封面图地址
-        articleFileList: []//文章图数组
+        articleFileList: [],//文章图数组
+
+
+        classId: []
     }
 
     async componentDidMount() {
+        let that = this;
         let data = localStorage.getItem('oss_data')
         if (!data) {
             request.get('http://release.api.supplier.tdianyi.com/api/v2/up').then(res => {
@@ -56,11 +62,48 @@ export default class AddArticle extends React.Component {
                 localStorage.setItem('oss_data', JSON.stringify(data))
             });
         }
+        this.setState({ showLoading: true })
         getTerraceRole({ terrace_id: 1, is_category: true })
             .then((res: any) => {
-                if (res.data && res.data.length) { this.setState({ classList: res.data }) }
+                let classList = res.data;
+                getArticle(1)//文章id
+                    .then((res: any) => {
+                        let { data_category, data_role, id, article_title, article_author, author_cover, is_show, read_num, content, publish_time } = res.data;
+                        for (let i in classList) {
+                            for (let j in data_category) {
+                                if (classList[i].id == data_category[j].terrace_role_id) {
+                                    classList[i].selectCheck = true;
+                                    classList[i].selectValue = data_category[j].category_id;
+                                    classList[i].inputNum = data_category[j].rank_order;
+                                }
+                            }
+                            for (let k in data_role) {
+                                if (classList[i].id == data_role[k].terrace_role_id) {
+                                    classList[i].qualityCheck = true;
+                                    classList[i].qualityInputNum = data_role[k].rank_order;
+                                }
+                            }
+                        }
+                        console.log(publish_time.split(' ')[0], publish_time.split(' ')[1])
+                        this.setState({
+                            classList, articleId: id, title: article_title, auth: article_author, readNum: read_num, titleFileImg: author_cover,
+                            isShelvesValue: is_show == 1 ? 1 : 0,
+                            editorState: BraftEditor.createEditorState(content),
+                            showLoading: false,
+                            dateString: publish_time.split(' ')[0],
+                            timeString: publish_time.split(' ')[1],
+                        })
+                    })
+                    .catch(err => {
+                        that.setState({ showLoading: false })
+                        that.showMessage('请求失败', '请求文章数据失败')
+                    }
+                    )
             })
-            .catch(err => this.showMessage('请求失败', '请求角色分类失败'))
+            .catch(err => {
+                that.setState({ showLoading: false })
+                that.showMessage('请求失败', '请求角色分类失败')
+            })
     }
     //输入框
     editorInput = (type: any, e: any) => {
@@ -217,12 +260,12 @@ export default class AddArticle extends React.Component {
             data_role: JSON.stringify(data_role),
             is_show: this.state.isShelvesValue == 1 ? 1 : 0,
         }
-        addArticle(data)
+        editorArticle(1, data)
             .then((res: any) => {
                 this.setState({ showLoading: false });
                 if (res.code == 200) {
                     notification.open({
-                        message: '发布成功',
+                        message: '编辑成功',
                         description: res.message,
                     });
                     setTimeout(() => {
@@ -230,7 +273,7 @@ export default class AddArticle extends React.Component {
                     }, 1500)
                 } else {
                     notification.open({
-                        message: '发布失败',
+                        message: '编辑失败',
                         description: res.message,
                     });
                 }
@@ -269,11 +312,11 @@ export default class AddArticle extends React.Component {
 
                 <div className={styles.titleBox}>
                     <div className={styles.titleWords}>文章标题</div>
-                    <input className={styles.titleInputLong} maxLength={30} type="text" placeholder="请输入文章标题" onChange={this.editorInput.bind(this, 'title')} />
+                    <input className={styles.titleInputLong} maxLength={30} type="text" placeholder="请输入文章标题" onChange={this.editorInput.bind(this, 'title')} defaultValue={this.state.title} />
                 </div>
                 <div className={styles.titleBox}>
                     <div className={styles.titleWords}>文章作者</div>
-                    <input className={styles.titleInputShort} maxLength={8} type="text" placeholder="请输入文章作者" onChange={this.editorInput.bind(this, 'auth')} />
+                    <input className={styles.titleInputShort} maxLength={8} type="text" placeholder="请输入文章作者" onChange={this.editorInput.bind(this, 'auth')} defaultValue={this.state.auth} />
                 </div>
                 <div className={styles.StartBox}>
                     <div className={styles.startWords}>标题图片</div>
@@ -285,7 +328,7 @@ export default class AddArticle extends React.Component {
                         action="http://tmwl.oss-cn-shenzhen.aliyuncs.com/"
                     >
                         {
-                            this.state.titleFileList.length >= 1 && this.state.titleFileImg ?
+                            this.state.titleFileImg ?
                                 <img className={styles.startInputFiles} src={"http://tmwl.oss-cn-shenzhen.aliyuncs.com/" + this.state.titleFileImg} />
                                 :
                                 <img className={styles.startInputFiles} src="http://tmwl.oss-cn-shenzhen.aliyuncs.com/front/TDki5ZsBBsk6QXd67sWnr6FDinKDTkJh.png" />
@@ -299,10 +342,11 @@ export default class AddArticle extends React.Component {
                         {
                             classList.map((item: any, index: any) => {
                                 return (
+
                                     <div className={styles.chooseContent} key={item.id}>
-                                        <Checkbox className={styles.chooseRadio} onChange={this.onChangeClassHuizhang.bind(this, index)}>{item.role_name}</Checkbox>
-                                        <div className={styles.chooseSelect} style={{ display: item.selectCheck ? 'block' : 'none' }}>
-                                            <Select className={styles.chooseSelectItem} onChange={this.selectClassHuizhang.bind(this, index)}>
+                                        <Checkbox className={styles.chooseRadio} onChange={this.onChangeClassHuizhang.bind(this, index)} checked={classList[index].selectCheck}>{item.role_name}</Checkbox>
+                                        <div className={styles.chooseSelect} style={{ display: item.selectCheck ? 'block' : 'none' }} >
+                                            <Select className={styles.chooseSelectItem} onChange={this.selectClassHuizhang.bind(this, index)} defaultValue={classList[index].selectValue}>
                                                 {
                                                     item.article_category.map((item2: any, index: any) => {
                                                         return (<Option value={item2.id} key={item2.id}>{item2.category_name}</Option>)
@@ -310,7 +354,7 @@ export default class AddArticle extends React.Component {
                                                 }
                                             </Select>
                                         </div>
-                                        <input style={{ display: item.selectCheck ? 'block' : 'none' }} className={styles.chooseSelectInput} type="number" placeholder="输入数字排序" onChange={this.editorInputNum.bind(this, index)} defaultValue='0' />
+                                        <input style={{ display: item.selectCheck ? 'block' : 'none' }} className={styles.chooseSelectInput} type="number" placeholder="输入数字排序" onChange={this.editorInputNum.bind(this, index)} defaultValue={classList[index].inputNum ? classList[index].inputNum : '0'} />
                                     </div>
                                 )
                             })
@@ -324,8 +368,8 @@ export default class AddArticle extends React.Component {
                             classList.map((item: any, index: any) => {
                                 return (
                                     <div className={styles.chooseContent} key={item.id}>
-                                        <Checkbox className={styles.chooseRadio} onChange={this.onChangeQualityHuizhang.bind(this, index)}>{item.role_name}</Checkbox>
-                                        <input style={{ display: item.qualityCheck ? 'block' : 'none' }} className={styles.chooseSelectInput} type="number" placeholder="输入数字排序" onChange={this.editorInputQualityNum.bind(this, index)} defaultValue='0' />
+                                        <Checkbox className={styles.chooseRadio} onChange={this.onChangeQualityHuizhang.bind(this, index)} checked={classList[index].qualityCheck}>{item.role_name}</Checkbox>
+                                        <input style={{ display: item.qualityCheck ? 'block' : 'none' }} className={styles.chooseSelectInput} type="number" placeholder="输入数字排序" onChange={this.editorInputQualityNum.bind(this, index)} defaultValue={classList[index].qualityInputNum ? classList[index].qualityInputNum : '0'} />
                                     </div>
                                 )
                             })
@@ -354,19 +398,19 @@ export default class AddArticle extends React.Component {
                 </div>
                 <div className={styles.titleBox}>
                     <div className={styles.titleWords}>阅读人数</div>
-                    <input className={styles.titleInputShort} type="number" placeholder="阅读人数" onChange={this.editorInput.bind(this, 'readNum')} />
+                    <input className={styles.titleInputShort} type="number" placeholder="阅读人数" onChange={this.editorInput.bind(this, 'readNum')} defaultValue={this.state.readNum} />
                 </div>
                 <div className={styles.titleBox}>
                     <div className={styles.titleWords}>发布日期</div>
                     <ConfigProvider locale={zh_CN}>
                         <div className={styles.titleDate} >
-                            <DatePicker onChange={this.onChangeDate} placeholder="发布日期" />
-                            <TimePicker onChange={this.onChangeTime} placeholder="发布时间" />
+                            <DatePicker onChange={this.onChangeDate} placeholder="发布日期" value={moment(this.state.dateString, 'YYYY-MM-DD')} />
+                            <TimePicker onChange={this.onChangeTime} placeholder="发布时间" value={moment(this.state.timeString, 'HH:mm:ss')} />
                         </div>
                     </ConfigProvider>
                 </div>
                 <div className={styles.btnBox} onClick={this.submitContent}>
-                    <div className={styles.btnIcon}>文章上架</div>
+                    <div className={styles.btnIcon}>确认修改</div>
                 </div>
             </div>
         )

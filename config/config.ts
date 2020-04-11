@@ -54,6 +54,11 @@ export default defineConfig({
               name: 'addArticle',
               path: '/informationManagement/articleManagement/addArticle',
               component: './informationManagement/articleManagement/addArticle',
+            },
+            {
+              name: 'editorArticle',
+              path: '/informationManagement/articleManagement/editorArticle',
+              component: './informationManagement/articleManagement/editorArticle',
             }
           ]
         }
