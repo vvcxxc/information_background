@@ -33,8 +33,7 @@
     "tsc": "tsc"
   },
   "husky": {
-    "hooks": {
-    }
+    "hooks": {}
   },
   "lint-staged": {
     "**/*.less": "stylelint --syntax less",
@@ -54,6 +53,8 @@
     "@ant-design/pro-layout": "^5.0.8",
     "@ant-design/pro-table": "^2.2.0",
     "antd": "^4.0.0",
+    "braft-editor": "^2.3.9",
+    "braft-utils": "^3.0.12",
     "classnames": "^2.2.6",
     "dva": "^2.4.1",
     "lodash": "^4.17.11",

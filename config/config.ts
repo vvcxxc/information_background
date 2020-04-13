@@ -85,6 +85,16 @@ export default defineConfig({
                   path: '/informationManagement/articleManagement',
                   routes: [
                     {
+                      name: 'addArticle',
+                      path: '/informationManagement/articleManagement/addArticle',
+                      component: './informationManagement/articleManagement/addArticle',
+                    },
+                    {
+                      name: 'editorArticle',
+                      path: '/informationManagement/articleManagement/editorArticle',
+                      component: './informationManagement/articleManagement/editorArticle',
+                    },
+                    {
                       name: 'articleList',
                       path: '/informationManagement/articleManagement/articleList',
                       component: './informationManagement/articleManagement/articleList',
@@ -102,6 +112,11 @@ export default defineConfig({
                           name: 'bannerList',
                           path: '/informationManagement/articleManagement/bannerManagement/bannerList',
                           component: './informationManagement/articleManagement/bannerManagement/bannerList',
+                        },
+                        {
+                          name: 'add-banner',
+                          path: '/informationManagement/articleManagement/bannerManagement/add-banner',
+                          component: './informationManagement/articleManagement/bannerManagement/add-banner',
                         },
                       ],
                     },
@@ -138,6 +153,21 @@ export default defineConfig({
                     },
                   ],
                 },
+                {
+                  path: '/informationManagement/classifyToManage/classificationList',
+                  routes: [
+                    {
+                      name: 'add-classification',
+                      path: 'add-classification',
+                      component: './informationManagement/classifyToManage/classificationList/add-classification',
+                    },
+                    {
+                      name: 'update-classification',
+                      path: 'update-classification',
+                      component: './informationManagement/classifyToManage/classificationList/update-classification',
+                    },
+                  ],
+                }//end
               ],
             },
             {

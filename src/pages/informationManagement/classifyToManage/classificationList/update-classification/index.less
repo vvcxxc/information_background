@@ -1,0 +1,33 @@
+.add_classification {
+
+  border-radius: 10px;
+  background-color: #fff;
+  
+  .add_content {
+    padding: 20px 40px 0px 40px;
+    input, .chooseRole {
+      text-align: left;
+      width: 300px;
+    }
+
+    .submit_box {
+      padding-top: 100px;
+      padding-bottom: 30px;
+      button {
+        width:100px;
+      }
+    }
+    
+  }
+
+  :global {
+    .ant-form-item-label > label.ant-form-item-required::before{
+      display: none;
+      height: 0;
+      width: 0;
+      overflow: hidden;
+    }
+  }
+  
+  
+}
