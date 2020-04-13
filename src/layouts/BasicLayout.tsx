@@ -106,8 +106,18 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
           ],
         },
         {
-          path: '/informationManagement/classifyToManage',
+          path: '/informationManagement/classifyToManage/classificationList',
           name: '分类管理',
+          children: [
+            {
+              path: 'add-classification',
+              name: '新增分类'
+            },
+            {
+              path: 'update-classification',
+              name: '编辑分类'
+            }
+          ]
         },
         {
           path: '/informationManagement/roleManagement',
