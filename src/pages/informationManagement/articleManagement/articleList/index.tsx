@@ -169,7 +169,7 @@ export default Form.create()(
             }
           },
           {
-            title: 'Action',
+            title: '操作',
             key: 'action',
             render: (text: any, record: any) => (
               <span>
