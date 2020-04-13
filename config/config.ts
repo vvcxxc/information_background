@@ -118,6 +118,11 @@ export default defineConfig({
                           path: '/informationManagement/articleManagement/bannerManagement/add-banner',
                           component: './informationManagement/articleManagement/bannerManagement/add-banner',
                         },
+                        {
+                          name: 'update-banner',
+                          path: '/informationManagement/articleManagement/bannerManagement/update-banner',
+                          component: './informationManagement/articleManagement/bannerManagement/update-banner'
+                        },
                       ],
                     },
                   ],

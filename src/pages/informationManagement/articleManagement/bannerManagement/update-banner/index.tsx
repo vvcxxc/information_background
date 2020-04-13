@@ -11,14 +11,14 @@ const { Option } = Select;
 
 interface Props {
   dispatch: (data: any) => void,
-  choose_type:Number,
+  choose_type: Number,
   choose_location: Number,
   allowed_show: Number,
   upload_type: Number,
   allowed_click: Number
 }
 
-export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class AddBanner extends Component<Props> {
+export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class UpdateBanner extends Component<Props> {
   state = {
     banner_type: 0,
     imgUrl: '',
@@ -31,13 +31,9 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     currentPageSize: 5,
   }
 
-  componentWillMount() {
-    // console.log(this.props, 'props')
-  }
 
   handleChange = (value) => {
     console.log(`selected ${value}`);
-    // this.setState({ banner_type: value })
   }
 
   getUploadImage = (data) => {
@@ -56,7 +52,6 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
 
   // checked 选中状态
   onChangeChecked = (data: string, e: any) => {
-    // console.log(type, 'type', data.target.value,'data.target.value')
     this.dispatchAddProps('setAddBanner/setAddProps', {
       [data]: e.target.value
     })
@@ -97,17 +92,17 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     // showSizeChanger: true
     // showQuickJumper: false
     // total: 111 总数
-    console.log(dd1, ddd2, cd3, dd4,'ioiooi')
+    console.log(dd1, ddd2, cd3, dd4, 'ioiooi')
   }
 
 
-
+  // 编辑页面 依靠后台传值来觉得是显示图片， 还是文章 
+  // 今日没完成点击分页触发，对接接口，如果有旧数据， 分页表格上面怎么显示出来
   render() {
     const {
       currentPage,
       currentPageSize,
     } = this.state
-    // this.props.articleList;
     const meta = [
       {
         key: '1',
@@ -132,20 +127,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
         read_number: '80',
         belong_to: '创客 新手上路',
         operation: 2
-      },
-      {
-        key: '1',
-        number: 1,
-        title: '第一标题',
-        author: '麒麟作者',
-        image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
-        type: '已上架',
-        time: "2020-02-18 05：37：15",
-        read_number: '80',
-        belong_to: '创客 新手上路',
-        operation: 3
       }
-
     ];
     const columns = [
       {
@@ -218,11 +200,6 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
       upload_type,
       allowed_click
     } = this.props
-    const optionsWithDisabled = [
-      { label: '是', value: '是', },
-      { label: '否', value: '否', },
-      // { label: 'Orange', value: 'Orange', disabled: false },
-    ];
     return (
       <div className={styles.add_banner_page}>
         <Breadcrumb className={styles.bread_box}>
@@ -245,29 +222,13 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
             label="请选择banner类型"
             name="choose_type"
           >
-            <Select
-              style={{ width: 300 }}
-              onChange={this.setBannarType.bind(this, 'choose_type')}
-              placeholder={'请选择banner类型'}
-            >
-              <Option value={1}>图片</Option>
-              <Option value={2}>文章</Option>
-            </Select>
-
+            文章
           </Form.Item>
           < Form.Item
             label="请选择banner位置"
             name="choose_location"
           >
-            <Select
-              placeholder={'请选择banner位置'}
-              style={{ width: 300 }}
-              onChange={this.setBannarType.bind(this, 'choose_location')}
-            >
-              <Option value={1}>（创客）资讯中心</Option>
-              <Option value={2}>（会长）资讯中心</Option>
-            </Select>
-
+          （创客）资讯中心
           </Form.Item>
           < Form.Item
             label="是否直接显示"
@@ -296,7 +257,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
             </Form.Item> : null
           }
           {
-            choose_type == 2 ?<Form.Item
+            choose_type == 2 ? <Form.Item
               label="上传bannar图片"
               name="upload-Image"
               style={{ margin: '10px 0px' }}
@@ -312,7 +273,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
                 onChange={this.getUploadImage}
                 imgUrl={this.state.imgUrl}
               />
-            </Form.Item>:null
+            </Form.Item> : null
           }
           {
             choose_type == 1 ? <Form.Item
@@ -353,7 +314,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
                 onChange={this.handleTableChange}
                 onShowSizeChange={this.changePageSize}
               />
-            </Form.Item>:null
+            </Form.Item> : null
           }
 
         </Form>

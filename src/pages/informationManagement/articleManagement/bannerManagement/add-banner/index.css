@@ -1,0 +1,32 @@
+.add_banner_page {
+  width: 100%;
+  height: 100%;
+}
+.add_banner_page .bread_box {
+  width: 100%;
+  background: #fff;
+  border-radius: 5px;
+  padding: 5px 20px;
+}
+.add_banner_page :global .ant-radio-wrapper {
+  margin-left: 60px;
+}
+.add_banner_page :global .ant-radio-wrapper {
+  margin-left: 0;
+}
+.add_banner_page :global .ant-form-item-label {
+  margin-right: 50px;
+}
+.add_banner_page :global .ant-form-horizontal {
+  padding: 21px;
+  background-color: #fff;
+}
+.add_banner_page .flex_start {
+  margin-top: 20px;
+  display: flex;
+  align-items: flex-start;
+}
+.add_banner_page .flex_start :global .ant-form-item-label > label {
+  display: flex;
+  align-items: flex-start;
+}
