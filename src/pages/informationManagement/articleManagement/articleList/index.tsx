@@ -162,7 +162,7 @@ export default Form.create()(
             key: 'category_name',
             render: (text: any, record: any) => {
               return record.data_category.map((item: any) => (
-                <span>{item.category.category_name}，</span>
+                <span>{item.category.category_name}</span>
               )
               )
             }
