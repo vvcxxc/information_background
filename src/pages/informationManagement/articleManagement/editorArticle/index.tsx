@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Checkbox, Select, Radio, DatePicker, TimePicker, Upload, notification, Spin, ConfigProvider } from 'antd';
+import { PageHeader, Checkbox, Select, Radio, DatePicker, TimePicker, Upload, notification, Spin, ConfigProvider } from 'antd';
 import zh_CN from 'antd/lib/locale-provider/zh_CN';
 import 'moment/locale/zh-cn';
 import { PictureOutlined } from '@ant-design/icons';
@@ -97,8 +97,7 @@ export default class AddArticle extends React.Component {
                     .catch(err => {
                         that.setState({ showLoading: false })
                         that.showMessage('请求失败', '请求文章数据失败')
-                    }
-                    )
+                    })
             })
             .catch(err => {
                 that.setState({ showLoading: false })
@@ -199,7 +198,7 @@ export default class AddArticle extends React.Component {
                 articleFileList: fileList,
                 editorState: ContentUtils.insertMedias(this.state.editorState, [{
                     type: 'IMAGE',
-                    url: 'http://oss.tdianyi.com/' + info.file.response.data.path
+                    url: 'http://oss.tdianyi.com/' + info.file.response.data.path + '?x-oss-process=image/resize,w_300'
                 }])
             })
         }
@@ -309,7 +308,11 @@ export default class AddArticle extends React.Component {
                 {
                     this.state.showLoading ? <div className={styles.loadingBox} ><Spin /></div> : null
                 }
-
+                <PageHeader
+                    className="site-page-header"
+                    backIcon={false}
+                    title="编辑文章"
+                />
                 <div className={styles.titleBox}>
                     <div className={styles.titleWords}>文章标题</div>
                     <input className={styles.titleInputLong} maxLength={30} type="text" placeholder="请输入文章标题" onChange={this.editorInput.bind(this, 'title')} defaultValue={this.state.title} />
