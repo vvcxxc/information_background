@@ -66,7 +66,7 @@ export default class AddArticle extends React.Component {
         getTerraceRole({ terrace_id: 1, is_category: true })
             .then((res: any) => {
                 let classList = res.data;
-                getArticle(1)//文章id
+                getArticle(that.props.location.query.id)//文章id
                     .then((res: any) => {
                         let { data_category, data_role, id, article_title, article_author, author_cover, is_show, read_num, content, publish_time } = res.data;
                         for (let i in classList) {
@@ -84,7 +84,6 @@ export default class AddArticle extends React.Component {
                                 }
                             }
                         }
-                        console.log(publish_time.split(' ')[0], publish_time.split(' ')[1])
                         this.setState({
                             classList, articleId: id, title: article_title, auth: article_author, readNum: read_num, titleFileImg: author_cover,
                             isShelvesValue: is_show == 1 ? 1 : 0,
@@ -216,6 +215,7 @@ export default class AddArticle extends React.Component {
     }
     //提交
     submitContent = async () => {
+        let that = this;
         if (!this.state.title) {
             this.showMessage('发布失败', '请填写标题')
             return;
@@ -259,9 +259,9 @@ export default class AddArticle extends React.Component {
             data_role: JSON.stringify(data_role),
             is_show: this.state.isShelvesValue == 1 ? 1 : 0,
         }
-        editorArticle(1, data)
+        editorArticle(that.props.location.query.id, data)
             .then((res: any) => {
-                this.setState({ showLoading: false });
+                that.setState({ showLoading: false });
                 if (res.code == 200) {
                     notification.open({
                         message: '编辑成功',
@@ -276,7 +276,7 @@ export default class AddArticle extends React.Component {
                         description: res.message,
                     });
                 }
-            }).catch(err => this.setState({ showLoading: false }))
+            }).catch(err => that.setState({ showLoading: false }))
     }
 
     render() {

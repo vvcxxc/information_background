@@ -5,6 +5,7 @@ import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
 import { getListData, getArticleCategory } from './http';
 import styles from './index.less';
+import { history } from 'umi'
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -34,7 +35,7 @@ export default Form.create()(
           currentPage,
           currentPageSize,
         } = this.props.articleList;
-        this.requestListData(articleTitle,publishAuthor,publishStatus,articleCategory,currentPage,currentPageSize);
+        this.requestListData(articleTitle, publishAuthor, publishStatus, articleCategory, currentPage, currentPageSize);
 
         this.requestArticleCategory();
       }
@@ -78,8 +79,6 @@ export default Form.create()(
             articleCategory,
           },
         });
-        // console.log(this.props);
-
         const { currentPage, currentPageSize } = this.props.articleList;
         this.requestListData(articleTitle, publishAuthor, publishStatus, articleCategory, currentPage, currentPageSize);
       };
@@ -173,11 +172,11 @@ export default Form.create()(
             key: 'action',
             render: (text: any, record: any) => (
               <span>
-                <a>查看</a>
+                <a onClick={() => { history.push({ "pathname": '/informationManagement/articleManagement/previewArticle', query: { id: record.id } }) }}>查看</a>
                 <Divider type="vertical" />
                 <a>下架</a>
                 <Divider type="vertical" />
-                <a>编辑</a>
+                <a onClick={() => { history.push({ "pathname": '/informationManagement/articleManagement/editorArticle', query: { id: record.id } }) }} >编辑</a>
                 <Divider type="vertical" />
                 <a>删除</a>
               </span>
