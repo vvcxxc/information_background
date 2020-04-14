@@ -3,7 +3,7 @@ import Request from '@/utils/request';
 /**
  * 获取列表页
  */
-export function getListData(article_title: any, article_author: any, is_show: any, category_id: any, page: any, per_page: any) {
+export function getListData(article_title: any, article_author: any, terrace_role_id: any, is_show: any, category_id: any, page: any, per_page: any) {
     return new Promise((resolve, reject) => {
         Request('/admin/article', {
             method: 'GET',
@@ -11,6 +11,7 @@ export function getListData(article_title: any, article_author: any, is_show: an
                 terrace_id: 1,
                 article_title,
                 article_author,
+                terrace_role_id,
                 is_show,
                 category_id,
                 page,
@@ -34,6 +35,25 @@ export function getArticleCategory() {
             method: 'GET',
             params: {
                 terrace_id: 1
+            }
+        }).then(res => {
+            resolve(res);
+        })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}
+
+/**
+ * 获取所有角色
+ */
+export function getAllRole() {
+    return new Promise((resolve, reject) => {
+        Request('/admin/common/getTerraceRole', {
+            method: 'GET',
+            params: {
+                terrace_id: 1,
             }
         }).then(res => {
             resolve(res);
