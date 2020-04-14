@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Input, Button, Select } from 'antd';
+import { Table, Row, Col, Input, Button, Select, Modal, message } from 'antd';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
-import { getListData, getAllRole } from './http';
+import { getListData, getAllRole, editRole } from './http';
+import { PlusOutlined } from '@ant-design/icons';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -14,13 +15,21 @@ interface Props {
 export default Form.create()(
   class RoleList extends Component<Props> {
     state = {
-      roleName: '',
+      roleName: undefined,
       loading: false,
       currentPage: 1, // 当前页
       currentPageSize: 10, // 每页数量
       total: 0,
       dataList: [],
       allRoleList: [], // 所有角色列表
+
+      addModalVisible: false,
+      addRoleName: "",
+
+
+      editModalVisible: false,
+      editRoleName: "",
+      terrace_role_id: ""
     };
 
 
@@ -90,7 +99,7 @@ export default Form.create()(
       const { form } = this.props;
       form.resetFields();
       this.setState({
-        roleName: '',
+        roleName: undefined,
       });
     };
 
@@ -101,6 +110,69 @@ export default Form.create()(
       const { currentPage, currentPageSize, roleName } = this.state;
       this.requestListData(roleName, currentPage, currentPageSize)
     };
+
+    // handleAddModalOK = async () => {
+
+    // }
+
+    // handleAddModalCancel = () => {
+    //   this.setState({
+    //     addModalVisible: false,
+    //     addRoleName: ""
+    //   })
+    // }
+
+    // handleChangeAddRoleName = (e) => {
+    //   this.setState({
+    //     addRoleName: e.target.value
+    //   })
+    // }
+
+    handleEditItem = (record: any) => {
+      let terrace_role_id;
+      const { allRoleList } = this.state;
+      allRoleList.forEach((item: any) => {
+        if (item.role_name == record.role_name) {
+          terrace_role_id = item.id;
+        }
+      })
+      this.setState({
+        editModalVisible: true,
+        editRoleName: record.role_name,
+        terrace_role_id
+      })
+    }
+
+    handleEditModalOK = () => {
+      const { editRoleName, terrace_role_id } = this.state;
+      editRole(terrace_role_id, editRoleName).then(async (res: any) => {
+        if (res.code == 200) {
+          message.success(res.message);
+          await this.setState({
+            editModalVisible: false
+          })
+          const {
+            roleName,
+            currentPage,
+            currentPageSize
+          } = this.state;
+          this.requestListData(roleName, currentPage, currentPageSize);
+        }
+      })
+    }
+
+    handleEditModalCancel = () => {
+      this.setState({
+        editModalVisible: false,
+        editRoleName: ""
+      })
+    }
+
+    handleChangeEditRoleName = (e) => {
+      this.setState({
+        editRoleName: e.target.value
+      })
+    }
 
     render() {
       const columns = [
@@ -119,7 +191,7 @@ export default Form.create()(
           key: 'action',
           render: (text: any, record: any) => (
             <span>
-              <a>编辑</a>
+              <a onClick={this.handleEditItem.bind(this, record)}>编辑</a>
             </span>
           ),
         },
@@ -127,7 +199,7 @@ export default Form.create()(
       const {
         form: { getFieldDecorator },
       } = this.props;
-      const { roleName, loading, currentPage, currentPageSize, total, dataList, allRoleList } = this.state;
+      const { roleName, loading, currentPage, currentPageSize, total, dataList, allRoleList, addRoleName, editRoleName } = this.state;
       return (
         <div>
           <Form>
@@ -158,7 +230,7 @@ export default Form.create()(
                   )}
                 </FormItem>
               </Col>
-              <Col md={6} sm={24}>
+              <Col md={15} sm={24}>
                 <span>
                   <Button type="primary" htmlType="submit" onClick={this.handleSearch}>
                     查询
@@ -173,6 +245,9 @@ export default Form.create()(
                 </Button>
                 </span>
               </Col>
+              {/* <Col md={3} sm={24}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => this.setState({ addModalVisible: true })}>添加角色</Button>
+              </Col> */}
             </Row>
           </Form>
 
@@ -192,6 +267,28 @@ export default Form.create()(
               },
             }}
           />
+
+          {/* <Modal
+            title="添加角色"
+            visible={this.state.addModalVisible}
+            onOk={this.handleAddModalOK}
+            onCancel={this.handleAddModalCancel}
+          >
+            <p>
+              <Input placeholder="请输入角色名称" value={addRoleName} onChange={this.handleChangeAddRoleName} />
+            </p>
+          </Modal> */}
+
+          <Modal
+            title="修改角色名称"
+            visible={this.state.editModalVisible}
+            onOk={this.handleEditModalOK}
+            onCancel={this.handleEditModalCancel}
+          >
+            <p>
+              <Input placeholder="请输入角色名称" value={editRoleName} onChange={this.handleChangeEditRoleName} />
+            </p>
+          </Modal>
         </div>
       );
     }
