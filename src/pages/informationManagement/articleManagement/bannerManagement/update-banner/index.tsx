@@ -5,14 +5,10 @@ import {
 } from 'antd';
 import UploadBox from "@/components/uploadBox"
 import { connect } from 'dva'
-
-import {
-  getListArticles, // 获取文章列表
-  getTerraceRole   // 获取所有角色
-} from "../servers"
-
 import styles from './index.less'
+
 const { Option } = Select;
+
 interface Props {
   dispatch: (data: any) => void,
   choose_type: Number,
@@ -21,9 +17,8 @@ interface Props {
   upload_type: Number,
   allowed_click: Number
 }
-// { { url } } /admin/common / getTerraceRole    is_category 0
-// /admin/article  terrace_id平台id  page页数 per_page一页多少条数据
-export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class AddBanner extends Component<Props> {
+
+export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class UpdateBanner extends Component<Props> {
   state = {
     banner_type: 0,
     imgUrl: '',
@@ -34,71 +29,11 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     operation_index: 0,
     currentPage: 1,
     currentPageSize: 5,
-
-    terraceRole: [],//选择位置（角色）
-    ListArticles:[],//文章数组
   }
 
-  componentDidMount() {
-
-    // 获取文章列表
-    getListArticles({
-      terrace_id: 1,
-      page: 1,
-      per_page: 5
-    })
-      .then(res => {
-        console.log('获取文章列表', res, res.data)
-        let meta:any = []
-        // res.data.map((item: any, _: number)=>{
-        //   meta[_].key = _;
-        //   meta[_].number = _;
-        //   meta[_].title = _;
-        //   meta[_].author = _;
-        //   meta[_].image = _;
-        //   meta[_].type = _;
-        //   meta[_].key = _;
-        // })
-        this.setState({
-          // key: '1',
-          // number: 1,
-          // title: '第一标题',
-          // author: '麒麟作者',
-          // image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
-          // type: '已上架',
-          // time: "2020-02-18 05：37：15",
-          // read_number: '80',
-          // belong_to: '创客 新手上路',
-          // operation: 1
-
-          // key: '1',
-          // number: 1,
-          // title: '第一标题',
-          // author: '麒麟作者',
-          // image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
-          // type: '已上架',
-          // time: "2020-02-18 05：37：15",
-          // read_number: '80',
-          // belong_to: '创客 新手上路',
-          // operation: 1
-        })
-
-      })
-
-    // 获取所有角色
-    getTerraceRole({
-      terrace_id: 1,
-      is_category: 0
-    })
-      .then(res => {
-        this.setState({ terraceRole: res.data })
-      })
-
-  }
 
   handleChange = (value) => {
     console.log(`selected ${value}`);
-    // this.setState({ banner_type: value })
   }
 
   getUploadImage = (data) => {
@@ -117,7 +52,6 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
 
   // checked 选中状态
   onChangeChecked = (data: string, e: any) => {
-    // console.log(type, 'type', data.target.value,'data.target.value')
     this.dispatchAddProps('setAddBanner/setAddProps', {
       [data]: e.target.value
     })
@@ -162,17 +96,25 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
   }
 
 
-
+  // 编辑页面 依靠后台传值来觉得是显示图片， 还是文章 
+  // 今日没完成点击分页触发，对接接口，如果有旧数据， 分页表格上面怎么显示出来
   render() {
     const {
       currentPage,
       currentPageSize,
-      terraceRole,
-      ListArticles
     } = this.state
     const meta = [
       {
-        
+        key: '1',
+        number: 1,
+        title: '第一标题',
+        author: '麒麟作者',
+        image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
+        type: '已上架',
+        time: "2020-02-18 05：37：15",
+        read_number: '80',
+        belong_to: '创客 新手上路',
+        operation: 1
       },
       {
         key: '2',
@@ -185,20 +127,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
         read_number: '80',
         belong_to: '创客 新手上路',
         operation: 2
-      },
-      {
-        key: '1',
-        number: 1,
-        title: '第一标题',
-        author: '麒麟作者',
-        image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
-        type: '已上架',
-        time: "2020-02-18 05：37：15",
-        read_number: '80',
-        belong_to: '创客 新手上路',
-        operation: 3
       }
-
     ];
     const columns = [
       {
@@ -271,11 +200,6 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
       upload_type,
       allowed_click
     } = this.props
-    const optionsWithDisabled = [
-      { label: '是', value: '是', },
-      { label: '否', value: '否', },
-      // { label: 'Orange', value: 'Orange', disabled: false },
-    ];
     return (
       <div className={styles.add_banner_page}>
         <Breadcrumb className={styles.bread_box}>
@@ -298,32 +222,13 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
             label="请选择banner类型"
             name="choose_type"
           >
-            <Select
-              style={{ width: 300 }}
-              onChange={this.setBannarType.bind(this, 'choose_type')}
-              placeholder={'请选择banner类型'}
-            >
-              <Option value={1}>图片</Option>
-              <Option value={2}>文章</Option>
-            </Select>
-
+            文章
           </Form.Item>
           < Form.Item
             label="请选择banner位置"
             name="choose_location"
           >
-            <Select
-              placeholder={'请选择banner位置'}
-              style={{ width: 300 }}
-              onChange={this.setBannarType.bind(this, 'choose_location')}
-            >
-              {
-                terraceRole.map((value: any, _: number) => {
-                  return <Option value={value.id} key={_}>{value.role_name}</Option>
-                })
-              }
-            </Select>
-
+          （创客）资讯中心
           </Form.Item>
           < Form.Item
             label="是否直接显示"
@@ -394,7 +299,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
                 position='topCenter'
                 size="small"
                 columns={columns}
-                dataSource={ListArticles}
+                dataSource={meta}
                 bordered
                 scroll={{ x: 1200, y: 400 }}
                 pagination={{

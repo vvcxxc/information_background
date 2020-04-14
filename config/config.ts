@@ -95,11 +95,16 @@ export default defineConfig({
                       component: './informationManagement/articleManagement/editorArticle',
                     },
                     {
+                      name: 'previewArticle',
+                      path: '/informationManagement/articleManagement/previewArticle',
+                      component: './informationManagement/articleManagement/previewArticle',
+                    },
+                    {
                       name: 'articleList',
                       path: '/informationManagement/articleManagement/articleList',
                       component: './informationManagement/articleManagement/articleList',
                     },
-                     {
+                    {
                       name: 'fineArticleList',
                       path: '/informationManagement/articleManagement/fineArticleList',
                       component: './informationManagement/articleManagement/fineArticleList',
@@ -117,6 +122,11 @@ export default defineConfig({
                           name: 'add-banner',
                           path: '/informationManagement/articleManagement/bannerManagement/add-banner',
                           component: './informationManagement/articleManagement/bannerManagement/add-banner',
+                        },
+                        {
+                          name: 'update-banner',
+                          path: '/informationManagement/articleManagement/bannerManagement/update-banner',
+                          component: './informationManagement/articleManagement/bannerManagement/update-banner'
                         },
                       ],
                     },

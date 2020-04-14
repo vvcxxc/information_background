@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Checkbox, Select, Radio, DatePicker, TimePicker, Upload, notification, Spin, ConfigProvider } from 'antd';
+import { PageHeader, Checkbox, Select, Radio, DatePicker, TimePicker, Upload, notification, Spin, ConfigProvider } from 'antd';
 import zh_CN from 'antd/lib/locale-provider/zh_CN';
 import 'moment/locale/zh-cn';
 import { PictureOutlined } from '@ant-design/icons';
@@ -66,7 +66,7 @@ export default class AddArticle extends React.Component {
         getTerraceRole({ terrace_id: 1, is_category: true })
             .then((res: any) => {
                 let classList = res.data;
-                getArticle(1)//文章id
+                getArticle(that.props.location.query.id)//文章id
                     .then((res: any) => {
                         let { data_category, data_role, id, article_title, article_author, author_cover, is_show, read_num, content, publish_time } = res.data;
                         for (let i in classList) {
@@ -84,7 +84,6 @@ export default class AddArticle extends React.Component {
                                 }
                             }
                         }
-                        console.log(publish_time.split(' ')[0], publish_time.split(' ')[1])
                         this.setState({
                             classList, articleId: id, title: article_title, auth: article_author, readNum: read_num, titleFileImg: author_cover,
                             isShelvesValue: is_show == 1 ? 1 : 0,
@@ -97,8 +96,7 @@ export default class AddArticle extends React.Component {
                     .catch(err => {
                         that.setState({ showLoading: false })
                         that.showMessage('请求失败', '请求文章数据失败')
-                    }
-                    )
+                    })
             })
             .catch(err => {
                 that.setState({ showLoading: false })
@@ -199,7 +197,7 @@ export default class AddArticle extends React.Component {
                 articleFileList: fileList,
                 editorState: ContentUtils.insertMedias(this.state.editorState, [{
                     type: 'IMAGE',
-                    url: 'http://oss.tdianyi.com/' + info.file.response.data.path
+                    url: 'http://oss.tdianyi.com/' + info.file.response.data.path + '?x-oss-process=image/resize,w_300'
                 }])
             })
         }
@@ -217,6 +215,7 @@ export default class AddArticle extends React.Component {
     }
     //提交
     submitContent = async () => {
+        let that = this;
         if (!this.state.title) {
             this.showMessage('发布失败', '请填写标题')
             return;
@@ -260,9 +259,9 @@ export default class AddArticle extends React.Component {
             data_role: JSON.stringify(data_role),
             is_show: this.state.isShelvesValue == 1 ? 1 : 0,
         }
-        editorArticle(1, data)
+        editorArticle(that.props.location.query.id, data)
             .then((res: any) => {
-                this.setState({ showLoading: false });
+                that.setState({ showLoading: false });
                 if (res.code == 200) {
                     notification.open({
                         message: '编辑成功',
@@ -277,7 +276,7 @@ export default class AddArticle extends React.Component {
                         description: res.message,
                     });
                 }
-            }).catch(err => this.setState({ showLoading: false }))
+            }).catch(err => that.setState({ showLoading: false }))
     }
 
     render() {
@@ -309,7 +308,11 @@ export default class AddArticle extends React.Component {
                 {
                     this.state.showLoading ? <div className={styles.loadingBox} ><Spin /></div> : null
                 }
-
+                <PageHeader
+                    className="site-page-header"
+                    backIcon={false}
+                    title="编辑文章"
+                />
                 <div className={styles.titleBox}>
                     <div className={styles.titleWords}>文章标题</div>
                     <input className={styles.titleInputLong} maxLength={30} type="text" placeholder="请输入文章标题" onChange={this.editorInput.bind(this, 'title')} defaultValue={this.state.title} />

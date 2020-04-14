@@ -6,6 +6,7 @@ import { connect } from 'dva';
 import { getListData, getArticleCategory, getAllRole, deleteArticle } from './http';
 import styles from './index.less';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { history } from 'umi'
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -94,8 +95,6 @@ export default Form.create()(
             articleCategory,
           },
         });
-        // console.log(this.props);
-
         const { currentPage, currentPageSize } = this.props.articleList;
         this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, currentPage, currentPageSize);
       };
@@ -218,7 +217,7 @@ export default Form.create()(
             key: 'category_name',
             render: (text: any, record: any) => {
               return record.data_category.map((item: any) => (
-                <span>{item.category.category_name}，</span>
+                <span>{item.category.category_name}</span>
               )
               )
             }
@@ -239,11 +238,11 @@ export default Form.create()(
             key: 'action',
             render: (text: any, record: any) => (
               <span>
-                <a>查看</a>
+                <a onClick={() => { history.push({ "pathname": '/informationManagement/articleManagement/previewArticle', query: { id: record.id } }) }}>查看</a>
                 <Divider type="vertical" />
                 {/* <a>下架</a> */}
                 {/* <Divider type="vertical" /> */}
-                <a>编辑</a>
+                <a onClick={() => { history.push({ "pathname": '/informationManagement/articleManagement/editorArticle', query: { id: record.id } }) }}>编辑</a>
                 <Divider type="vertical" />
                 <a onClick={this.handleDeleteItem.bind(this, record)}>删除</a>
               </span>
