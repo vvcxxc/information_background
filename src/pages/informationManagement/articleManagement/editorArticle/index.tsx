@@ -276,7 +276,10 @@ export default class AddArticle extends React.Component {
                         description: res.message,
                     });
                 }
-            }).catch(err => that.setState({ showLoading: false }))
+            }).catch(err => {
+              console.log(err,'222')
+              that.setState({ showLoading: false })
+            })
     }
 
     render() {
