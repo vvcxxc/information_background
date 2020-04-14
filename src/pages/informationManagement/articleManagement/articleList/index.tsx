@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Input, Button, Select, Divider } from 'antd';
+import { Table, Row, Col, Input, Button, Select, Divider, Modal, message } from 'antd';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
-import { getListData, getArticleCategory, getAllRole } from './http';
+import { getListData, getArticleCategory, getAllRole, deleteArticle } from './http';
 import styles from './index.less';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 const FormItem = Form.Item;
 const { Option } = Select;
+const { confirm } = Modal;
 
 interface Props {
   dispatch: (opt: any) => any;
@@ -131,6 +133,38 @@ export default Form.create()(
         this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, currentPage, currentPageSize);
       };
 
+      handleDeleteItem = (record: any) => {
+        let _this = this;
+        confirm({
+          title: '确认操作',
+          icon: <ExclamationCircleOutlined />,
+          content: '您确认删除该文章吗？',
+          okText: '确认',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk() {
+            deleteArticle(record.id).then((res: any) => {
+              if (res.code == 200) {
+                message.success(res.message);
+                const {
+                  articleTitle,
+                  publishAuthor,
+                  roleName,
+                  publishStatus,
+                  articleCategory,
+                  currentPage,
+                  currentPageSize,
+                } = _this.props.articleList;
+                _this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, currentPage, currentPageSize);
+              }
+            })
+          },
+          onCancel() {
+            console.log('Cancel');
+          },
+        });
+      }
+
       render() {
         const columns = [
           {
@@ -207,11 +241,11 @@ export default Form.create()(
               <span>
                 <a>查看</a>
                 <Divider type="vertical" />
-                <a>下架</a>
-                <Divider type="vertical" />
+                {/* <a>下架</a> */}
+                {/* <Divider type="vertical" /> */}
                 <a>编辑</a>
                 <Divider type="vertical" />
-                <a>删除</a>
+                <a onClick={this.handleDeleteItem.bind(this, record)}>删除</a>
               </span>
             ),
           },

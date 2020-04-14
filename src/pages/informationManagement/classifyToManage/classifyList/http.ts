@@ -45,3 +45,20 @@ export function getAllRole() {
             })
     })
 }
+
+/**
+ * 删除文章
+ */
+
+export function deleteArticleClassify(id: any) {
+    return new Promise((resolve, reject) => {
+        Request(`/admin/articleCategory/${id}`, {
+            method: 'DELETE'
+        }).then(res => {
+            resolve(res);
+        })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}

@@ -63,3 +63,20 @@ export function getAllRole() {
             })
     })
 }
+
+/**
+ * 删除文章
+ */
+
+export function deleteArticle(id: any) {
+    return new Promise((resolve, reject) => {
+        Request(`/admin/article/${id}`, {
+            method: 'DELETE'
+        }).then(res => {
+            resolve(res);
+        })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}

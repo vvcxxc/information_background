@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Input, Button, Select, Tabs, Divider } from 'antd';
+import { Table, Row, Col, Input, Button, Select, Tabs, Divider, Modal, message } from 'antd';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
-import { getListData } from './http';
+import { getListData, deleteArticle } from './http';
 import styles from './index.less';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+
+const { confirm } = Modal;
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -101,6 +104,36 @@ export default Form.create()(
                 this.requestListData(articleTitle, publishStatus, categoryId, currentPage, currentPageSize)
             };
 
+            handleDeleteItem = (record: any) => {
+                let _this = this;
+                confirm({
+                    title: '确认操作',
+                    icon: <ExclamationCircleOutlined />,
+                    content: '您确认删除该文章分类吗？',
+                    okText: '确认',
+                    okType: 'danger',
+                    cancelText: '取消',
+                    onOk() {
+                        deleteArticle(record.id).then((res: any) => {
+                            if (res.code == 200) {
+                                message.success(res.message);
+                                const categoryId = _this.props.match.params.id;
+                                const {
+                                    articleTitle,
+                                    publishStatus,
+                                    currentPage,
+                                    currentPageSize,
+                                } = _this.props.classifyArticleList;
+                                _this.requestListData(articleTitle, publishStatus, categoryId, currentPage, currentPageSize)
+                            }
+                        })
+                    },
+                    onCancel() {
+                        console.log('Cancel');
+                    },
+                });
+            }
+
             render() {
                 const columns = [
                     {
@@ -147,6 +180,19 @@ export default Form.create()(
                         title: '阅读量',
                         dataIndex: 'read_num',
                         key: 'read_num',
+                    },
+                    {
+                        title: '操作',
+                        key: 'action',
+                        render: (text: any, record: any) => (
+                            <span>
+                                <a>查看</a>
+                                <Divider type="vertical" />
+                                <a>编辑</a>
+                                <Divider type="vertical" />
+                                <a onClick={this.handleDeleteItem.bind(this, record)}>移除</a>
+                            </span>
+                        ),
                     },
                 ];
 
