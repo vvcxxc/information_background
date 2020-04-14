@@ -95,11 +95,16 @@ export default defineConfig({
                       component: './informationManagement/articleManagement/editorArticle',
                     },
                     {
+                      name: 'previewArticle',
+                      path: '/informationManagement/articleManagement/previewArticle',
+                      component: './informationManagement/articleManagement/previewArticle',
+                    },
+                    {
                       name: 'articleList',
                       path: '/informationManagement/articleManagement/articleList',
                       component: './informationManagement/articleManagement/articleList',
                     },
-                     {
+                    {
                       name: 'fineArticleList',
                       path: '/informationManagement/articleManagement/fineArticleList',
                       component: './informationManagement/articleManagement/fineArticleList',

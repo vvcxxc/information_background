@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Input, Button, Select, Tabs } from 'antd';
+import { Table, Row, Col, Input, Button, Select, Tabs, Divider } from 'antd';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
+import { getListData, getAllRole } from './http';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -18,12 +19,52 @@ export default Form.create()(
   connect(({ classifyList }: any) => ({ classifyList }))(
     class ClassifyList extends Component<Props> {
       state = {
-        CKLoading: false,
-        CKTotal: 0,
+        // CKLoading: false,
+        // CKTotal: 0,
 
-        HZLoading: false,
-        HZTotal: 0,
+        // HZLoading: false,
+        // HZTotal: 0,
+
+        loading: false,
+        total: 0,
+        dataList: [],
+        allRoleList: [],
       };
+
+      componentDidMount() {
+        const {
+          classifyTitle,
+          typeStatus,
+          classifyCategory,
+          currentPage,
+          currentPageSize,
+        } = this.props.classifyList;
+        this.requestListData(classifyTitle, typeStatus, classifyCategory, currentPage, currentPageSize);
+
+        this.requestAllRole()
+      }
+
+      requestListData = async (category_name: any, is_show: any, terrace_role_id: any, page: any, per_page: any) => {
+        await this.setState({
+          loading: true
+        })
+        getListData(category_name, is_show, terrace_role_id, page, per_page).then((res: any) => {
+          console.log('res', res)
+          this.setState({
+            dataList: res.data,
+            loading: false,
+            total: res.meta.pagination.total
+          })
+        })
+      }
+
+      requestAllRole = () => {
+        getAllRole().then((res: any) => {
+          this.setState({
+            allRoleList: res.data
+          })
+        })
+      }
 
       /**
        * 查询
@@ -41,10 +82,10 @@ export default Form.create()(
           },
         });
 
-        console.log(this.props);
+        // console.log(this.props);
 
-        // const { currentPage, currentPageSize } = this.props.articleList;
-        // this.getListData(classifyTitle, typeStatus, classifyCategory,currentPage, currentPageSize);
+        const { currentPage, currentPageSize } = this.props.classifyList;
+        this.requestListData(classifyTitle, typeStatus, classifyCategory, currentPage, currentPageSize);
       };
 
       /**
@@ -62,79 +103,93 @@ export default Form.create()(
       /**
        * 切换Tab
        */
-      handleChangeTab = async (key) => {
-        const { dispatch } = this.props;
-        await dispatch({
-          type: 'classifyList/setTabSelected',
-          payload: {
-            tabKey: key,
-          },
-        });
-      };
+      // handleChangeTab = async (key) => {
+      //   const { dispatch } = this.props;
+      //   await dispatch({
+      //     type: 'classifyList/setTabSelected',
+      //     payload: {
+      //       tabKey: key,
+      //     },
+      //   });
+      // };
 
       /**
        * 创客表格改变
        */
-      handleChangeCKTable = async () => {};
+      // handleChangeCKTable = async () => {};
 
       /**
        * 会长表格改变
        */
-      handleChangeHZTable = async () => {};
+      // handleChangeHZTable = async () => {};
+
+      /**
+       * 表格改变
+       */
+      handleChange = async (pagination: any) => {
+        await this.props.dispatch({
+          type: 'classifyList/setPaginationCurrent',
+          payload: {
+            currentPage: pagination.current,
+            currentPageSize: pagination.pageSize,
+          },
+        });
+
+        const { currentPage, currentPageSize } = this.props.classifyList;
+        const classifyTitle = this.props.form.getFieldValue('classifyTitle');
+        const typeStatus = this.props.form.getFieldValue('typeStatus');
+        const classifyCategory = this.props.form.getFieldValue('classifyCategory');
+        this.requestListData(classifyTitle, typeStatus, classifyCategory, currentPage, currentPageSize);
+      };
 
       render() {
         const columns = [
           {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            render: (text) => <a>{text}</a>,
+            title: '编号',
+            dataIndex: 'id',
+            key: 'id',
           },
           {
-            title: 'Age',
-            dataIndex: 'age',
-            key: 'age',
+            title: '分类名称',
+            dataIndex: 'category_name',
+            key: 'category_name',
           },
           {
-            title: 'Address',
-            dataIndex: 'address',
-            key: 'address',
+            title: '所属角色',
+            dataIndex: 'terrace_role_id',
+            key: 'terrace_role_id',
           },
           {
-            title: 'Action',
-            key: 'action',
-            render: (text, record) => (
+            title: '分类状态',
+            dataIndex: 'is_show',
+            key: 'is_show',
+            render: (text: any, record: any) => (
               <span>
-                <a style={{ marginRight: 16 }}>Invite {record.name}</a>
-                <a>Delete</a>
+                {
+                  record.is_show == 0 ? "已下架" : "已上架"
+                }
+              </span>
+            )
+          },
+          {
+            title: '操作',
+            key: 'action',
+            render: (text: any, record: any) => (
+              <span>
+                <a>查看</a>
+                <Divider type="vertical" />
+                <a>
+                  {record.is_show == 0 ? "上架" : "下架"}
+                </a>
+                <Divider type="vertical" />
+                <a>编辑</a>
+                <Divider type="vertical" />
+                <a>删除</a>
               </span>
             ),
           },
         ];
 
-        const data = [
-          {
-            key: '1',
-            name: 'John Brown',
-            age: 32,
-            address: 'New York No. 1 Lake Park',
-            tags: ['nice', 'developer'],
-          },
-          {
-            key: '2',
-            name: 'Jim Green',
-            age: 42,
-            address: 'London No. 1 Lake Park',
-            tags: ['loser'],
-          },
-          {
-            key: '3',
-            name: 'Joe Black',
-            age: 32,
-            address: 'Sidney No. 1 Lake Park',
-            tags: ['cool', 'teacher'],
-          },
-        ];
         const {
           form: { getFieldDecorator },
         } = this.props;
@@ -143,14 +198,17 @@ export default Form.create()(
           classifyTitle,
           typeStatus,
           classifyCategory,
-          CKCurrentPage,
-          CKCurrentPageSize,
-          HZCurrentPage,
-          HZCurrentPageSize,
-          tabKey,
+          currentPage,
+          currentPageSize
+          // CKCurrentPage,
+          // CKCurrentPageSize,
+          // HZCurrentPage,
+          // HZCurrentPageSize,
+          // tabKey,
         } = this.props.classifyList;
 
-        const { CKLoading, CKTotal, HZLoading, HZTotal } = this.state;
+        // const { CKLoading, CKTotal, HZLoading, HZTotal } = this.state;
+        const { loading, dataList, total, allRoleList } = this.state;
         return (
           <div>
             <Form>
@@ -177,23 +235,26 @@ export default Form.create()(
                           width: '100%',
                         }}
                       >
-                        <Option value="0">已上架</Option>
-                        <Option value="1">已下架</Option>
+                        <Option value="1">已上架</Option>
+                        <Option value="0">已下架</Option>
                       </Select>,
                     )}
                   </FormItem>
                 </Col>
                 <Col md={6} sm={24}>
-                  <FormItem label="所属分类">
+                  <FormItem label="所属角色">
                     {getFieldDecorator('classifyCategory', { initialValue: classifyCategory })(
                       <Select
-                        placeholder="请选择所属分类"
+                        placeholder="请选择所属角色"
                         style={{
                           width: '100%',
                         }}
                       >
-                        <Option value="0">创客</Option>
-                        <Option value="1">会长</Option>
+                        {
+                          allRoleList.map((item: any) => (
+                            <option value={item.id}>{item.role_name}</option>
+                          ))
+                        }
                       </Select>,
                     )}
                   </FormItem>
@@ -216,7 +277,24 @@ export default Form.create()(
               </Row>
             </Form>
 
-            <Tabs defaultActiveKey={tabKey} onChange={this.handleChangeTab}>
+            <Table
+              columns={columns}
+              dataSource={dataList}
+              loading={loading}
+              onChange={this.handleChange}
+              pagination={{
+                current: currentPage,
+                defaultPageSize: currentPageSize,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                total,
+                showTotal: () => {
+                  return `共${total}条`;
+                },
+              }}
+            />
+
+            {/* <Tabs defaultActiveKey={tabKey} onChange={this.handleChangeTab}>
               <TabPane tab="创客（精品文章）" key="1">
                 <Table
                   columns={columns}
@@ -251,7 +329,7 @@ export default Form.create()(
                   }}
                 />
               </TabPane>
-            </Tabs>
+            </Tabs> */}
           </div>
         );
       }

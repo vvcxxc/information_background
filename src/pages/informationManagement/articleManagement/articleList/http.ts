@@ -1,0 +1,45 @@
+import Request from '@/utils/request';
+
+/**
+ * 获取列表页
+ */
+export function getListData(article_title: any, article_author: any, is_show: any, category_id: any, page: any, per_page: any) {
+    return new Promise((resolve, reject) => {
+        Request('/admin/article', {
+            method: 'GET',
+            params: {
+                terrace_id: 1,
+                article_title,
+                article_author,
+                is_show,
+                category_id,
+                page,
+                per_page
+            }
+        }).then(res => {
+            resolve(res);
+        })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}
+
+/**
+ * 获取所有文章分类
+ */
+export function getArticleCategory() {
+    return new Promise((resolve, reject) => {
+        Request('/admin/common/getArticleCategory', {
+            method: 'GET',
+            params: {
+                terrace_id: 1
+            }
+        }).then(res => {
+            resolve(res);
+        })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}
