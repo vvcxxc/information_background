@@ -1,0 +1,25 @@
+import Request from '@/utils/request';
+
+/**
+ * 获取列表页
+ */
+export function getListData(article_title: any, is_show: any, category_id: any, page: any, per_page: any) {
+    return new Promise((resolve, reject) => {
+        Request('/admin/article', {
+            method: 'GET',
+            params: {
+                terrace_id: 1,
+                article_title,
+                is_show,
+                category_id,
+                page,
+                per_page
+            }
+        }).then(res => {
+            resolve(res);
+        })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}

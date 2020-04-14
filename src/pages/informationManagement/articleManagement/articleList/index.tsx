@@ -258,10 +258,10 @@ export default Form.create()(
                   </FormItem>
                 </Col>
                 <Col md={8} sm={24}>
-                  <FormItem label="所属角色">
+                  <FormItem label="精品">
                     {getFieldDecorator('roleName', { initialValue: roleName })(
                       <Select
-                        placeholder="请选择角色名称"
+                        placeholder="请选择精品"
                         style={{
                           width: '100%',
                         }}
@@ -299,10 +299,10 @@ export default Form.create()(
                   </FormItem>
                 </Col>
                 <Col md={8} sm={24}>
-                  <FormItem label="精品">
+                  <FormItem label="所属分类">
                     {getFieldDecorator('articleCategory', { initialValue: articleCategory })(
                       <Select
-                        placeholder="请选择精品"
+                        placeholder="请选择所属分类"
                         style={{
                           width: '100%',
                         }}

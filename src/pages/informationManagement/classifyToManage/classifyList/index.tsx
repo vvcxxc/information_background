@@ -4,6 +4,7 @@ import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
 import { getListData, getAllRole } from './http';
+import { history } from 'umi';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -176,15 +177,17 @@ export default Form.create()(
             key: 'action',
             render: (text: any, record: any) => (
               <span>
-                <a>查看</a>
+                <a>编辑</a>
                 <Divider type="vertical" />
                 <a>
                   {record.is_show == 0 ? "上架" : "下架"}
                 </a>
                 <Divider type="vertical" />
-                <a>编辑</a>
-                <Divider type="vertical" />
                 <a>删除</a>
+                <Divider type="vertical" />
+                <a onClick={() => history.push(`/informationManagement/classifyToManage/classifyArticleList/${record.id}`)}>
+                  管理文章
+                </a>
               </span>
             ),
           },

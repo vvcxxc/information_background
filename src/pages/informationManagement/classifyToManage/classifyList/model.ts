@@ -21,7 +21,7 @@ const Model = {
         classifyTitle: action.payload.classifyTitle,
         typeStatus: action.payload.typeStatus,
         classifyCategory: action.payload.classifyCategory,
-        // currentPage: 1,
+        currentPage: 1,
       };
     },
     resetFussySearch(state: any) {
