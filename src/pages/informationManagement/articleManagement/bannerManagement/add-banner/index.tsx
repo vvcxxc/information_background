@@ -5,19 +5,24 @@ import {
 } from 'antd';
 import UploadBox from "@/components/uploadBox"
 import { connect } from 'dva'
+
+import {
+  getListArticles, // 获取文章列表
+  getTerraceRole   // 获取所有角色
+} from "../servers"
+
 import styles from './index.less'
-
 const { Option } = Select;
-
 interface Props {
   dispatch: (data: any) => void,
-  choose_type:Number,
+  choose_type: Number,
   choose_location: Number,
   allowed_show: Number,
   upload_type: Number,
   allowed_click: Number
 }
-
+// { { url } } /admin/common / getTerraceRole    is_category 0
+// /admin/article  terrace_id平台id  page页数 per_page一页多少条数据
 export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class AddBanner extends Component<Props> {
   state = {
     banner_type: 0,
@@ -29,10 +34,66 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     operation_index: 0,
     currentPage: 1,
     currentPageSize: 5,
+
+    terraceRole: [],//选择位置（角色）
+    ListArticles:[],//文章数组
   }
 
-  componentWillMount() {
-    // console.log(this.props, 'props')
+  componentDidMount() {
+
+    // 获取文章列表
+    getListArticles({
+      terrace_id: 1,
+      page: 1,
+      per_page: 5
+    })
+      .then(res => {
+        console.log('获取文章列表', res, res.data)
+        let meta:any = []
+        // res.data.map((item: any, _: number)=>{
+        //   meta[_].key = _;
+        //   meta[_].number = _;
+        //   meta[_].title = _;
+        //   meta[_].author = _;
+        //   meta[_].image = _;
+        //   meta[_].type = _;
+        //   meta[_].key = _;
+        // })
+        this.setState({
+          // key: '1',
+          // number: 1,
+          // title: '第一标题',
+          // author: '麒麟作者',
+          // image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
+          // type: '已上架',
+          // time: "2020-02-18 05：37：15",
+          // read_number: '80',
+          // belong_to: '创客 新手上路',
+          // operation: 1
+
+          // key: '1',
+          // number: 1,
+          // title: '第一标题',
+          // author: '麒麟作者',
+          // image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
+          // type: '已上架',
+          // time: "2020-02-18 05：37：15",
+          // read_number: '80',
+          // belong_to: '创客 新手上路',
+          // operation: 1
+        })
+
+      })
+
+    // 获取所有角色
+    getTerraceRole({
+      terrace_id: 1,
+      is_category: 0
+    })
+      .then(res => {
+        this.setState({ terraceRole: res.data })
+      })
+
   }
 
   handleChange = (value) => {
@@ -97,7 +158,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     // showSizeChanger: true
     // showQuickJumper: false
     // total: 111 总数
-    console.log(dd1, ddd2, cd3, dd4,'ioiooi')
+    console.log(dd1, ddd2, cd3, dd4, 'ioiooi')
   }
 
 
@@ -106,20 +167,12 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     const {
       currentPage,
       currentPageSize,
+      terraceRole,
+      ListArticles
     } = this.state
-    // this.props.articleList;
     const meta = [
       {
-        key: '1',
-        number: 1,
-        title: '第一标题',
-        author: '麒麟作者',
-        image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
-        type: '已上架',
-        time: "2020-02-18 05：37：15",
-        read_number: '80',
-        belong_to: '创客 新手上路',
-        operation: 1
+        
       },
       {
         key: '2',
@@ -264,8 +317,11 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
               style={{ width: 300 }}
               onChange={this.setBannarType.bind(this, 'choose_location')}
             >
-              <Option value={1}>（创客）资讯中心</Option>
-              <Option value={2}>（会长）资讯中心</Option>
+              {
+                terraceRole.map((value: any, _: number) => {
+                  return <Option value={value.id} key={_}>{value.role_name}</Option>
+                })
+              }
             </Select>
 
           </Form.Item>
@@ -296,7 +352,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
             </Form.Item> : null
           }
           {
-            choose_type == 2 ?<Form.Item
+            choose_type == 2 ? <Form.Item
               label="上传bannar图片"
               name="upload-Image"
               style={{ margin: '10px 0px' }}
@@ -312,7 +368,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
                 onChange={this.getUploadImage}
                 imgUrl={this.state.imgUrl}
               />
-            </Form.Item>:null
+            </Form.Item> : null
           }
           {
             choose_type == 1 ? <Form.Item
@@ -338,7 +394,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
                 position='topCenter'
                 size="small"
                 columns={columns}
-                dataSource={meta}
+                dataSource={ListArticles}
                 bordered
                 scroll={{ x: 1200, y: 400 }}
                 pagination={{
@@ -353,7 +409,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
                 onChange={this.handleTableChange}
                 onShowSizeChange={this.changePageSize}
               />
-            </Form.Item>:null
+            </Form.Item> : null
           }
 
         </Form>

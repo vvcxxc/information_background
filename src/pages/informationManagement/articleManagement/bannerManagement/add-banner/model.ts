@@ -4,6 +4,9 @@ const model: Model = {
   state: {
     choose_type: '',             //选择bannar类型
     choose_location: '',        //选择bannar位置
+    // locationArry:[],//banner位置缓存
+
+
     allowed_show: '',     //是否允许直接显示
 
     upload_type:'',       //上传图片类型
