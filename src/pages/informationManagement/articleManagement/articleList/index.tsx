@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Input, Button, Select, Divider, Modal, message } from 'antd';
+import { Table, Row, Col, Input, Button, Select, Divider, Modal, message, Breadcrumb } from 'antd';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
@@ -268,6 +268,13 @@ export default Form.create()(
         const { loading, total, dataList, articleCategoryList, allRoleList } = this.state;
         return (
           <div className={styles.article_list}>
+             <Breadcrumb>
+                <Breadcrumb.Item>资讯管理</Breadcrumb.Item>
+                <Breadcrumb.Item>
+                文章管理
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>文章列表</Breadcrumb.Item>
+              </Breadcrumb>
             <Form>
               <Row
                 gutter={{
