@@ -217,7 +217,7 @@ export default Form.create()(
             key: 'category_name',
             render: (text: any, record: any) => {
               return record.data_category.map((item: any) => (
-                <span>{item.category.category_name}</span>
+                <span>{item.category.category_name + "(" + item.rank_order + ")"},</span>
               )
               )
             }
@@ -228,7 +228,7 @@ export default Form.create()(
             key: 'terrace_role_id',
             render: (text: any, record: any) => {
               return record.data_role.map((item: any) => (
-                <span>{item.role.role_name},</span>
+                <span>{item.role.role_name + "(" + item.rank_order + ")"},</span>
               )
               )
             }
