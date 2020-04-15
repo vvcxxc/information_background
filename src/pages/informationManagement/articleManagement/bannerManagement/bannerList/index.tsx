@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Input, Button, Select, Tabs, Divider } from 'antd';
+import { Table, Row, Col, Input, Button, Select, Tabs, Divider, Modal, message } from 'antd';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
-import { getListData, getAllRole } from './http';
+import { getListData, getAllRole, deleteBanner } from './http';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import styles from './index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { TabPane } = Tabs;
+const { confirm } = Modal;
 
 interface Props {
   dispatch: (opt: any) => any;
@@ -127,7 +130,55 @@ export default Form.create()(
        * 表格改变
        */
       handleChange = async (pagination: any) => {
+        await this.props.dispatch({
+          type: 'bannerList/setPaginationCurrent',
+          payload: {
+            currentPage: pagination.current,
+            currentPageSize: pagination.pageSize,
+          },
+        });
 
+        const {
+          contentTitle,
+          publishStatus,
+          bannerType,
+          classifyCategory,
+          currentPage,
+          currentPageSize,
+        } = this.props.bannerList;
+        this.requestListData(contentTitle, publishStatus, bannerType, classifyCategory, currentPage, currentPageSize);
+      }
+
+
+      handleDeleteItem = (record: any) => {
+        let _this = this;
+        confirm({
+          title: '确认操作',
+          icon: <ExclamationCircleOutlined />,
+          content: '您确认删除该文章吗？',
+          okText: '确认',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk() {
+            deleteBanner(record.id).then((res: any) => {
+              if (res.code == 200) {
+                message.success(res.message);
+                const {
+                  contentTitle,
+                  publishStatus,
+                  bannerType,
+                  classifyCategory,
+                  currentPage,
+                  currentPageSize,
+                } = _this.props.bannerList;
+                _this.requestListData(contentTitle, publishStatus, bannerType, classifyCategory, currentPage, currentPageSize);
+              }
+            })
+          },
+          onCancel() {
+            console.log('Cancel');
+          },
+        });
       }
 
       render() {
@@ -141,16 +192,25 @@ export default Form.create()(
             title: '图片',
             dataIndex: 'banner_cover',
             key: 'banner_cover',
+            render: (text: any, record: any) => (
+              <img className={styles.img_cover} src={record.banner_cover} alt="" />
+            )
           },
           {
             title: '内容',
-            dataIndex: 'age',
-            key: 'age',
+            dataIndex: 'article_title',
+            key: 'article_title',
+            render: (text: any, record: any) => (
+              <span>{record.article.article_title}</span>
+            )
           },
           {
             title: '类型',
             dataIndex: 'banner_type',
             key: ' banner_type',
+            render: (text: any, record: any) => (
+              <span>{record.banner_type == 1 ? "图片" : "文章"}</span>
+            )
           },
           {
             title: '添加时间',
@@ -159,13 +219,19 @@ export default Form.create()(
           },
           {
             title: '是否点击',
-            dataIndex: 'age',
-            key: 'age',
+            dataIndex: 'external_url',
+            key: 'external_url',
+            render: (text: any, record: any) => (
+              <span>{record.external_url == "" ? "否" : "是"}</span>
+            )
           },
           {
             title: '展示状态',
             dataIndex: 'is_show',
             key: 'is_show',
+            render: (text: any, record: any) => (
+              <span>{record.is_show == 1 ? "是" : "否"}</span>
+            )
           },
           {
             title: '操作',
@@ -174,6 +240,7 @@ export default Form.create()(
               <span>
                 <a>查看</a>
                 <Divider type="vertical" />
+                <a onClick={this.handleDeleteItem.bind(this, record)}>删除</a>
               </span>
             ),
           },
@@ -198,7 +265,7 @@ export default Form.create()(
         // const { CKLoading, CKTotal, HZLoading, HZTotal } = this.state;
         const { loading, total, allRoleList, dataList } = this.state;
         return (
-          <div>
+          <div className={styles.banner_list}>
             <Form>
               <Row
                 gutter={{
@@ -210,7 +277,7 @@ export default Form.create()(
                 <Col md={6} sm={24}>
                   <FormItem label="内容标题">
                     {getFieldDecorator('contentTitle', { initialValue: contentTitle })(
-                      <Input placeholder="请输入" />,
+                      <Input placeholder="请输入内容标题" />,
                     )}
                   </FormItem>
                 </Col>
@@ -223,8 +290,8 @@ export default Form.create()(
                           width: '100%',
                         }}
                       >
-                        <Option value="0">是</Option>
-                        <Option value="1">否</Option>
+                        <Option value="1">是</Option>
+                        <Option value="0">否</Option>
                       </Select>,
                     )}
                   </FormItem>
