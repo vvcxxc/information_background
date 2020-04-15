@@ -9,7 +9,7 @@ export default function SelectUser() {
     request.get('/admin/authorizations/me/terraces').then(res => {
       if (res.data.length) {
         serList(res.data)
-        localStorage.setItem('terrace_id',1)
+        localStorage.setItem('terrace_id','1')
       }
     })
   }, [])

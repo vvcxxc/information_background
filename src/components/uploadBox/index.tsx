@@ -117,6 +117,7 @@ function UploadBox(props: Props) {
   const handleCancel = () => setVisible(false);
   const handleRemove = () => {
     setFile([])
+    props.onChange('')
   }
 
   return (

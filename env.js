@@ -18,7 +18,7 @@ const configs = {
 
   // 线上环境
   master: {
-    API: 'http://platform-admin.api.tdianyi.com',
+    API: 'http://test.api.counsel_terrace.tdianyi.com',
   },
 };
 
