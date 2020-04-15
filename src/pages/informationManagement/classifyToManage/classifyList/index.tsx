@@ -192,6 +192,13 @@ export default Form.create()(
             title: '所属角色',
             dataIndex: 'terrace_role_id',
             key: 'terrace_role_id',
+            render: (text: any, record: any) => (
+              allRoleList.map((item: any) => {
+                return (
+                  <span>{item.id == record.terrace_role_id ? item.role_name : ""}</span>
+                )
+              })
+            )
           },
           {
             title: '分类状态',

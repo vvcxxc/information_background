@@ -45,3 +45,21 @@ export function getAllRole() {
             })
     })
 }
+
+
+/**
+ * 删除banner
+ */
+
+export function deleteBanner(id: any) {
+    return new Promise((resolve, reject) => {
+        Request(`/admin/banner/${id}`, {
+            method: 'DELETE'
+        }).then(res => {
+            resolve(res);
+        })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}
