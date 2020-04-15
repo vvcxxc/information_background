@@ -7,6 +7,7 @@ import {
 } from '@/pages/informationManagement/classifyToManage/servers'
 import { connect } from 'dva'
 import style from './index.less'
+import { history } from 'umi';
 
 interface Porps {
   dispatch: (_: any) => null,
@@ -26,7 +27,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
 
     async componentDidMount() {
      await getAllRoles({
-        terrace_id: 1,//平台id 
+        terrace_id: 1,//平台id
         is_category: 0
       }).then((res) => {
         this.setState({ typeData:res.data })
@@ -72,14 +73,20 @@ export default connect(({ classificationList }: any) => ({ classificationList })
 
       addClasasification(addProps)
         .then(res => {
-          this.dispatchAddProps('classificationList/clearAddData',{})
-          message.error(message);
+          console.log(res)
+          if(res.status_code){
+            message.error(res.message);
+            history.push('/informationManagement/classifyToManage/classifyList')
+          }else {
+            this.dispatchAddProps('classificationList/clearAddData',{})
+            message.success('添加成功');
+          }
         }).catch(() => {
           console.log('catch')
         })
     }
 
-    //失败回调中校验 
+    //失败回调中校验
     onFinishFailed = () => {
 
     }
@@ -87,7 +94,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
     // 取消提交
     cancelSubmit = async() => {
       await this.dispatchAddProps('classificationList/clearAddData', {})
-      await window.history.back(-1); 
+      await window.history.back(-1);
     }
 
     // 处理 dva 赋值
