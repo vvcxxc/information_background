@@ -11,6 +11,8 @@ import 'braft-editor/dist/index.css';
 import request from '@/utils/request';
 import moment from 'moment';
 import { getTerraceRole, getArticle, editorArticle } from './service';
+import { history } from 'umi'
+
 export default class AddArticle extends React.Component {
 
     state = {
@@ -87,7 +89,7 @@ export default class AddArticle extends React.Component {
                         }
                         this.setState({
                             classList, articleId: id, title: article_title, auth: article_author, readNum: read_num, titleFileImg: author_cover,
-                            isShelvesValue: is_show == 1 ? 1 : 0,
+                            isShelvesValue: is_show == 1 ? 1 : 2,
                             editorState: BraftEditor.createEditorState(content),
                             showLoading: false,
                             dateString: publish_time.split(' ')[0],
@@ -270,7 +272,7 @@ export default class AddArticle extends React.Component {
                         description: res.message,
                     });
                     setTimeout(() => {
-                        window.history.back();
+                        history.push({ "pathname": '/informationManagement/articleManagement/articleList' })
                     }, 1500)
                 } else {
                     notification.open({

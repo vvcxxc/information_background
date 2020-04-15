@@ -4,7 +4,7 @@ const model: Model = {
   state: {
     choose_type: '',             //选择bannar类型
     choose_location: '',        //选择bannar位置
-    allowed_show: 0,     //是否允许直接显示
+    allowed_show: 1,     //是否允许直接显示
     upload_type:'',       //上传图片类型
     upload_image: '',     //上传图片地址
     chooseText: '',       //选择文章
