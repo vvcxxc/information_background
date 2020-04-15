@@ -60,6 +60,7 @@ const UserModel: UserModelType = {
   reducers: {
     saveCurrentUser(state, action) {
       console.log(action,'222')
+      localStorage.setItem('terrace_id',action.payload.terrace_id)
       return {
         ...state,
         currentUser: action.payload || {},
