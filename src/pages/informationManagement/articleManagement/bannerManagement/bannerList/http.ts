@@ -4,15 +4,15 @@ import Request from '@/utils/request';
 /**
  * 获取列表页
  */
-
-export function getListData(category_name: any, is_show: any, terrace_role_id: any, page: any, per_page: any) {
+export function getListData(article_title: any, is_show: any, banner_type: any, terrace_role_id: any, page: any, per_page: any) {
     return new Promise((resolve, reject) => {
-        Request('/admin/articleCategory', {
+        Request('/admin/banner', {
             method: 'GET',
             params: {
                 terrace_id: 1,
-                category_name,
+                article_title,
                 is_show,
+                banner_type,
                 terrace_role_id,
                 page,
                 per_page
@@ -46,13 +46,14 @@ export function getAllRole() {
     })
 }
 
+
 /**
- * 删除文章
+ * 删除banner
  */
 
-export function deleteArticleClassify(id: any) {
+export function deleteBanner(id: any) {
     return new Promise((resolve, reject) => {
-        Request(`/admin/articleCategory/${id}`, {
+        Request(`/admin/banner/${id}`, {
             method: 'DELETE'
         }).then(res => {
             resolve(res);

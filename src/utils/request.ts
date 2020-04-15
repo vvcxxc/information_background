@@ -28,10 +28,10 @@ const codeMessage = {
 /**
  * 异常处理程序
  */
-const errorHandler = (error: { response: Response }): Response => {
+const errorHandler = async (error: { response: Response }): Response => {
   const { response } = error;
-  console.log(error)
   if (response && response.status) {
+    // console.log(response.status,'sss')
     const errorText = codeMessage[response.status] || response.statusText;
     const { status, url } = response;
     notification.error({
@@ -39,6 +39,7 @@ const errorHandler = (error: { response: Response }): Response => {
       description: errorText,
     });
     if (response.status == 401) {
+      console.log('登录')
       history.push('/user/login');
     }
   } else if (!response) {
@@ -93,12 +94,17 @@ request.interceptors.request.use((url, options) => {
 });
 
 // // response拦截器, 处理response
-request.interceptors.response.use((response, options) => {
+request.interceptors.response.use(async (response, options) => {
   // let token = response.headers.get("x-auth-token");
   // if (token) {
   //   localStorage.setItem("x-auth-token", token);
   // }
-  return response;
+  if(response.status == 200) return response;
+  if(response.status == 401) return response;
+  let aa = Promise.resolve(response.json())
+  let a = await aa
+  return a
+
 });
 
 export default request;

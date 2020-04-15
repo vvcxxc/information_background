@@ -92,17 +92,22 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
           name: '文章管理',
           children: [
             {
+              path: '/informationManagement/articleManagement/addArticle',
+              name: '发布文章',
+            },
+            {
               path: '/informationManagement/articleManagement/articleList',
               name: '文章列表',
             },
-            {
-              path: '/informationManagement/articleManagement/fineArticleList',
-              name: '精品文章管理',
-            },
+            // {
+            //   path: '/informationManagement/articleManagement/fineArticleList',
+            //   name: '精品文章管理',
+            // },
             {
               path: '/informationManagement/articleManagement/bannerManagement/bannerList',
               name: 'banner管理',
             },
+
           ],
         },
         {

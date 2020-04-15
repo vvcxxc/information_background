@@ -42,3 +42,23 @@ export function getAllRole() {
             })
     })
 }
+
+/**
+ * 修改角色
+ */
+
+export function editRole(terrace_role_id: any, role_name: any) {
+    return new Promise((resolve, reject) => {
+        Request(`/admin/terraceRole/${terrace_role_id}`, {
+            method: 'PUT',
+            data: {
+                role_name
+            }
+        }).then(res => {
+            resolve(res);
+        })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}

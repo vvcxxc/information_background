@@ -55,6 +55,7 @@ export default class AddArticle extends React.Component {
 
     async componentDidMount() {
         let that = this;
+        let terrace_id = localStorage.getItem('terrace_id');
         let data = localStorage.getItem('oss_data')
         if (!data) {
             request.get('http://release.api.supplier.tdianyi.com/api/v2/up').then(res => {
@@ -63,7 +64,7 @@ export default class AddArticle extends React.Component {
             });
         }
         this.setState({ showLoading: true })
-        getTerraceRole({ terrace_id: 1, is_category: true })
+        getTerraceRole({ terrace_id, is_category: true })
             .then((res: any) => {
                 let classList = res.data;
                 getArticle(that.props.location.query.id)//文章id
@@ -216,6 +217,7 @@ export default class AddArticle extends React.Component {
     //提交
     submitContent = async () => {
         let that = this;
+        let terrace_id = localStorage.getItem('terrace_id');
         if (!this.state.title) {
             this.showMessage('发布失败', '请填写标题')
             return;
@@ -248,7 +250,7 @@ export default class AddArticle extends React.Component {
         }
         this.setState({ showLoading: true });
         let data = {
-            terrace_id: 1,//平台id
+            terrace_id,//平台id
             article_title: this.state.title,
             article_author: this.state.auth,
             author_cover: this.state.titleFileImg,
@@ -276,7 +278,10 @@ export default class AddArticle extends React.Component {
                         description: res.message,
                     });
                 }
-            }).catch(err => that.setState({ showLoading: false }))
+            }).catch(err => {
+                console.log(err, '222')
+                that.setState({ showLoading: false })
+            })
     }
 
     render() {

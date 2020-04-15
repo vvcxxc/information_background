@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Input, Button, Select, Divider } from 'antd';
+import { Table, Row, Col, Input, Button, Select, Divider, Modal, message } from 'antd';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
-import { getListData, getArticleCategory } from './http';
+import { getListData, getArticleCategory, getAllRole, deleteArticle } from './http';
 import styles from './index.less';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { history } from 'umi'
 
 const FormItem = Form.Item;
 const { Option } = Select;
+const { confirm } = Modal;
 
 interface Props {
   dispatch: (opt: any) => any;
@@ -23,29 +25,33 @@ export default Form.create()(
         loading: false,
         total: 0,
         dataList: [],
-        articleCategoryList: []
+        articleCategoryList: [],
+        allRoleList: [],
       };
 
       componentDidMount() {
         const {
           articleTitle,
           publishAuthor,
+          roleName,
           publishStatus,
           articleCategory,
           currentPage,
           currentPageSize,
         } = this.props.articleList;
-        this.requestListData(articleTitle, publishAuthor, publishStatus, articleCategory, currentPage, currentPageSize);
+        this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, currentPage, currentPageSize);
 
         this.requestArticleCategory();
+
+        this.requestAllRole();
       }
 
 
-      requestListData = async (article_title: any, article_author: any, is_show: any, category_id: any, page: any, per_page: any) => {
+      requestListData = async (article_title: any, article_author: any, terrace_role_id: any, is_show: any, category_id: any, page: any, per_page: any) => {
         await this.setState({
           loading: true
         })
-        getListData(article_title, article_author, is_show, category_id, page, per_page).then((res: any) => {
+        getListData(article_title, article_author, terrace_role_id, is_show, category_id, page, per_page).then((res: any) => {
           this.setState({
             dataList: res.data,
             loading: false,
@@ -62,12 +68,21 @@ export default Form.create()(
         })
       }
 
+      requestAllRole = () => {
+        getAllRole().then((res: any) => {
+          this.setState({
+            allRoleList: res.data
+          })
+        })
+      }
+
       /**
        * 查询
        */
       handleSearch = async () => {
         const articleTitle = this.props.form.getFieldValue('articleTitle');
         const publishAuthor = this.props.form.getFieldValue('publishAuthor');
+        const roleName = this.props.form.getFieldValue('roleName');
         const publishStatus = this.props.form.getFieldValue('publishStatus');
         const articleCategory = this.props.form.getFieldValue('articleCategory');
         await this.props.dispatch({
@@ -75,12 +90,13 @@ export default Form.create()(
           payload: {
             articleTitle,
             publishAuthor,
+            roleName,
             publishStatus,
             articleCategory,
           },
         });
         const { currentPage, currentPageSize } = this.props.articleList;
-        this.requestListData(articleTitle, publishAuthor, publishStatus, articleCategory, currentPage, currentPageSize);
+        this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, currentPage, currentPageSize);
       };
 
       /**
@@ -110,10 +126,43 @@ export default Form.create()(
         const { currentPage, currentPageSize } = this.props.articleList;
         let articleTitle = this.props.form.getFieldValue('articleTitle');
         let publishAuthor = this.props.form.getFieldValue('publishAuthor');
+        let roleName = this.props.form.getFieldValue('roleName');
         let publishStatus = this.props.form.getFieldValue('publishStatus');
         let articleCategory = this.props.form.getFieldValue('articleCategory');
-        this.requestListData(articleTitle, publishAuthor, publishStatus, articleCategory, currentPage, currentPageSize);
+        this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, currentPage, currentPageSize);
       };
+
+      handleDeleteItem = (record: any) => {
+        let _this = this;
+        confirm({
+          title: '确认操作',
+          icon: <ExclamationCircleOutlined />,
+          content: '您确认删除该文章吗？',
+          okText: '确认',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk() {
+            deleteArticle(record.id).then((res: any) => {
+              if (res.code == 200) {
+                message.success(res.message);
+                const {
+                  articleTitle,
+                  publishAuthor,
+                  roleName,
+                  publishStatus,
+                  articleCategory,
+                  currentPage,
+                  currentPageSize,
+                } = _this.props.articleList;
+                _this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, currentPage, currentPageSize);
+              }
+            })
+          },
+          onCancel() {
+            console.log('Cancel');
+          },
+        });
+      }
 
       render() {
         const columns = [
@@ -144,7 +193,13 @@ export default Form.create()(
             title: '发布状态',
             dataIndex: 'is_show',
             key: 'is_show',
-
+            render: (text: any, record: any) => (
+              <span>
+                {
+                  record.is_show == 0 ? "未发布" : "已发布"
+                }
+              </span>
+            )
           },
           {
             title: '发布时间',
@@ -168,17 +223,28 @@ export default Form.create()(
             }
           },
           {
+            title: '精品',
+            dataIndex: 'terrace_role_id',
+            key: 'terrace_role_id',
+            render: (text: any, record: any) => {
+              return record.data_role.map((item: any) => (
+                <span>{item.role.role_name},</span>
+              )
+              )
+            }
+          },
+          {
             title: '操作',
             key: 'action',
             render: (text: any, record: any) => (
               <span>
                 <a onClick={() => { history.push({ "pathname": '/informationManagement/articleManagement/previewArticle', query: { id: record.id } }) }}>查看</a>
                 <Divider type="vertical" />
-                <a>下架</a>
+                {/* <a>下架</a> */}
+                {/* <Divider type="vertical" /> */}
+                <a onClick={() => { history.push({ "pathname": '/informationManagement/articleManagement/editorArticle', query: { id: record.id } }) }}>编辑</a>
                 <Divider type="vertical" />
-                <a onClick={() => { history.push({ "pathname": '/informationManagement/articleManagement/editorArticle', query: { id: record.id } }) }} >编辑</a>
-                <Divider type="vertical" />
-                <a>删除</a>
+                <a onClick={this.handleDeleteItem.bind(this, record)}>删除</a>
               </span>
             ),
           },
@@ -192,13 +258,14 @@ export default Form.create()(
         const {
           articleTitle,
           publishAuthor,
+          roleName,
           publishStatus,
           articleCategory,
           currentPage,
           currentPageSize,
         } = this.props.articleList;
 
-        const { loading, total, dataList, articleCategoryList } = this.state;
+        const { loading, total, dataList, articleCategoryList, allRoleList } = this.state;
         return (
           <div className={styles.article_list}>
             <Form>
@@ -220,6 +287,24 @@ export default Form.create()(
                   <FormItem label="发布作者">
                     {getFieldDecorator('publishAuthor', { initialValue: publishAuthor })(
                       <Input placeholder="请输入" />,
+                    )}
+                  </FormItem>
+                </Col>
+                <Col md={8} sm={24}>
+                  <FormItem label="精品">
+                    {getFieldDecorator('roleName', { initialValue: roleName })(
+                      <Select
+                        placeholder="请选择精品"
+                        style={{
+                          width: '100%',
+                        }}
+                      >
+                        {
+                          allRoleList.map((item: any) => (
+                            <option value={item.id}>{item.role_name}</option>
+                          ))
+                        }
+                      </Select>
                     )}
                   </FormItem>
                 </Col>

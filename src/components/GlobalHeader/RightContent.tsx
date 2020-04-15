@@ -3,6 +3,7 @@ import React from 'react';
 import { connect, ConnectProps } from 'umi';
 import { ConnectState } from '@/models/connect';
 import Avatar from './AvatarDropdown';
+import SelectUser from './SelectUser'
 import styles from './index.less';
 
 export type SiderTheme = 'light' | 'dark';
@@ -27,6 +28,7 @@ const GlobalHeaderRight: React.SFC<GlobalHeaderRightProps> = (props) => {
 
   return (
     <div className={className}>
+      <SelectUser />
       <Avatar />
       {REACT_APP_ENV && (
         <span>

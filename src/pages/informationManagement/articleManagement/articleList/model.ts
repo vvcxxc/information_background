@@ -3,6 +3,7 @@ const Model = {
   state: {
     articleTitle: undefined, // 文章标题
     publishAuthor: undefined, // 发布作者
+    roleName: undefined,      // 所属角色
     publishStatus: undefined, // 发布状态
     articleCategory: undefined, // 所属分类
     currentPage: 1, // 当前页
@@ -14,6 +15,7 @@ const Model = {
         ...state,
         articleTitle: action.payload.articleTitle,
         publishAuthor: action.payload.publishAuthor,
+        roleName: action.payload.roleName,
         publishStatus: action.payload.publishStatus,
         articleCategory: action.payload.articleCategory,
         currentPage: 1,
@@ -24,6 +26,7 @@ const Model = {
         ...state,
         articleTitle: undefined,
         publishAuthor: undefined,
+        roleName: undefined,
         publishStatus: undefined,
         articleCategory: undefined,
       };

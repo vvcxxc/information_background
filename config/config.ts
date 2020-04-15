@@ -151,6 +151,11 @@ export default defineConfig({
                       path: '/informationManagement/classifyToManage/classifyList',
                       component: './informationManagement/classifyToManage/classifyList',
                     },
+                    {
+                      name: 'classifyArticleList',
+                      path: '/informationManagement/classifyToManage/classifyArticleList/:id',
+                      component: './informationManagement/classifyToManage/classifyArticleList',
+                    }
                   ],
                 },
                 {
