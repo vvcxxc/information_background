@@ -3,7 +3,7 @@ import { Table, Row, Col, Input, Button, Select, Tabs, Divider, Modal, message }
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
-import { getListData, getAllRole, deleteArticleClassify } from './http';
+import { getListData, getAllRole, deleteArticleClassify, changeIsShow } from './http';
 import { history } from 'umi';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 
@@ -176,8 +176,53 @@ export default Form.create()(
         });
       }
 
+      handleIsShow = (record: any) => {
+        let _this = this;
+        confirm({
+          title: '确认操作',
+          icon: <ExclamationCircleOutlined />,
+          content: '确认更改分类的发布状态',
+          okText: '确认',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk() {
+            if (record.is_show == 0) {
+              changeIsShow(record.id, record.terrace_id, record.terrace_role_id, record.category_name, 1, record.rank_order).then((res: any) => {
+                if (res.code == 200) {
+                  message.success(res.message);
+                  const {
+                    classifyTitle,
+                    typeStatus,
+                    classifyCategory,
+                    currentPage,
+                    currentPageSize,
+                  } = _this.props.classifyList;
+                  _this.requestListData(classifyTitle, typeStatus, classifyCategory, currentPage, currentPageSize);
+                }
+              })
+            } else if (record.is_show == 1) {
+              changeIsShow(record.id, record.terrace_id, record.terrace_role_id, record.category_name, 0, record.rank_order).then((res: any) => {
+                if (res.code == 200) {
+                  message.success(res.message);
+                  const {
+                    classifyTitle,
+                    typeStatus,
+                    classifyCategory,
+                    currentPage,
+                    currentPageSize,
+                  } = _this.props.classifyList;
+                  _this.requestListData(classifyTitle, typeStatus, classifyCategory, currentPage, currentPageSize);
+                }
+              })
+            }
+          },
+          onCancel() {
+            console.log('Cancel');
+          },
+        });
+      }
       goTo = (id: any) => {
-        history.push('/informationManagement/classifyToManage/classificationList/update-classification?id='+id)
+        history.push('/informationManagement/classifyToManage/classificationList/update-classification?id=' + id)
       }
 
       render() {
@@ -221,12 +266,12 @@ export default Form.create()(
             key: 'action',
             render: (text: any, record: any) => (
               <span>
-                <a onClick={this.goTo.bind(this,record.id)}>编辑</a>
+                <a onClick={this.goTo.bind(this, record.id)}>编辑</a>
                 <Divider type="vertical" />
-                {/* <a>
+                <a onClick={this.handleIsShow.bind(this, record)}>
                   {record.is_show == 0 ? "上架" : "下架"}
                 </a>
-                <Divider type="vertical" /> */}
+                <Divider type="vertical" />
                 <a onClick={this.handleDeleteItem.bind(this, record)}>删除</a>
                 <Divider type="vertical" />
                 <a onClick={() => history.push(`/informationManagement/classifyToManage/classifyArticleList/${record.id}`)}>
