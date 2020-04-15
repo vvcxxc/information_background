@@ -15,7 +15,7 @@ export default class AddArticle extends React.Component {
     }
 
     componentDidMount() {
-        getArticle(1)//文章id
+        getArticle(this.props.location.query.id)//文章id
             .then((res: any) => {
                 this.setState({ data: res.data })
             })
