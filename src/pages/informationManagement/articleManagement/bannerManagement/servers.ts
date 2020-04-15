@@ -24,3 +24,21 @@ export const getTerraceRole = (params: getTerraceRoleType) => {
     params
   })
 }
+
+interface getAddBannerType {
+  terrace_id?: String | Number,       // 平台id
+  terrace_role_id?: String | Number,  // 平台角色id
+  banner_type?: String | Number,      // banner类型:1图片2文章
+  banner_cover?: String | Number,     // 封面图
+  article_id?: String | Number,       // 文章id(banner_type为1时传0)
+  external_url?: String | Number,     // 需要跳转的url
+  is_show?: String | Number,          // 是否显示：1显示0隐藏
+  rank_order?: String | Number,        // 排序(越大越前)
+}
+// 添加banner
+export const getAddBanner = (data: getAddBannerType) => {
+  return request('/admin/banner', {
+    method: 'POST',
+    data
+  })
+}
