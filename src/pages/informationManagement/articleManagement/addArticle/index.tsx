@@ -37,7 +37,7 @@ export default class AddArticle extends React.Component {
         classChuangkeNum: '',//排序分类创客
         qualityHuizhangNum: '',//排序精品会长
         qualityChuangkeNum: '',//排序精品创客
-        readNum: '',//阅读数
+        readNum: 0,//阅读数
 
         isShelvesValue: 1,//上架1是2否
         editorState: BraftEditor.createEditorState(null), // 创建一个空的editorState作为初始值
@@ -49,6 +49,7 @@ export default class AddArticle extends React.Component {
     }
 
     async componentDidMount() {
+        let terrace_id = localStorage.getItem('terrace_id');
         let data = localStorage.getItem('oss_data')
         if (!data) {
             request.get('http://release.api.supplier.tdianyi.com/api/v2/up').then(res => {
@@ -56,7 +57,7 @@ export default class AddArticle extends React.Component {
                 localStorage.setItem('oss_data', JSON.stringify(data))
             });
         }
-        getTerraceRole({ terrace_id: 1, is_category: true })
+        getTerraceRole({ terrace_id, is_category: true })
             .then((res: any) => {
                 if (res.data && res.data.length) { this.setState({ classList: res.data }) }
             })
@@ -174,6 +175,7 @@ export default class AddArticle extends React.Component {
     }
     //提交
     submitContent = async () => {
+        let terrace_id = localStorage.getItem('terrace_id');
         if (!this.state.title) {
             this.showMessage('发布失败', '请填写标题')
             return;
@@ -206,7 +208,7 @@ export default class AddArticle extends React.Component {
         }
         this.setState({ showLoading: true });
         let data = {
-            terrace_id: 1,//平台id
+            terrace_id,//平台id
             article_title: this.state.title,
             article_author: this.state.auth,
             author_cover: this.state.titleFileImg,
@@ -358,7 +360,7 @@ export default class AddArticle extends React.Component {
                 </div>
                 <div className={styles.titleBox}>
                     <div className={styles.titleWords}>阅读人数</div>
-                    <input className={styles.titleInputShort} type="number" placeholder="阅读人数" onChange={this.editorInput.bind(this, 'readNum')} />
+                    <input className={styles.titleInputShort} type="number" placeholder="阅读人数" onChange={this.editorInput.bind(this, 'readNum')} defaultValue={0} />
                 </div>
                 <div className={styles.titleBox}>
                     <div className={styles.titleWords}>发布日期</div>
