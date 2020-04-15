@@ -240,14 +240,14 @@ export default class AddArticle extends React.Component {
             classList[i].selectCheck && data_category.push({ category_id: classList[i].selectValue, rank_order: classList[i].inputNum ? classList[i].inputNum : '0' })
             classList[i].qualityCheck && data_role.push({ role_id: classList[i].id, rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0' })
         }
-        if (!data_role.length) {
-            this.showMessage('发布失败', '请选择文章分类')
-            return;
-        }
-        if (!data_role.length) {
-            this.showMessage('发布失败', '请选择精品设置')
-            return;
-        }
+        // if (!data_role.length) {
+        //     this.showMessage('发布失败', '请选择文章分类')
+        //     return;
+        // }
+        // if (!data_role.length) {
+        //     this.showMessage('发布失败', '请选择精品设置')
+        //     return;
+        // }
         this.setState({ showLoading: true });
         let data = {
             terrace_id,//平台id
