@@ -62,3 +62,26 @@ export function deleteArticleClassify(id: any) {
             })
     })
 }
+
+/**
+ * 上下架
+ */
+export function changeIsShow(id: any, terrace_id: any, terrace_role_id: any, category_name: any, is_show: any, rank_order: any) {
+    return new Promise((resolve, reject) => {
+        Request(`/admin/articleCategory/${id}`, {
+            method: 'PUT',
+            data: {
+                terrace_id,
+                terrace_role_id,
+                category_name,
+                is_show,
+                rank_order
+            }
+        }).then(res => {
+            resolve(res);
+        })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}
