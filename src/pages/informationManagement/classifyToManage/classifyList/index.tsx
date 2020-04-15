@@ -176,6 +176,10 @@ export default Form.create()(
         });
       }
 
+      goTo = (id: any) => {
+        history.push('/informationManagement/classifyToManage/classificationList/update-classification?id='+id)
+      }
+
       render() {
         const columns = [
           {
@@ -217,7 +221,7 @@ export default Form.create()(
             key: 'action',
             render: (text: any, record: any) => (
               <span>
-                <a>编辑</a>
+                <a onClick={this.goTo.bind(this,record.id)}>编辑</a>
                 <Divider type="vertical" />
                 {/* <a>
                   {record.is_show == 0 ? "上架" : "下架"}

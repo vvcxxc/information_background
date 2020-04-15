@@ -32,7 +32,8 @@ export default class UpdateClassification extends Component<Porps>{
     }
 
     componentDidMount () {
-      detailsClasasification(1)
+      let id = this.props.location.query.id
+      detailsClasasification(id)
         .then(res => {
           this.setState({ input_value: res.data.category_name ,listData: res.data })
         })
@@ -66,7 +67,7 @@ export default class UpdateClassification extends Component<Porps>{
   onFinish = () => {
     const { listData,input_value } = this.state
     updateClasasification(
-      listData.terrace_id,
+      this.props.location.query.id,
       {
       terrace_id: listData.terrace_id,//平台id
       category_name: input_value,
@@ -75,12 +76,13 @@ export default class UpdateClassification extends Component<Porps>{
       })
         .then(res => {
           message.success(res.message);
+          history.back()
         }).catch((res) => {
           console.log('catch')
         })
     }
 
-    //失败回调中校验 
+    //失败回调中校验
     onFinishFailed = () => {
 
     }
