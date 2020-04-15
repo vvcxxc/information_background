@@ -44,7 +44,12 @@ export default class UpdateClassification extends Component<Porps>{
   getInput = (e: any) => {
       this.setState({ input_value: e.target.value.trim()})
     }
-
+// 排序
+sortInput = (e: any) => {
+  let listData = this.state.listData
+  listData.rank_order =  e.target.value
+  this.setState({ listData})
+}
     // 标题的校验规则
   validationRules = (rule: any, value: any, callback: any) => {
     const { input_value} = this.state
@@ -116,6 +121,18 @@ export default class UpdateClassification extends Component<Porps>{
                   value={this.state.input_value}
                   defaultValue={this.state.input_value}
                   onChange={this.getInput}
+                />
+                {null}
+              </Form.Item>
+              <Form.Item
+                label="排序"
+                name="排序"
+              >
+                <Input
+                  value={this.state.listData.rank_order}
+                  type='number'
+                  defaultValue={this.state.listData.rank_order}
+                  onChange={this.sortInput}
                 />
                 {null}
               </Form.Item>
