@@ -9,6 +9,8 @@ import { ContentUtils } from 'braft-utils';
 import 'braft-editor/dist/index.css';
 import request from '@/utils/request';
 import { getTerraceRole, addArticle } from './service';
+import { history } from 'umi'
+
 export default class AddArticle extends React.Component {
 
     state = {
@@ -228,7 +230,7 @@ export default class AddArticle extends React.Component {
                         description: res.message,
                     });
                     setTimeout(() => {
-                        window.history.back();
+                        history.push({ "pathname": '/informationManagement/articleManagement/articleList' })
                     }, 1500)
                 } else {
                     notification.open({

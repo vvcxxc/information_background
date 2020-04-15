@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 import {
-  Breadcrumb, Select, Radio,
+  Breadcrumb, Select, Form, Radio,
   Table, Input, InputNumber, Popconfirm,
   Button,
   message
 } from 'antd';
 import UploadBox from "@/components/uploadBox"
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
+// import { Form } from '@ant-design/compatible';
+// import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva'
 
 import {
@@ -31,11 +31,10 @@ interface Props {
   outside_chain: string,
   text_image: string ,
   text_image_type: string | number,
-  form: any;
+  form:any
 }
 
-export default Form.create()(
-  connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class AddBanner extends Component<Props> {
+export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class AddBanner extends Component<Props> {
   state = {
     banner_type: 0,
     imgUrl: '',
@@ -53,11 +52,12 @@ export default Form.create()(
     tailLayout: {
       wrapperCol: { offset: 0, span: 16 },
     },
+
+    total:100
   }
 
   // 获取文章列表配置参数
-    componentDidMount = async () => { 
-    console.log('form',this.props)
+  componentDidMount = async () => { 
     await getListArticles({
       terrace_id: 1,
       page: 1
@@ -78,7 +78,10 @@ export default Form.create()(
       is_category: 0
     })
       .then(res => {
-        this.setState({ terraceRole: res.data })
+        this.setState({
+          terraceRole: res.data,
+          total: res.data.length / this.props.pagination.pageSize
+        })
       })
 
   }
@@ -86,6 +89,7 @@ export default Form.create()(
   // 获取文章列表数据
   getArticleList = () => {
     const { pagination } = this.props
+    
     getListArticles({
       terrace_id: 1,
       page: pagination.current,
@@ -132,7 +136,6 @@ export default Form.create()(
 
   // 设置bannar类型 和 位置
   setBannarType = (data: any, bannar_type: string) => {
-    console.log(data, 'data', bannar_type,'bannar_type')
     this.dispatchAddProps('setAddBanner/setAddProps', {
       [data]: bannar_type
     })
@@ -177,10 +180,7 @@ export default Form.create()(
     console.log(dd1, ddd2, cd3, dd4, 'ioiooi')
   }
 
-  // 取消提交
-  cancelSubmit = async () => {
-    this.dispatchAddProps('setAddBanner/clearAddProps', {})
-  }
+  
 
   // 点击提交表单 成功的回调
   onFinish = () => {
@@ -226,11 +226,15 @@ export default Form.create()(
     })
       .then(res => {
         message.success(res.message);
-        const { form } = this.props
-        form.resetFields();
         this.dispatchAddProps('setAddBanner/clearAddProps', {})
+        // window.history.back(); 
       })
 
+  }
+  // 取消提交
+  cancelSubmit = async () => {
+    this.dispatchAddProps('setAddBanner/clearAddProps', {})
+    window.history.back(); 
   }
 
   // 输入框赋值
@@ -258,7 +262,8 @@ export default Form.create()(
       currentPageSize,
       terraceRole,
       ListArticles,
-      tailLayout
+      tailLayout,
+      total
     } = this.state
     const columnss = [
       {
@@ -347,21 +352,17 @@ export default Form.create()(
           name="basic"
           initialValues={{ remember: true }}
           onFinish={this.onFinish}               //验证成功
-          // onFinishFailed={this.onFinishFailed} //验证失败
         >
           < Form.Item
             label="请选择banner类型"
             name="choose_type"
-            
           >
             <Select
-              // defaultValue={choose_type ? choose_type:'请选择banner类型'}
+              defaultValue={choose_type ? choose_type:"请选择banner类型"}
               style={{ width: 300 }}
               onChange={this.setBannarType.bind(this, 'choose_type')}
               value={choose_type}
-              allowClear={true}
-            // optionLabelProp={choose_type}
-            placeholder={'请选择banner类型'}
+              placeholder={'请选择banner类型'}
             >
               <Option value={1}>图片</Option>
               <Option value={2}>文章</Option>
@@ -373,8 +374,9 @@ export default Form.create()(
             name="choose_location"
           >
             <Select
-              defaultValue={choose_location}
-              placeholder={'请选择banner位置'}
+              defaultValue={choose_location ? choose_location :'请选择banner位置'}
+              value={choose_location}
+              // placeholder={'请选择banner位置'}
               style={{ width: 300 }}
               onChange={this.setBannarType.bind(this, 'choose_location')}
             >
@@ -395,13 +397,13 @@ export default Form.create()(
               value={allowed_show}
               style={{ paddingLeft: '15px' }}
             >
-              <Radio value={0}>是</Radio>
-              <Radio value={1}>否</Radio>
+              <Radio value={1}>是</Radio>
+              <Radio value={0}>否</Radio>
             </Radio.Group>
           </Form.Item>
 
           {
-            choose_type == 1 ? <Form.Item /* banner类型为图片 */
+            Number(choose_type) == 1 ? <Form.Item
               label="上传bannar图片"
               name="upload-Image"
               className={styles.flex_start}
@@ -413,7 +415,7 @@ export default Form.create()(
             </Form.Item> : null
           }
           {
-            choose_type == 2 ? <Form.Item
+            Number(choose_type) == 2 ? <Form.Item
               label="上传bannar图片"
               name="text_image_type"
               style={{ margin: '10px 0px' }}
@@ -431,11 +433,10 @@ export default Form.create()(
                   imgUrl={text_image}
                 />
               }
-
             </Form.Item> : null
           }
           {
-            choose_type == 1 ? <Form.Item
+            Number(choose_type) == 1 ? <Form.Item
               label="是否可点击"
               name="checked"
             >
@@ -449,7 +450,7 @@ export default Form.create()(
             </Form.Item> : null
           }
           {
-            choose_type == 1 && allowed_click == 2 ? <Form.Item
+            Number(choose_type) == 1 && allowed_click == 2 ? <Form.Item
               label="添加外链接"
               name="input"
             >
@@ -461,7 +462,7 @@ export default Form.create()(
             </Form.Item> : null
           }
           {
-            choose_type == 2 ? <Form.Item
+            Number(choose_type) == 2 ? <Form.Item
               label="选择文章"
               name="choose"
               className={styles.chooseText}
@@ -479,7 +480,7 @@ export default Form.create()(
                   defaultPageSize: pagination.pageSize,
                   showSizeChanger: true,
                   showQuickJumper: false,
-                  total: Number(pagination.total) / Number(pagination.pageSize) ? Number(pagination.total) / Number(pagination.pageSize) : 5,
+                  total: pagination.total ,
                   showTotal: () => `共${pagination.total}条`
                 }}
                 loading={this.state.loading}
@@ -488,8 +489,12 @@ export default Form.create()(
               />
             </Form.Item> : null
           }
+          
 
           <Form.Item {...tailLayout} className={styles.submit_box}>
+            {
+              console.log(pagination.total / pagination.pageSize, 'Number(pagination.total) / Number(pagination.pageSiz)')
+            }
             <Button htmlType="submit" type="primary">
               确认添加
             </Button>
@@ -502,4 +507,4 @@ export default Form.create()(
       </div>
     )
   }
-}))
+})
