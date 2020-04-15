@@ -81,8 +81,13 @@ sortInput = (e: any) => {
       terrace_role_id: listData.terrace_role_id
       })
         .then(res => {
-          message.success(res.message);
+          if(res.status_code){
+            message.error(res.message);
+          }else{
+            message.success(res.message);
           history.back()
+          }
+
         }).catch((res) => {
           console.log('catch')
         })
