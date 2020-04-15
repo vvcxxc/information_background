@@ -77,7 +77,8 @@ sortInput = (e: any) => {
       terrace_id: listData.terrace_id,//平台id
       category_name: input_value,
       is_show: listData.is_show,
-      rank_order: listData.rank_order
+      rank_order: listData.rank_order,
+      terrace_role_id: listData.terrace_role_id
       })
         .then(res => {
           message.success(res.message);
