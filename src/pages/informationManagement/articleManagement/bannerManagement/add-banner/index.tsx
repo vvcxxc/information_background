@@ -1,29 +1,41 @@
 import React, { Component } from 'react'
 import {
-  Breadcrumb, Select, Form, Radio,
-  Table, Input, InputNumber, Popconfirm
+  Breadcrumb, Select, Radio,
+  Table, Input, InputNumber, Popconfirm,
+  Button,
+  message
 } from 'antd';
 import UploadBox from "@/components/uploadBox"
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva'
 
 import {
   getListArticles, // 获取文章列表
-  getTerraceRole   // 获取所有角色
+  getTerraceRole,  // 获取所有角色
+  getAddBanner     // 添加banner
 } from "../servers"
 
 import styles from './index.less'
 const { Option } = Select;
 interface Props {
   dispatch: (data: any) => void,
-  choose_type: Number,
-  choose_location: Number,
-  allowed_show: Number,
-  upload_type: Number,
-  allowed_click: Number
+  choose_type: string ,
+  choose_location: string,
+  allowed_show: number,
+  upload_type: number,
+  allowed_click: number,
+  pagination: any,
+  upload_image: string,
+  chooseTextId: string,
+  outside_chain: string,
+  text_image: string ,
+  text_image_type: string | number,
+  form: any;
 }
-// { { url } } /admin/common / getTerraceRole    is_category 0
-// /admin/article  terrace_id平台id  page页数 per_page一页多少条数据
-export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class AddBanner extends Component<Props> {
+
+export default Form.create()(
+  connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class AddBanner extends Component<Props> {
   state = {
     banner_type: 0,
     imgUrl: '',
@@ -33,60 +45,35 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     loading: false,
     operation_index: 0,
     currentPage: 1,
-    currentPageSize: 5,
+    currentPageSize: 2,
 
     terraceRole: [],//选择位置（角色）
-    ListArticles:[],//文章数组
+    ListArticles: [],//文章数组
+
+    tailLayout: {
+      wrapperCol: { offset: 0, span: 16 },
+    },
   }
 
-  componentDidMount() {
-
-    // 获取文章列表
-    getListArticles({
+  // 获取文章列表配置参数
+    componentDidMount = async () => { 
+    console.log('form',this.props)
+    await getListArticles({
       terrace_id: 1,
-      page: 1,
-      per_page: 5
+      page: 1
     })
       .then(res => {
-        console.log('获取文章列表', res, res.data)
-        let meta:any = []
-        // res.data.map((item: any, _: number)=>{
-        //   meta[_].key = _;
-        //   meta[_].number = _;
-        //   meta[_].title = _;
-        //   meta[_].author = _;
-        //   meta[_].image = _;
-        //   meta[_].type = _;
-        //   meta[_].key = _;
-        // })
-        this.setState({
-          // key: '1',
-          // number: 1,
-          // title: '第一标题',
-          // author: '麒麟作者',
-          // image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
-          // type: '已上架',
-          // time: "2020-02-18 05：37：15",
-          // read_number: '80',
-          // belong_to: '创客 新手上路',
-          // operation: 1
-
-          // key: '1',
-          // number: 1,
-          // title: '第一标题',
-          // author: '麒麟作者',
-          // image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
-          // type: '已上架',
-          // time: "2020-02-18 05：37：15",
-          // read_number: '80',
-          // belong_to: '创客 新手上路',
-          // operation: 1
+        this.dispatchAddProps('setAddBanner/setAddProps', {
+          ['pagination']: {
+            current: 1,       //当前页码
+            pageSize: 5,      //每页条数
+            total: res.data.length,//条数总和
+          }
         })
-
       })
-
-    // 获取所有角色
-    getTerraceRole({
+    //获取文章列表数据
+    await this.getArticleList()
+    getTerraceRole({// 获取所有角色
       terrace_id: 1,
       is_category: 0
     })
@@ -96,47 +83,56 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
 
   }
 
-  handleChange = (value) => {
-    console.log(`selected ${value}`);
-    // this.setState({ banner_type: value })
+  // 获取文章列表数据
+  getArticleList = () => {
+    const { pagination } = this.props
+    getListArticles({
+      terrace_id: 1,
+      page: pagination.current,
+      per_page: pagination.pageSize
+    })
+      .then(res => {
+        this.setState({
+          ListArticles: res.data.map((item: any, _: number) => {
+            return {
+              key: item.id,
+              title: item.article_title,          //标题
+              author: item.article_author,
+              image: item.author_cover,           //标题图片
+              type: item.is_show,                 //是否已上架
+              time: item.created_at,              //发布时间
+              read_number: item.read_num,         //阅读量
+              belong_to: item.data_category.map((value: any, index: number) => { //分类名称
+                return value.category.category_name
+              })
+              ,
+              belong_id: item.id,
+              operation: _ + 1
+            }
+          })
+        })
+      })
+
   }
 
-  getUploadImage = (data) => {
-    console.log(data, '得到上传图片的数据')
+
+  // 上传图片 返回图片地址
+  getUploadImage = (type: string, url: string) => {
+    this.dispatchAddProps('setAddBanner/setAddProps', {
+      [type]: url
+    })
   }
 
-  // 成功的回调
-  onFinish = () => {
-
-  }
-
-  //失败回调中校验 
-  onFinishFailed = () => {
-
-  }
-
-  // checked 选中状态
+  //  选中状态 --> 是否直接显示   上传bannar图片   是否可点击
   onChangeChecked = (data: string, e: any) => {
-    // console.log(type, 'type', data.target.value,'data.target.value')
     this.dispatchAddProps('setAddBanner/setAddProps', {
       [data]: e.target.value
     })
   }
 
-  handleTableChange = (pagination, filters, sorter) => {
-    console.log(
-      pagination, 'pagination', filters, 'filters', sorter,
-      'sorter'
-    )
-  };
-
-
-  recordOperation_index = (e: any) => {
-    this.setState({ operation_index: e.target.value })
-  }
-
   // 设置bannar类型 和 位置
   setBannarType = (data: any, bannar_type: string) => {
+    console.log(data, 'data', bannar_type,'bannar_type')
     this.dispatchAddProps('setAddBanner/setAddProps', {
       [data]: bannar_type
     })
@@ -150,60 +146,124 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     })
   }
 
-  changePageSize = (dd1, ddd2, cd3, dd4) => {
+
+  // 点击表格 分页
+  handleTableChange = async (pagination_props: any) => {
+    const { pagination } = this.props
+    await this.dispatchAddProps('setAddBanner/setAddProps', {
+      ['pagination']: {
+        ...pagination_props,
+        total: pagination.total
+      }
+    })
+    await this.getArticleList()
     // dd1返回这个
-    // current: 3 //你点击的页数
-    // pageSize: 5 这个是一页多少条么。。。。
-    // defaultPageSize: 5
-    // showSizeChanger: true
+    // current: 3 //点击的页数
+    // pageSize: 5 一页多少条
+    // defaultPageSize: 5  一页多少条数据
+    // showSizeChanger: true 
     // showQuickJumper: false
     // total: 111 总数
+  };
+
+  // 选择文章
+  recordOperation_index = (id: Number, e: any) => {
+    this.dispatchAddProps('setAddBanner/setAddProps', {
+      chooseTextId: id,
+    })
+  }
+
+  changePageSize = (dd1, ddd2, cd3, dd4) => {
     console.log(dd1, ddd2, cd3, dd4, 'ioiooi')
   }
 
+  // 取消提交
+  cancelSubmit = async () => {
+    this.dispatchAddProps('setAddBanner/clearAddProps', {})
+  }
+
+  // 点击提交表单 成功的回调
+  onFinish = () => {
+    const {
+      choose_type,// banner类型:1图片2文章
+      upload_image,// 图片地址
+      allowed_click,//是否可点击 1否 2是
+      chooseTextId, //文章id
+      allowed_show, //是否直接显示
+      choose_location,//平台角色id
+      upload_type,//上传bannar图片类型 是自定义还是使用文章封面图
+      outside_chain,
+      text_image, // 上传bannar图片地址
+      text_image_type// 上传bannar图片类型
+    } = this.props
+    var imageProps;
+
+    if (!choose_type) return message.error('banner类型不能为空');
+    if (!choose_location) return message.error('banner位置不能为空');
+    switch (Number(choose_type)) {
+      case 1://图片
+        if (upload_type != 1 && !upload_image) return message.error('图片不能为空');
+        if (allowed_click == 2 && !outside_chain) return message.error('外链不能为空');
+        imageProps = 
+          upload_type == 1 || !upload_image ? undefined : upload_image
+        break;
+      case 2://文章
+        if (text_image_type == 1 && !text_image) return message.error('图片不能为空');
+        if (!chooseTextId) return message.error('请选择文章');
+        imageProps =
+          text_image_type == 2 || !text_image ? undefined : text_image
+        break;
+    }
+    getAddBanner({
+      terrace_id: 1,
+      banner_type: choose_type,      // banner类型:1图片2文章
+      terrace_role_id: choose_location,  // 平台角色id
+      article_id: Number(choose_type) == 2 && chooseTextId ? chooseTextId : undefined,       // 文章id(banner_type为1时传0)
+      banner_cover: imageProps,     // 封面图  upload_type为1的时候 不传参数
+      external_url: allowed_click == 2 ? outside_chain : undefined,    // 需要跳转的url
+      is_show: allowed_show,          // 是否显示：1显示0隐藏
+      rank_order: 0        // 排序  默认0
+    })
+      .then(res => {
+        message.success(res.message);
+        const { form } = this.props
+        form.resetFields();
+        this.dispatchAddProps('setAddBanner/clearAddProps', {})
+      })
+
+  }
+
+  // 输入框赋值
+  getInput = (e: any) => {
+    this.dispatchAddProps('setAddBanner/setAddProps', { outside_chain: e.target.value.trim() })
+  }
 
 
   render() {
     const {
+      choose_type,
+      choose_location,
+      allowed_show,
+      upload_type,
+      allowed_click,
+      pagination,
+      outside_chain,
+      chooseTextId,
+      upload_image,
+      text_image_type,
+      text_image
+    } = this.props
+    const {
       currentPage,
       currentPageSize,
       terraceRole,
-      ListArticles
+      ListArticles,
+      tailLayout
     } = this.state
-    const meta = [
-      {
-        
-      },
-      {
-        key: '2',
-        number: '1',
-        title: '第一标题',
-        author: '麒麟作者',
-        image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
-        type: '已上架',
-        time: "2020-02-18 05：37：15",
-        read_number: '80',
-        belong_to: '创客 新手上路',
-        operation: 2
-      },
-      {
-        key: '1',
-        number: 1,
-        title: '第一标题',
-        author: '麒麟作者',
-        image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
-        type: '已上架',
-        time: "2020-02-18 05：37：15",
-        read_number: '80',
-        belong_to: '创客 新手上路',
-        operation: 3
-      }
-
-    ];
-    const columns = [
+    const columnss = [
       {
         title: '编号',
-        dataIndex: 'number',
+        dataIndex: 'key',
         width: '8%',
         align: 'center'
       },
@@ -225,7 +285,8 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
         width: '10%',
         align: 'center',
         render: value => <img style={{
-          width: '100%'
+          width: '100%',
+          height: 'auto'
         }} src={value} alt="" />
 
       },
@@ -251,30 +312,24 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
         title: '所属分类',
         dataIndex: 'belong_to',
         width: '15%',
-        align: 'center'
+        align: 'center',
+        render: (item: any) => <div>
+          {
+            item.map(res => {
+              return <div key={res}>{res}</div>
+            })
+          }
+        </div>
       },
       {
         title: '操作',
         dataIndex: 'operation',
         width: '10%',
         align: 'center',
-        render: (item: any) => <Radio.Group onChange={this.recordOperation_index} value={this.state.operation_index} >
+        render: (item: any) => <Radio.Group onChange={this.recordOperation_index.bind(this, item)} value={chooseTextId} >
           <Radio value={item} />
         </Radio.Group>
       }
-    ];
-    const { banner_type } = this.state
-    const {
-      choose_type,
-      choose_location,
-      allowed_show,
-      upload_type,
-      allowed_click
-    } = this.props
-    const optionsWithDisabled = [
-      { label: '是', value: '是', },
-      { label: '否', value: '否', },
-      // { label: 'Orange', value: 'Orange', disabled: false },
     ];
     return (
       <div className={styles.add_banner_page}>
@@ -291,17 +346,22 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
           layout="horizontal"
           name="basic"
           initialValues={{ remember: true }}
-          onFinish={this.onFinish}               //提交表单证成功
-          onFinishFailed={this.onFinishFailed}    //提交表单验证失败
+          onFinish={this.onFinish}               //验证成功
+          // onFinishFailed={this.onFinishFailed} //验证失败
         >
           < Form.Item
             label="请选择banner类型"
             name="choose_type"
+            
           >
             <Select
+              // defaultValue={choose_type ? choose_type:'请选择banner类型'}
               style={{ width: 300 }}
               onChange={this.setBannarType.bind(this, 'choose_type')}
-              placeholder={'请选择banner类型'}
+              value={choose_type}
+              allowClear={true}
+            // optionLabelProp={choose_type}
+            placeholder={'请选择banner类型'}
             >
               <Option value={1}>图片</Option>
               <Option value={2}>文章</Option>
@@ -313,6 +373,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
             name="choose_location"
           >
             <Select
+              defaultValue={choose_location}
               placeholder={'请选择banner位置'}
               style={{ width: 300 }}
               onChange={this.setBannarType.bind(this, 'choose_location')}
@@ -323,13 +384,13 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
                 })
               }
             </Select>
-
           </Form.Item>
           < Form.Item
             label="是否直接显示"
-            name="upload-Image"
+            name="allowed_show"
           >
             <Radio.Group
+              defaultValue={allowed_show}
               onChange={this.onChangeChecked.bind(this, 'allowed_show')}
               value={allowed_show}
               style={{ paddingLeft: '15px' }}
@@ -346,28 +407,31 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
               className={styles.flex_start}
             >
               <UploadBox
-                onChange={this.getUploadImage}
-                imgUrl={this.state.imgUrl}
+                onChange={this.getUploadImage.bind(this, 'upload_image')}
+                imgUrl={upload_image}
               />
             </Form.Item> : null
           }
           {
             choose_type == 2 ? <Form.Item
               label="上传bannar图片"
-              name="upload-Image"
+              name="text_image_type"
               style={{ margin: '10px 0px' }}
             >
               <Radio.Group
-                onChange={this.onChangeChecked.bind(this, 'upload_type')}
-                value={upload_type}
+                onChange={this.onChangeChecked.bind(this, 'text_image_type')}
+                value={text_image_type}
                 style={{ margin: '5px 0' }}>
                 <Radio value={1}>自定义图片</Radio>
                 <Radio value={2}>使用文章封面图</Radio>
               </Radio.Group>
-              <UploadBox
-                onChange={this.getUploadImage}
-                imgUrl={this.state.imgUrl}
-              />
+              {
+                text_image_type==2  ? null : <UploadBox
+                  onChange={this.getUploadImage.bind(this, 'text_image')}
+                  imgUrl={text_image}
+                />
+              }
+
             </Form.Item> : null
           }
           {
@@ -376,11 +440,24 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
               name="checked"
             >
               <Radio.Group
-                onChange={this.onChangeChecked.bind(this, 'upload_type')}
+                defaultValue={allowed_click}
+                onChange={this.onChangeChecked.bind(this, 'allowed_click')}
                 value={allowed_click}>
                 <Radio value={1}>否</Radio>
                 <Radio value={2}>是</Radio>
               </Radio.Group>
+            </Form.Item> : null
+          }
+          {
+            choose_type == 1 && allowed_click == 2 ? <Form.Item
+              label="添加外链接"
+              name="input"
+            >
+              <Input
+                onChange={this.getInput}
+                value={outside_chain.trim()}
+                defaultValue={outside_chain.trim()}
+              />
             </Form.Item> : null
           }
           {
@@ -393,17 +470,17 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
                 rowClassName="editable-row"
                 position='topCenter'
                 size="small"
-                columns={columns}
+                columns={columnss}
                 dataSource={ListArticles}
                 bordered
                 scroll={{ x: 1200, y: 400 }}
                 pagination={{
-                  current: currentPage,
-                  defaultPageSize: currentPageSize,
+                  current: pagination.current,
+                  defaultPageSize: pagination.pageSize,
                   showSizeChanger: true,
                   showQuickJumper: false,
-                  total: 111,
-                  showTotal: () => `共${111}条`
+                  total: Number(pagination.total) / Number(pagination.pageSize) ? Number(pagination.total) / Number(pagination.pageSize) : 5,
+                  showTotal: () => `共${pagination.total}条`
                 }}
                 loading={this.state.loading}
                 onChange={this.handleTableChange}
@@ -412,9 +489,17 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
             </Form.Item> : null
           }
 
+          <Form.Item {...tailLayout} className={styles.submit_box}>
+            <Button htmlType="submit" type="primary">
+              确认添加
+            </Button>
+            <Button htmlType="button" style={{ margin: '0 38px' }} onClick={this.cancelSubmit}>
+              取消
+            </Button>
+          </Form.Item>
         </Form>
 
       </div>
     )
   }
-})
+}))
