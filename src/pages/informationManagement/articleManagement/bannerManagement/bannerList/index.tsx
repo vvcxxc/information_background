@@ -6,7 +6,7 @@ import { connect } from 'dva';
 import { getListData, getAllRole, deleteBanner } from './http';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import styles from './index.less';
-
+import { history } from 'umi';
 const FormItem = Form.Item;
 const { Option } = Select;
 const { TabPane } = Tabs;
@@ -181,6 +181,10 @@ export default Form.create()(
         });
       }
 
+      goto = () => {
+        history.push('/informationManagement/articleManagement/bannerManagement/add-banner')
+      }
+
       render() {
         const columns = [
           {
@@ -348,6 +352,9 @@ export default Form.create()(
                       onClick={this.handleFormReset}
                     >
                       重置
+                    </Button>
+                    <Button type="primary" style={{marginLeft: 20}} onClick={this.goto}>
+                      添加banner
                     </Button>
                   </span>
                 </Col>

@@ -9,7 +9,7 @@ import UploadBox from "@/components/uploadBox"
 // import { Form } from '@ant-design/compatible';
 // import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva'
-
+import { history } from 'umi';
 import {
   getListArticles, // 获取文章列表
   getTerraceRole,  // 获取所有角色
@@ -57,7 +57,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
   }
 
   // 获取文章列表配置参数
-  componentDidMount = async () => { 
+  componentDidMount = async () => {
     await getListArticles({
       terrace_id: 1,
       page: 1
@@ -89,7 +89,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
   // 获取文章列表数据
   getArticleList = () => {
     const { pagination } = this.props
-    
+
     getListArticles({
       terrace_id: 1,
       page: pagination.current,
@@ -164,7 +164,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     // current: 3 //点击的页数
     // pageSize: 5 一页多少条
     // defaultPageSize: 5  一页多少条数据
-    // showSizeChanger: true 
+    // showSizeChanger: true
     // showQuickJumper: false
     // total: 111 总数
   };
@@ -180,7 +180,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     console.log(dd1, ddd2, cd3, dd4, 'ioiooi')
   }
 
-  
+
 
   // 点击提交表单 成功的回调
   onFinish = () => {
@@ -204,7 +204,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
       case 1://图片
         if (upload_type != 1 && !upload_image) return message.error('图片不能为空');
         if (allowed_click == 2 && !outside_chain) return message.error('外链不能为空');
-        imageProps = 
+        imageProps =
           upload_type == 1 || !upload_image ? undefined : upload_image
         break;
       case 2://文章
@@ -225,16 +225,22 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
       rank_order: 0        // 排序  默认0
     })
       .then(res => {
-        message.success(res.message);
-        this.dispatchAddProps('setAddBanner/clearAddProps', {})
-        // window.history.back(); 
+        if(res.status_code){
+          message.error(res.message);
+        }else{
+          message.success(res.message);
+          this.dispatchAddProps('setAddBanner/clearAddProps', {})
+          history.goBack()
+        }
+
+        // window.history.back();
       })
 
   }
   // 取消提交
   cancelSubmit = async () => {
     this.dispatchAddProps('setAddBanner/clearAddProps', {})
-    window.history.back(); 
+    history.goBack()
   }
 
   // 输入框赋值
@@ -489,7 +495,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
               />
             </Form.Item> : null
           }
-          
+
 
           <Form.Item {...tailLayout} className={styles.submit_box}>
             {
