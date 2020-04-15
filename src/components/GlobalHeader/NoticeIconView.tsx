@@ -115,49 +115,8 @@ class GlobalHeaderRight extends Component<GlobalHeaderRightProps> {
   };
 
   render() {
-    const { currentUser, fetchingNotices, onNoticeVisibleChange } = this.props;
-    const noticeData = this.getNoticeData();
-    const unreadMsg = this.getUnreadData(noticeData);
     return (
-      <NoticeIcon
-        className={styles.action}
-        count={currentUser && currentUser.unreadCount}
-        onItemClick={(item) => {
-          this.changeReadState(item as NoticeItem);
-        }}
-        loading={fetchingNotices}
-        clearText="清空"
-        viewMoreText="查看更多"
-        onClear={this.handleNoticeClear}
-        onPopupVisibleChange={onNoticeVisibleChange}
-        onViewMore={() => message.info('Click on view more')}
-        clearClose
-      >
-        <NoticeIcon.Tab
-          tabKey="notification"
-          count={unreadMsg.notification}
-          list={noticeData.notification}
-          title="通知"
-          emptyText="你已查看所有通知"
-          showViewMore
-        />
-        <NoticeIcon.Tab
-          tabKey="message"
-          count={unreadMsg.message}
-          list={noticeData.message}
-          title="消息"
-          emptyText="您已读完所有消息"
-          showViewMore
-        />
-        <NoticeIcon.Tab
-          tabKey="event"
-          title="待办"
-          emptyText="你已完成所有待办"
-          count={unreadMsg.event}
-          list={noticeData.event}
-          showViewMore
-        />
-      </NoticeIcon>
+      <div>123123</div>
     );
   }
 }
