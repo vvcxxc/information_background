@@ -273,7 +273,7 @@ export default Form.create()(
                 <Divider type="vertical" />
                 <a onClick={this.handleEditItem.bind(this, record)}>编辑</a>
                 <Divider type="vertical" />
-                <a onClick={this.handleDeleteItem.bind(this, record)}>删除</a>
+                <a onClick={this.handleDeleteItem.bind(this, record)}>移除</a>
               </span>
             ),
           },
@@ -460,13 +460,13 @@ export default Form.create()(
               closable={false}
               cancelText="关闭并复制"
               okText="关闭"
-              onCancel={() => { 
-                this.setState({ 
-                  linkVisible: false 
+              onCancel={() => {
+                this.setState({
+                  linkVisible: false
                 })
                 let ele = document.getElementById('linkUrl');
                 ele.select();
-                document.execCommand("copy"); 
+                document.execCommand("copy");
                 message.success('复制成功');
               }}
               onOk={() => { this.setState({ linkVisible: false }) }}
