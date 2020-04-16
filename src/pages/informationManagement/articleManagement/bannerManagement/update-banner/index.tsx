@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 import {
   Breadcrumb, Select, Form, Radio,
-  Table, Input, Button
+  Table, Input, Button, notification
 } from 'antd';
 import UploadBox from "@/components/uploadBox"
 import { connect } from 'dva'
 import styles from './index.less'
+import { history } from 'umi'
+
 import { getBannerInfo, getListArticles, putBannerInfo } from '../servers'
 const { Option } = Select;
 
@@ -35,6 +37,7 @@ export default class UpdateBanner extends Component {
     text_image_type: 1,//文章图0上传新图1默认封面
     article_id: 0,//选中的文章id
     total: 0,
+    article_title: '',
     flag: false
   }
 
@@ -53,6 +56,7 @@ export default class UpdateBanner extends Component {
         allowed_click: res.data.external_url ? 1 : 0,//可跳转
         external_url: res.data.external_url,//外链
         text_image_type: res.data.is_use_article_cover,
+        article_title: res.data.article && res.data.article.article_title ? res.data.article.article_title : '',
         flag: true // 判断用
       }, () => {
         res.data.banner_type == 2 && this.getArticleList(res.data.terrace_role_id)
@@ -121,7 +125,7 @@ export default class UpdateBanner extends Component {
   }
   // 成功的回调
   onFinish = () => {
-    let { id, terrace_id, terrace_role_id, banner_type, imgUrl, external_url, is_show, rank_order, article_id, text_image_type } = this.state;
+    let { id, terrace_id, terrace_role_id, banner_type, imgUrl, external_url, allowed_click, is_show, rank_order, article_id, text_image_type } = this.state;
     putBannerInfo({
       id,
       terrace_id,
@@ -129,22 +133,35 @@ export default class UpdateBanner extends Component {
       banner_type,
       banner_cover: text_image_type == 0 ? imgUrl : undefined,
       article_id,
-      external_url,
+      external_url: allowed_click ? external_url : '',
       is_show,
       rank_order,
       is_use_article_cover: text_image_type,
     }).then(res => {
-      console.log(res)
+      if (res.code == 200) {
+        notification.open({
+          message: '编辑成功',
+          description: res.message,
+        });
+        setTimeout(() => {
+          history.push({ "pathname": '/informationManagement/articleManagement/bannerManagement/bannerList' })
+        }, 1500)
+      } else {
+        notification.open({
+          message: '编辑失败',
+          description: res.message,
+        });
+      }
     })
   }
 
   //失败回调中校验 
-  onFinishFailed = () => {
-
+  onFinishFailed = (err: any) => {
+    notification.open({
+      message: '编辑失败',
+      description: err,
+    });
   }
-
-
-
 
   // 选择文章
   recordOperation_index = (item: any, e: any) => {
@@ -154,7 +171,9 @@ export default class UpdateBanner extends Component {
   changePageSize = (dd1, ddd2, cd3, dd4) => {
     console.log(dd1, ddd2, cd3, dd4, 'ioiooi')
   }
-
+  sortInput = (e: any) => {
+    this.setState({ rank_order: e.target.value })
+  }
 
   render() {
     const {
@@ -268,7 +287,16 @@ export default class UpdateBanner extends Component {
             label="所属角色"
             name="choose_location"
           >
-            （创客）资讯中心
+            {this.state.article_title}
+          </Form.Item>
+          < Form.Item
+            label="排序"
+            name="rank_order"
+          >
+            {
+              flag ? <Input defaultValue={this.state.rank_order} onChange={this.sortInput} style={{ width: 100 }} type='number' /> : null
+            }
+
           </Form.Item>
           {
             flag ? < Form.Item
@@ -298,7 +326,7 @@ export default class UpdateBanner extends Component {
             </Form.Item> : null
           }
           {
-            banner_type == 1 ? <Form.Item
+            flag && banner_type == 1 ? <Form.Item
               label="是否可点击"
               name="allowed-click"
             >
@@ -375,7 +403,7 @@ export default class UpdateBanner extends Component {
 
           <Form.Item className={styles.submit_box}>
             <Button htmlType="submit" type="primary">
-              确认添加
+              确认修改
             </Button>
             <Button htmlType="button" style={{ margin: '0 38px' }} onClick={() => { window.history.back(); }}>
               取消
