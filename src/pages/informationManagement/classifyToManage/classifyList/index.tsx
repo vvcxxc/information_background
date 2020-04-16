@@ -236,6 +236,9 @@ export default Form.create()(
             title: '分类名称',
             dataIndex: 'category_name',
             key: 'category_name',
+            render: (text: any, record: any) => (
+              <span>{record.category_name + "(" + record.rank_order + ")"}</span>
+            )
           },
           {
             title: '所属角色',
