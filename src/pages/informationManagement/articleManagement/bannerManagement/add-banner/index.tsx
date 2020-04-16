@@ -170,9 +170,10 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
   };
 
   // 选择文章
-  recordOperation_index = (id: Number, e: any) => {
+  recordOperation_index = (item: Number, e: any) => {
+    console.log(item,e)
     this.dispatchAddProps('setAddBanner/setAddProps', {
-      chooseTextId: id,
+      chooseTextId: item.belong_id,
     })
   }
 
@@ -337,8 +338,8 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
         dataIndex: 'operation',
         width: '10%',
         align: 'center',
-        render: (item: any) => <Radio.Group onChange={this.recordOperation_index.bind(this, item)} value={chooseTextId} >
-          <Radio value={item} />
+        render: (item: any,res: any) => <Radio.Group onChange={this.recordOperation_index.bind(this, res)} value={chooseTextId} >
+          <Radio value={res.belong_id} />
         </Radio.Group>
       }
     ];
