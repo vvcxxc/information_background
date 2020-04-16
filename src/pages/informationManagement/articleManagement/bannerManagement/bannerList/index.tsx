@@ -345,7 +345,7 @@ export default Form.create()(
                           width: '100%',
                         }}
                       >
-                        <Option value="0">文章</Option>
+                        <Option value="2">文章</Option>
                         <Option value="1">图片</Option>
                       </Select>,
                     )}
