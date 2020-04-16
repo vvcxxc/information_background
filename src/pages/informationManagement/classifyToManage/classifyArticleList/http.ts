@@ -8,7 +8,7 @@ export function getListData(article_title: any, is_show: any, category_id: any, 
         Request('/admin/article', {
             method: 'GET',
             params: {
-                terrace_id: 1,
+                terrace_id: localStorage.getItem('terrace_id'),
                 article_title,
                 is_show,
                 category_id,
