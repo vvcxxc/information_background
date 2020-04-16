@@ -3,18 +3,19 @@ import Request from '@/utils/request';
 /**
  * 获取列表页
  */
-export function getListData(article_title: any, is_show: any, category_id: any, page: any, per_page: any) {
+export function getListData(article_title: any, is_show: any, category_id: any, page: any, per_page: any,terrace_role_id: any) {
     return new Promise((resolve, reject) => {
         Request('/admin/article', {
             method: 'GET',
             params: {
                 terrace_id: localStorage.getItem('terrace_id'),
-                // orderBy: "rank_order",  
+                // orderBy: "rank_order",
                 article_title,
                 is_show,
                 category_id,
                 page,
-                per_page
+                per_page,
+                terrace_role_id
             }
         }).then(res => {
             resolve(res);

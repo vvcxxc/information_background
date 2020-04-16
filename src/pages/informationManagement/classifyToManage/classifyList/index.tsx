@@ -277,7 +277,7 @@ export default Form.create()(
                 <Divider type="vertical" />
                 <a onClick={this.handleDeleteItem.bind(this, record)}>删除</a>
                 <Divider type="vertical" />
-                <a onClick={() => history.push(`/informationManagement/classifyToManage/classifyArticleList/${record.id}?title=${record.category_name}&category=${record.terrace_role_id}`)}>
+                <a onClick={() => history.push(`/informationManagement/classifyToManage/classifyArticleList/${record.id}?terrace_role_id=${record.terrace_role_id}&title=${record.category_name}&category=${record.terrace_role_id}`)}>
                   管理文章
                 </a>
               </span>
