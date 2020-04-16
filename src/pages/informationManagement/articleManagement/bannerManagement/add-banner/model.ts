@@ -3,7 +3,7 @@ const model: Model = {
   namespace: 'setAddBanner',
   state: {
     choose_type: '',             //选择bannar类型
-    choose_location: '',        //选择bannar位置
+    choose_location: '',        //所属角色
     allowed_show: 1,     //是否允许直接显示
     upload_type:'',       //上传图片类型
     upload_image: '',     //上传图片地址
@@ -19,6 +19,8 @@ const model: Model = {
     },        //记录表格配置
     outside_chain: '',//外链
     upload_image_two:'',//文章图片
+    rank_order: 0,
+    is_use_article_cover: 0 // 是否使用文章封面图
   },
   reducers: {
     setAddProps(state, { payload }) {
