@@ -10,6 +10,7 @@ export function getListData(article_title: any, is_show: any, banner_type: any, 
             method: 'GET',
             params: {
                 terrace_id: localStorage.getItem('terrace_id'),
+                orderBy: "rank_order",
                 article_title,
                 is_show,
                 banner_type,
