@@ -155,21 +155,22 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
   }
 
   // 设置bannar类型 和 位置
-  setBannarType = (data: any, bannar_type: string) => {
+  setBannarType = async(data: any, bannar_type: string) => {
     const {choose_type, choose_location} = this.props
+
+    if(data == 'choose_type' && bannar_type == 1){
+      await this.dispatchAddProps('setAddBanner/setAddProps', {
+        is_use_article_cover: 0
+      })
+    }
+    await this.dispatchAddProps('setAddBanner/setAddProps', {
+      [data]: bannar_type
+    })
     if (data == 'choose_location' && choose_type == 2) {
       this.getArticleList()
     }else if(data == 'choose_type' && choose_location){
       this.getArticleList()
     }
-    if(data == 'choose_type' && bannar_type == 1){
-      this.dispatchAddProps('setAddBanner/setAddProps', {
-        is_use_article_cover: 0
-      })
-    }
-    this.dispatchAddProps('setAddBanner/setAddProps', {
-      [data]: bannar_type
-    })
   }
 
   // 处理 dva 赋值
