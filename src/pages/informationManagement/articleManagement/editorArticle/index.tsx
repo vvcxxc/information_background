@@ -113,8 +113,9 @@ export default class AddArticle extends React.Component {
     //分类选择
     onChangeClassHuizhang = (num: any, e: any) => {
         let classList = this.state.classList;
-        classList[num].selectCheck = e.target.checked
-        this.setState({ classList })
+        if (e.target.checked == false) { classList[num].qualityCheck = false }
+        classList[num].selectCheck = e.target.checked;
+        this.setState({ classList });
     }
 
     //分类下拉
@@ -133,8 +134,12 @@ export default class AddArticle extends React.Component {
     //精品选择
     onChangeQualityHuizhang = (num: any, e: any) => {
         let classList = this.state.classList;
-        classList[num].qualityCheck = e.target.checked;
-        this.setState({ classList })
+        if (classList[num].selectCheck) {
+            classList[num].qualityCheck = e.target.checked;
+            this.setState({ classList })
+        } else {
+            this.showMessage('选择失败', '请先选择对应分类')
+        }
     }
     //精品输入数字排序
     editorInputQualityNum = (num: any, e: any) => {
