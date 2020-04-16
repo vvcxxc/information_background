@@ -293,6 +293,10 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     this.dispatchAddProps('setAddBanner/setAddProps', { rank_order: e.target.value })
   }
 
+  componentWillUnmount(){
+    this.dispatchAddProps('setAddBanner/clearAddProps', {})
+  }
+
 
   render() {
     const {
