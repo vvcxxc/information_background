@@ -28,10 +28,30 @@ export function getListData(article_title: any, is_show: any, category_id: any, 
 /**
  * 删除文章
  */
-export function deleteArticle(id: any) {
+export function deleteArticle(article_id: any, category_id: any) {
     return new Promise((resolve, reject) => {
-        Request(`/admin/article/${id}`, {
+        Request(`/admin/article/${article_id}/articleCategory/${category_id}`, {
             method: 'DELETE'
+        }).then(res => {
+            resolve(res);
+        })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}
+
+/**
+ * 获取所有角色
+ */
+export function getAllRole() {
+    return new Promise((resolve, reject) => {
+        Request('/admin/common/getTerraceRole', {
+            method: 'GET',
+            params: {
+                terrace_id: localStorage.getItem('terrace_id'),
+                is_category: 0
+            }
         }).then(res => {
             resolve(res);
         })

@@ -3,7 +3,7 @@ import { Table, Row, Col, Input, Button, Select, Tabs, Divider, Modal, message, 
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
-import { getListData, deleteArticle } from './http';
+import { getListData, deleteArticle, getAllRole } from './http';
 import styles from './index.less';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { history } from 'umi';
@@ -17,6 +17,7 @@ interface Props {
     dispatch: (opt: any) => any;
     form: any;
     match: any;
+    location: any;
     classifyArticleList: any;
 }
 
@@ -28,10 +29,13 @@ export default Form.create()(
                 loading: false,
                 total: 0,
                 dataList: [],
+                allRoleList: [],
+
+                locationTitle: "",
+                locationCategory: "",
             }
 
-            componentDidMount() {
-                // console.log(this.props);
+            componentDidMount = async () => {
                 const categoryId = this.props.match.params.id;
                 const {
                     articleTitle,
@@ -39,7 +43,15 @@ export default Form.create()(
                     currentPage,
                     currentPageSize,
                 } = this.props.classifyArticleList;
-                this.requestListData(articleTitle, publishStatus, categoryId, currentPage, currentPageSize)
+                this.requestListData(articleTitle, publishStatus, categoryId, currentPage, currentPageSize);
+
+                await this.requestAllRole();
+
+                const { title } = this.props.location.query;
+                this.setState({
+                    locationTitle: title
+                })
+
             }
 
             requestListData = async (article_title: any, is_show: any, category_id: any, page: any, per_page: any) => {
@@ -52,6 +64,22 @@ export default Form.create()(
                         dataList: res.data,
                         loading: false,
                         total: res.meta.pagination.total
+                    })
+                })
+            }
+
+            requestAllRole = () => {
+                getAllRole().then(async (res: any) => {
+                    await this.setState({
+                        allRoleList: res.data
+                    })
+                    const { category } = this.props.location.query;
+                    this.state.allRoleList.forEach((item: any) => {
+                        if (item.id == category) {
+                            this.setState({
+                                locationCategory: item.role_name
+                            })
+                        }
                     })
                 })
             }
@@ -110,12 +138,13 @@ export default Form.create()(
                 confirm({
                     title: '确认操作',
                     icon: <ExclamationCircleOutlined />,
-                    content: '您确认删除该文章分类吗？',
+                    content: '您确认移除该文章分类吗？',
                     okText: '确认',
                     okType: 'danger',
                     cancelText: '取消',
                     onOk() {
-                        deleteArticle(record.id).then((res: any) => {
+                        const categoryId = _this.props.match.params.id;
+                        deleteArticle(record.id, categoryId).then((res: any) => {
                             if (res.code == 200) {
                                 message.success(res.message);
                                 const categoryId = _this.props.match.params.id;
@@ -217,10 +246,10 @@ export default Form.create()(
                     currentPageSize
                 } = this.props.classifyArticleList;
 
-                const { loading, dataList, total } = this.state;
+                const { loading, dataList, total, locationTitle, locationCategory } = this.state;
                 return (
                     <div className={styles.classify_article_list}>
-                        <Breadcrumb>
+                        <Breadcrumb style={{ marginBottom: '20px' }}>
                             <Breadcrumb.Item>资讯管理</Breadcrumb.Item>
                             <Breadcrumb.Item>
                                 分类管理
@@ -276,6 +305,11 @@ export default Form.create()(
                                 </Col>
                             </Row>
                         </Form>
+
+                        <Breadcrumb style={{ marginBottom: '20px' }}>
+                            <Breadcrumb.Item>{locationCategory}</Breadcrumb.Item>
+                            <Breadcrumb.Item>{locationTitle}</Breadcrumb.Item>
+                        </Breadcrumb>
 
                         <Table
                             columns={columns}
