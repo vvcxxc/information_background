@@ -10,7 +10,7 @@ export function getListData(role_name: any, page: any, per_page: any) {
         Request('/admin/terraceRole', {
             method: 'GET',
             params: {
-                terrace_id: 1,
+                terrace_id: localStorage.getItem('terrace_id'),
                 role_name,
                 page,
                 per_page
@@ -32,7 +32,7 @@ export function getAllRole() {
         Request('/admin/common/getTerraceRole', {
             method: 'GET',
             params: {
-                terrace_id: 1,
+                terrace_id: localStorage.getItem('terrace_id'),
             }
         }).then(res => {
             resolve(res);
