@@ -8,7 +8,7 @@ export function getListData(article_title: any, article_author: any, terrace_rol
         Request('/admin/article', {
             method: 'GET',
             params: {
-                terrace_id: 1,
+                terrace_id: localStorage.getItem('terrace_id'),
                 article_title,
                 article_author,
                 terrace_role_id,
@@ -34,7 +34,7 @@ export function getArticleCategory() {
         Request('/admin/common/getArticleCategory', {
             method: 'GET',
             params: {
-                terrace_id: 1
+                terrace_id: localStorage.getItem('terrace_id')
             }
         }).then(res => {
             resolve(res);
@@ -53,7 +53,7 @@ export function getAllRole() {
         Request('/admin/common/getTerraceRole', {
             method: 'GET',
             params: {
-                terrace_id: 1,
+                terrace_id: localStorage.getItem('terrace_id'),
             }
         }).then(res => {
             resolve(res);

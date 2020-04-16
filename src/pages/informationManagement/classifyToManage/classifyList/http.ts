@@ -10,7 +10,7 @@ export function getListData(category_name: any, is_show: any, terrace_role_id: a
         Request('/admin/articleCategory', {
             method: 'GET',
             params: {
-                terrace_id: 1,
+                terrace_id: localStorage.getItem('terrace_id'),
                 category_name,
                 is_show,
                 terrace_role_id,
@@ -34,7 +34,7 @@ export function getAllRole() {
         Request('/admin/common/getTerraceRole', {
             method: 'GET',
             params: {
-                terrace_id: 1,
+                terrace_id: localStorage.getItem('terrace_id'),
                 is_category: 0
             }
         }).then(res => {
