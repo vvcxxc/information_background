@@ -20,7 +20,7 @@ import styles from './index.less'
 const { Option } = Select;
 interface Props {
   dispatch: (data: any) => void,
-  choose_type: string ,
+  choose_type: string,
   choose_location: string,
   allowed_show: number,
   upload_type: number,
@@ -29,9 +29,10 @@ interface Props {
   upload_image: string,
   chooseTextId: string,
   outside_chain: string,
-  text_image: string ,
+  text_image: string,
   text_image_type: string | number,
-  form:any
+  form: any,
+  rank_order: number
 }
 
 export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class AddBanner extends Component<Props> {
@@ -53,26 +54,26 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
       wrapperCol: { offset: 0, span: 16 },
     },
 
-    total:100
+    total: 100
   }
 
   // 获取文章列表配置参数
   componentDidMount = async () => {
-    await getListArticles({
-      terrace_id: 1,
-      page: 1
-    })
-      .then(res => {
-        this.dispatchAddProps('setAddBanner/setAddProps', {
-          ['pagination']: {
-            current: 1,       //当前页码
-            pageSize: 5,      //每页条数
-            total: res.data.length,//条数总和
-          }
-        })
-      })
+    // await getListArticles({
+    //   terrace_id: 1,
+    //   page: 1
+    // })
+    //   .then(res => {
+    //     this.dispatchAddProps('setAddBanner/setAddProps', {
+    //       ['pagination']: {
+    //         current: 1,       //当前页码
+    //         pageSize: 5,      //每页条数
+    //         total: res.data.length,//条数总和
+    //       }
+    //     })
+    //   })
     //获取文章列表数据
-    await this.getArticleList()
+    // await this.getArticleList()
     getTerraceRole({// 获取所有角色
       terrace_id: 1,
       is_category: 0
@@ -88,14 +89,22 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
 
   // 获取文章列表数据
   getArticleList = () => {
-    const { pagination } = this.props
+    const { pagination, choose_location } = this.props
 
     getListArticles({
+      terrace_role_id: choose_location,
       terrace_id: 1,
       page: pagination.current,
       per_page: pagination.pageSize
     })
       .then(res => {
+        this.dispatchAddProps('setAddBanner/setAddProps', {
+          ['pagination']: {
+            current: 1,       //当前页码
+            pageSize: 5,      //每页条数
+            total: res.data.length,//条数总和
+          }
+        })
         this.setState({
           ListArticles: res.data.map((item: any, _: number) => {
             return {
@@ -129,6 +138,17 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
 
   //  选中状态 --> 是否直接显示   上传bannar图片   是否可点击
   onChangeChecked = (data: string, e: any) => {
+    if(data == 'text_image_type'){
+      if(e.target.value == 2){
+        this.dispatchAddProps('setAddBanner/setAddProps', {
+          is_use_article_cover: 1
+        })
+      }else {
+        this.dispatchAddProps('setAddBanner/setAddProps', {
+          is_use_article_cover: 0
+        })
+      }
+    }
     this.dispatchAddProps('setAddBanner/setAddProps', {
       [data]: e.target.value
     })
@@ -136,6 +156,17 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
 
   // 设置bannar类型 和 位置
   setBannarType = (data: any, bannar_type: string) => {
+    const {choose_type, choose_location} = this.props
+    if (data == 'choose_location' && choose_type == 2) {
+      this.getArticleList()
+    }else if(data == 'choose_type' && choose_location){
+      this.getArticleList()
+    }
+    if(data == 'choose_type' && bannar_type == 1){
+      this.dispatchAddProps('setAddBanner/setAddProps', {
+        is_use_article_cover: 0
+      })
+    }
     this.dispatchAddProps('setAddBanner/setAddProps', {
       [data]: bannar_type
     })
@@ -171,7 +202,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
 
   // 选择文章
   recordOperation_index = (item: Number, e: any) => {
-    console.log(item,e)
+    console.log(item, e)
     this.dispatchAddProps('setAddBanner/setAddProps', {
       chooseTextId: item.belong_id,
     })
@@ -195,7 +226,9 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
       upload_type,//上传bannar图片类型 是自定义还是使用文章封面图
       outside_chain,
       text_image, // 上传bannar图片地址
-      text_image_type// 上传bannar图片类型
+      text_image_type,// 上传bannar图片类型
+      rank_order, // 排序
+      is_use_article_cover // 是否使用封面图
     } = this.props
     var imageProps;
 
@@ -223,12 +256,13 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
       banner_cover: imageProps,     // 封面图  upload_type为1的时候 不传参数
       external_url: allowed_click == 2 ? outside_chain : undefined,    // 需要跳转的url
       is_show: allowed_show,          // 是否显示：1显示0隐藏
-      rank_order: 0        // 排序  默认0
+      rank_order,        // 排序  默认0
+      is_use_article_cover
     })
       .then(res => {
-        if(res.status_code){
+        if (res.status_code) {
           message.error(res.message);
-        }else{
+        } else {
           message.success(res.message);
           this.dispatchAddProps('setAddBanner/clearAddProps', {})
           history.goBack()
@@ -249,6 +283,10 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     this.dispatchAddProps('setAddBanner/setAddProps', { outside_chain: e.target.value.trim() })
   }
 
+  sortInput = (e: any) => {
+    this.dispatchAddProps('setAddBanner/setAddProps', { rank_order: e.target.value })
+  }
+
 
   render() {
     const {
@@ -262,7 +300,8 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
       chooseTextId,
       upload_image,
       text_image_type,
-      text_image
+      text_image,
+      rank_order
     } = this.props
     const {
       currentPage,
@@ -338,7 +377,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
         dataIndex: 'operation',
         width: '10%',
         align: 'center',
-        render: (item: any,res: any) => <Radio.Group onChange={this.recordOperation_index.bind(this, res)} value={chooseTextId} >
+        render: (item: any, res: any) => <Radio.Group onChange={this.recordOperation_index.bind(this, res)} value={chooseTextId} >
           <Radio value={res.belong_id} />
         </Radio.Group>
       }
@@ -365,7 +404,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
             name="choose_type"
           >
             <Select
-              defaultValue={choose_type ? choose_type:"请选择banner类型"}
+              defaultValue={choose_type ? choose_type : "请选择banner类型"}
               style={{ width: 300 }}
               onChange={this.setBannarType.bind(this, 'choose_type')}
               value={choose_type}
@@ -381,7 +420,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
             name="choose_location"
           >
             <Select
-              defaultValue={choose_location ? choose_location :'请选择banner位置'}
+              defaultValue={choose_location ? choose_location : '请选择所属角色'}
               value={choose_location}
               // placeholder={'请选择banner位置'}
               style={{ width: 300 }}
@@ -393,6 +432,12 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
                 })
               }
             </Select>
+          </Form.Item>
+          < Form.Item
+            label="排序"
+            name="rank_order"
+          >
+            <Input value={rank_order} onChange={this.sortInput} style={{width: 100}} type='number'/>
           </Form.Item>
           < Form.Item
             label="是否直接显示"
@@ -435,7 +480,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
                 <Radio value={2}>使用文章封面图</Radio>
               </Radio.Group>
               {
-                text_image_type==2  ? null : <UploadBox
+                text_image_type == 2 ? null : <UploadBox
                   onChange={this.getUploadImage.bind(this, 'text_image')}
                   imgUrl={text_image}
                 />
@@ -487,7 +532,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
                   defaultPageSize: pagination.pageSize,
                   showSizeChanger: true,
                   showQuickJumper: false,
-                  total: pagination.total ,
+                  total: pagination.total,
                   showTotal: () => `共${pagination.total}条`
                 }}
                 loading={this.state.loading}
