@@ -182,6 +182,7 @@ export default class AddArticle extends React.Component {
     }
     //提交
     submitContent = async () => {
+
         let terrace_id = localStorage.getItem('terrace_id');
         if (!this.state.title) {
             this.showMessage('发布失败', '请填写标题')
@@ -201,9 +202,12 @@ export default class AddArticle extends React.Component {
         }
         let classList = this.state.classList;
         let data_category = [], data_role = [];
+
+
+
         for (let i in classList) {
-            classList[i].selectCheck && data_category.push({ category_id: classList[i].selectValue, rank_order: classList[i].inputNum ? classList[i].inputNum : '0' })
-            classList[i].qualityCheck && data_role.push({ role_id: classList[i].id, rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0' })
+            classList[i].selectCheck && data_category.push({ terrace_role_id: classList[i].id, category_id: classList[i].selectValue, rank_order: classList[i].inputNum ? classList[i].inputNum : '0' })
+            classList[i].qualityCheck && data_role.push({ terrace_role_id: classList[i].id, role_id: classList[i].id, rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0' })
         }
         // if (!data_role.length) {
         //     this.showMessage('发布失败', '请选择文章分类')

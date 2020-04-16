@@ -40,7 +40,7 @@ export default class UpdateBanner extends Component {
 
   componentDidMount() {
 
-    getBannerInfo({ id: 68 }).then(res => {
+    getBannerInfo({ id: this.props.location.query.id }).then(res => {
       this.setState({
         id: res.data.id,
         terrace_id: res.data.terrace_id,
@@ -50,24 +50,23 @@ export default class UpdateBanner extends Component {
         imgUrl: res.data.banner_cover,
         article_id: res.data.article_id,
         rank_order: res.data.rank_order,
-
         allowed_click: res.data.external_url ? 1 : 0,//可跳转
         external_url: res.data.external_url,//外链
         text_image_type: res.data.is_use_article_cover,
         flag: true // 判断用
       }, () => {
-        res.data.banner_type == 2 && this.getArticleList()
+        res.data.banner_type == 2 && this.getArticleList(res.data.terrace_role_id)
       })
     })
   }
   // 获取文章列表数据
-  getArticleList = () => {
+  getArticleList = (terrace_role_id: any) => {
     const { pagination } = this.state
-    console.log('pagination', pagination)
     getListArticles({
-      terrace_id: 1,
+      terrace_id: this.state.terrace_id,
       page: pagination.current,
-      per_page: pagination.pageSize
+      per_page: pagination.pageSize,
+      terrace_role_id
     })
       .then(res => {
         this.setState({
@@ -113,7 +112,7 @@ export default class UpdateBanner extends Component {
   handleTableChange = async (pagination_props: any) => {
     console.log('handleTableChange', pagination_props)
     this.setState({ pagination: pagination_props, total: pagination_props.total }, () => {
-      this.getArticleList();
+      this.getArticleList(this.state.terrace_role_id);
     })
   };
   // 外链
@@ -258,13 +257,15 @@ export default class UpdateBanner extends Component {
           onFinishFailed={this.onFinishFailed}    //提交表单验证失败
         >
           < Form.Item
-            label="请选择banner类型"
+            label="banner类型"
             name="choose_type"
           >
-            文章
+            {
+              this.state.banner_type == 1 ? '图片' : '文章'
+            }
           </Form.Item>
           < Form.Item
-            label="请选择banner位置"
+            label="所属角色"
             name="choose_location"
           >
             （创客）资讯中心
@@ -292,7 +293,7 @@ export default class UpdateBanner extends Component {
             >
               <UploadBox
                 onChange={this.getUploadImage.bind(this, 'upload_image')}
-                imgUrl={'http://oss.tdianyi.com/' + this.state.imgUrl}
+                imgUrl={this.state.imgUrl}
               />
             </Form.Item> : null
           }
