@@ -265,7 +265,7 @@ export default class UpdateBanner extends Component {
           <Breadcrumb.Item >资讯管理</Breadcrumb.Item>
           <Breadcrumb.Item>文章管理</Breadcrumb.Item>
           <Breadcrumb.Item>banner管理</Breadcrumb.Item>
-          <Breadcrumb.Item>添加banner</Breadcrumb.Item>
+          <Breadcrumb.Item>编辑banner</Breadcrumb.Item>
         </Breadcrumb>
 
         <Form
