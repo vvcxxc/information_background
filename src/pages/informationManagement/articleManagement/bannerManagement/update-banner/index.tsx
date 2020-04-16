@@ -38,6 +38,7 @@ export default class UpdateBanner extends Component {
     article_id: 0,//选中的文章id
     total: 0,
     article_title: '',
+    role_name:'',
     flag: false
   }
 
@@ -57,6 +58,7 @@ export default class UpdateBanner extends Component {
         external_url: res.data.external_url,//外链
         text_image_type: res.data.is_use_article_cover,
         article_title: res.data.article && res.data.article.article_title ? res.data.article.article_title : '',
+        role_name:res.data.terrace_role && res.data.terrace_role.role_name ? res.data.terrace_role.role_name : '',
         flag: true // 判断用
       }, () => {
         res.data.banner_type == 2 && this.getArticleList(res.data.terrace_role_id)
@@ -287,7 +289,7 @@ export default class UpdateBanner extends Component {
             label="所属角色"
             name="choose_location"
           >
-            {this.state.article_title}
+            {this.state.role_name}
           </Form.Item>
           < Form.Item
             label="排序"
