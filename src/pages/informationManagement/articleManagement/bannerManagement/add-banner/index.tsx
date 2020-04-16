@@ -74,8 +74,9 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
     //   })
     //获取文章列表数据
     // await this.getArticleList()
+    const terrace_id = localStorage.getItem('terrace_id')
     getTerraceRole({// 获取所有角色
-      terrace_id: 1,
+      terrace_id,
       is_category: 0
     })
       .then(res => {
@@ -90,10 +91,10 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
   // 获取文章列表数据
   getArticleList = () => {
     const { pagination, choose_location } = this.props
-
+    const terrace_id = localStorage.getItem('terrace_id')
     getListArticles({
       terrace_role_id: choose_location,
-      terrace_id: 1,
+      terrace_id,
       page: pagination.current,
       per_page: pagination.pageSize
     })
@@ -249,8 +250,9 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
           text_image_type == 2 || !text_image ? undefined : text_image
         break;
     }
+    const terrace_id = localStorage.getItem('terrace_id')
     getAddBanner({
-      terrace_id: 1,
+      terrace_id,
       banner_type: choose_type,      // banner类型:1图片2文章
       terrace_role_id: choose_location,  // 平台角色id
       article_id: Number(choose_type) == 2 && chooseTextId ? chooseTextId : undefined,       // 文章id(banner_type为1时传0)
