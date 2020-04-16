@@ -185,6 +185,10 @@ export default Form.create()(
       handleEditItem = (record: any) => {
         history.push('/informationManagement/articleManagement/bannerManagement/update-banner?id=' + record.id);
       }
+      
+      goto = () => {
+        history.push('/informationManagement/articleManagement/bannerManagement/add-banner')
+      }
 
       render() {
         const columns = [
@@ -353,6 +357,9 @@ export default Form.create()(
                       onClick={this.handleFormReset}
                     >
                       重置
+                    </Button>
+                    <Button type="primary" style={{marginLeft: 20}} onClick={this.goto}>
+                      添加banner
                     </Button>
                   </span>
                 </Col>

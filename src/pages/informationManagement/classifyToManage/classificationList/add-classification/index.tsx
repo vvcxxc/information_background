@@ -39,6 +39,10 @@ export default connect(({ classificationList }: any) => ({ classificationList })
     getInput = (e: any) => {
       this.dispatchAddProps('classificationList/setAddProps', { category_name: e.target.value.trim() })
     }
+    // 排序
+    sortInput = (e: any) => {
+      this.dispatchAddProps('classificationList/setAddProps', { rank_order: e.target.value.trim() })
+    }
 
     // 选择角色
     handleMenuClick = (data: any) => {
@@ -76,10 +80,10 @@ export default connect(({ classificationList }: any) => ({ classificationList })
           console.log(res)
           if(res.status_code){
             message.error(res.message);
-            history.push('/informationManagement/classifyToManage/classifyList')
           }else {
             this.dispatchAddProps('classificationList/clearAddData',{})
             message.success('添加成功');
+            history.push('/informationManagement/classifyToManage/classifyList')
           }
         }).catch(() => {
           console.log('catch')
@@ -107,7 +111,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
 
     render() {
       const { typeData, tailLayout } = this.state
-      const { showType, addProps } = this.props.classificationList.addPage
+      const { showType, addProps,rank_order } = this.props.classificationList.addPage
       const menu = (
         <Menu>
           {
@@ -142,6 +146,18 @@ export default connect(({ classificationList }: any) => ({ classificationList })
                   onChange={this.getInput}
                   value={addProps.category_name.trim()}
                   defaultValue={addProps.category_name.trim()}
+                  placeholder="不可多于6个字"
+                />
+              </Form.Item>
+              <Form.Item
+                label="排序"
+                name="排序"
+              >
+                <Input
+                  onChange={this.sortInput}
+                  value={rank_order}
+                  type='number'
+                  defaultValue={rank_order}
                   placeholder="不可多于6个字"
                 />
               </Form.Item>
