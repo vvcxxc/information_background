@@ -7,6 +7,7 @@ import {
 } from '@/pages/informationManagement/classifyToManage/servers'
 import { connect } from 'dva'
 import style from './index.less'
+import { history } from 'umi';
 
 interface Porps {
   dispatch: (_: any) => null,
@@ -26,7 +27,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
 
     async componentDidMount() {
      await getAllRoles({
-        terrace_id: 1,//平台id 
+        terrace_id: 1,//平台id
         is_category: 0
       }).then((res) => {
         this.setState({ typeData:res.data })
@@ -37,6 +38,10 @@ export default connect(({ classificationList }: any) => ({ classificationList })
     // 输入框赋值
     getInput = (e: any) => {
       this.dispatchAddProps('classificationList/setAddProps', { category_name: e.target.value.trim() })
+    }
+    // 排序
+    sortInput = (e: any) => {
+      this.dispatchAddProps('classificationList/setAddProps', { rank_order: e.target.value.trim() })
     }
 
     // 选择角色
@@ -72,14 +77,20 @@ export default connect(({ classificationList }: any) => ({ classificationList })
 
       addClasasification(addProps)
         .then(res => {
-          this.dispatchAddProps('classificationList/clearAddData',{})
-          message.error(message);
+          console.log(res)
+          if(res.status_code){
+            message.error(res.message);
+          }else {
+            this.dispatchAddProps('classificationList/clearAddData',{})
+            message.success('添加成功');
+            history.push('/informationManagement/classifyToManage/classifyList')
+          }
         }).catch(() => {
           console.log('catch')
         })
     }
 
-    //失败回调中校验 
+    //失败回调中校验
     onFinishFailed = () => {
 
     }
@@ -87,7 +98,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
     // 取消提交
     cancelSubmit = async() => {
       await this.dispatchAddProps('classificationList/clearAddData', {})
-      await window.history.back(-1); 
+      await window.history.back(-1);
     }
 
     // 处理 dva 赋值
@@ -100,7 +111,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
 
     render() {
       const { typeData, tailLayout } = this.state
-      const { showType, addProps } = this.props.classificationList.addPage
+      const { showType, addProps,rank_order } = this.props.classificationList.addPage
       const menu = (
         <Menu>
           {
@@ -135,6 +146,18 @@ export default connect(({ classificationList }: any) => ({ classificationList })
                   onChange={this.getInput}
                   value={addProps.category_name.trim()}
                   defaultValue={addProps.category_name.trim()}
+                  placeholder="不可多于6个字"
+                />
+              </Form.Item>
+              <Form.Item
+                label="排序"
+                name="排序"
+              >
+                <Input
+                  onChange={this.sortInput}
+                  value={rank_order}
+                  type='number'
+                  defaultValue={rank_order}
                   placeholder="不可多于6个字"
                 />
               </Form.Item>

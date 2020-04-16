@@ -4,10 +4,11 @@ import request from '@/utils/request'
 interface listArticlesType {
   terrace_id: string | number, //平台id
   page?: string | number,      //页数
-  per_page?: string | number   //每页几条
+  per_page?: string | number,   //每页几条
+  terrace_role_id: string | number // 角色
 }
 export const getListArticles = (params: listArticlesType) => {
-  return request('/admin/article', {
+  return request('/admin/banner/article', {
     method: 'GET',
     params
   })

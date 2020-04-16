@@ -122,10 +122,6 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
               path: 'add-classification',
               name: '新增分类'
             },
-            {
-              path: 'update-classification',
-              name: '编辑分类'
-            }
           ]
         },
         {

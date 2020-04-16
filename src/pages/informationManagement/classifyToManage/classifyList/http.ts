@@ -10,7 +10,8 @@ export function getListData(category_name: any, is_show: any, terrace_role_id: a
         Request('/admin/articleCategory', {
             method: 'GET',
             params: {
-                terrace_id: 1,
+                terrace_id: localStorage.getItem('terrace_id'),
+                orderBy: "rank_order",
                 category_name,
                 is_show,
                 terrace_role_id,
@@ -34,7 +35,7 @@ export function getAllRole() {
         Request('/admin/common/getTerraceRole', {
             method: 'GET',
             params: {
-                terrace_id: 1,
+                terrace_id: localStorage.getItem('terrace_id'),
                 is_category: 0
             }
         }).then(res => {
@@ -54,6 +55,29 @@ export function deleteArticleClassify(id: any) {
     return new Promise((resolve, reject) => {
         Request(`/admin/articleCategory/${id}`, {
             method: 'DELETE'
+        }).then(res => {
+            resolve(res);
+        })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}
+
+/**
+ * 上下架
+ */
+export function changeIsShow(id: any, terrace_id: any, terrace_role_id: any, category_name: any, is_show: any, rank_order: any) {
+    return new Promise((resolve, reject) => {
+        Request(`/admin/articleCategory/${id}`, {
+            method: 'PUT',
+            data: {
+                terrace_id,
+                terrace_role_id,
+                category_name,
+                is_show,
+                rank_order
+            }
         }).then(res => {
             resolve(res);
         })

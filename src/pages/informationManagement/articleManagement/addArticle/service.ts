@@ -16,7 +16,7 @@ export async function getTerraceRole(data: object) {
 export async function addArticle(data: object) {
     return request('/admin/article', {
         method: 'POST',
-        params: data,
+        data,
     });
 }
 

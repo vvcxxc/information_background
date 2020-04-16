@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Input, Button, Select, Divider, Modal, message } from 'antd';
+import { Table, Row, Col, Input, Button, Select, Divider, Modal, message, Breadcrumb } from 'antd';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
@@ -217,7 +217,7 @@ export default Form.create()(
             key: 'category_name',
             render: (text: any, record: any) => {
               return record.data_category.map((item: any) => (
-                <span>{item.category.category_name}</span>
+                <span>{item.category.category_name + "(" + item.rank_order + ")"},</span>
               )
               )
             }
@@ -228,7 +228,7 @@ export default Form.create()(
             key: 'terrace_role_id',
             render: (text: any, record: any) => {
               return record.data_role.map((item: any) => (
-                <span>{item.role.role_name},</span>
+                <span>{item.role.role_name + "(" + item.rank_order + ")"},</span>
               )
               )
             }
@@ -268,6 +268,13 @@ export default Form.create()(
         const { loading, total, dataList, articleCategoryList, allRoleList } = this.state;
         return (
           <div className={styles.article_list}>
+             <Breadcrumb>
+                <Breadcrumb.Item>资讯管理</Breadcrumb.Item>
+                <Breadcrumb.Item>
+                文章管理
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>文章列表</Breadcrumb.Item>
+              </Breadcrumb>
             <Form>
               <Row
                 gutter={{

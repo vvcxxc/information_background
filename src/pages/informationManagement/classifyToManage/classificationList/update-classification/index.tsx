@@ -32,7 +32,8 @@ export default class UpdateClassification extends Component<Porps>{
     }
 
     componentDidMount () {
-      detailsClasasification(1)
+      let id = this.props.location.query.id
+      detailsClasasification(id)
         .then(res => {
           this.setState({ input_value: res.data.category_name ,listData: res.data })
         })
@@ -43,7 +44,12 @@ export default class UpdateClassification extends Component<Porps>{
   getInput = (e: any) => {
       this.setState({ input_value: e.target.value.trim()})
     }
-
+// 排序
+sortInput = (e: any) => {
+  let listData = this.state.listData
+  listData.rank_order =  e.target.value
+  this.setState({ listData})
+}
     // 标题的校验规则
   validationRules = (rule: any, value: any, callback: any) => {
     const { input_value} = this.state
@@ -66,21 +72,28 @@ export default class UpdateClassification extends Component<Porps>{
   onFinish = () => {
     const { listData,input_value } = this.state
     updateClasasification(
-      listData.terrace_id,
+      this.props.location.query.id,
       {
       terrace_id: listData.terrace_id,//平台id
       category_name: input_value,
       is_show: listData.is_show,
-      rank_order: listData.rank_order
+      rank_order: listData.rank_order,
+      terrace_role_id: listData.terrace_role_id
       })
         .then(res => {
-          message.success(res.message);
+          if(res.status_code){
+            message.error(res.message);
+          }else{
+            message.success(res.message);
+          history.back()
+          }
+
         }).catch((res) => {
           console.log('catch')
         })
     }
 
-    //失败回调中校验 
+    //失败回调中校验
     onFinishFailed = () => {
 
     }
@@ -114,6 +127,18 @@ export default class UpdateClassification extends Component<Porps>{
                   value={this.state.input_value}
                   defaultValue={this.state.input_value}
                   onChange={this.getInput}
+                />
+                {null}
+              </Form.Item>
+              <Form.Item
+                label="排序"
+                name="排序"
+              >
+                <Input
+                  value={this.state.listData.rank_order}
+                  type='number'
+                  defaultValue={this.state.listData.rank_order}
+                  onChange={this.sortInput}
                 />
                 {null}
               </Form.Item>

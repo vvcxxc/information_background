@@ -6,6 +6,7 @@ import { connect } from 'dva';
 import { getListData, getAllRole, deleteBanner } from './http';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import styles from './index.less';
+import { history } from 'umi';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -31,7 +32,11 @@ export default Form.create()(
         loading: false,
         total: 0,
         dataList: [],
-        allRoleList: []
+        allRoleList: [],
+
+        descVisible: false,
+        linkVisible: false,
+        linkUrl: "",
       };
 
       componentDidMount() {
@@ -181,6 +186,32 @@ export default Form.create()(
         });
       }
 
+      handleDetailItem = (record: any) => {
+        console.log(record);
+        if (record.banner_type == 1) {
+          if (record.external_url == "") {
+            this.setState({
+              descVisible: true
+            })
+          } else if (record.external_url != "") {
+            this.setState({
+              linkVisible: true,
+              linkUrl: record.external_url
+            })
+          }
+        } else {
+          history.push('/informationManagement/articleManagement/previewArticle?id=' + record.article_id);
+        }
+      }
+
+      handleEditItem = (record: any) => {
+        history.push('/informationManagement/articleManagement/bannerManagement/update-banner?id=' + record.id);
+      }
+
+      goto = () => {
+        history.push('/informationManagement/articleManagement/bannerManagement/add-banner')
+      }
+
       render() {
         const columns = [
           {
@@ -238,7 +269,9 @@ export default Form.create()(
             key: 'action',
             render: (text, record) => (
               <span>
-                <a>查看</a>
+                <a onClick={this.handleDetailItem.bind(this, record)}>查看</a>
+                <Divider type="vertical" />
+                <a onClick={this.handleEditItem.bind(this, record)}>编辑</a>
                 <Divider type="vertical" />
                 <a onClick={this.handleDeleteItem.bind(this, record)}>删除</a>
               </span>
@@ -349,6 +382,9 @@ export default Form.create()(
                     >
                       重置
                     </Button>
+                    <Button type="primary" style={{ marginLeft: 20 }} onClick={this.goto}>
+                      添加banner
+                    </Button>
                   </span>
                 </Col>
               </Row>
@@ -407,6 +443,36 @@ export default Form.create()(
                 />
               </TabPane>
             </Tabs> */}
+
+            <Modal
+              title="温馨提示"
+              visible={this.state.descVisible}
+              closable={false}
+              onCancel={() => { this.setState({ descVisible: false }) }}
+              onOk={() => { this.setState({ descVisible: false }) }}
+            >
+              <p style={{ textAlign: "center" }}>内容为空</p>
+            </Modal>
+
+            <Modal
+              title="温馨提示"
+              visible={this.state.linkVisible}
+              closable={false}
+              cancelText="关闭并复制"
+              okText="关闭"
+              onCancel={() => { 
+                this.setState({ 
+                  linkVisible: false 
+                })
+                let ele = document.getElementById('linkUrl');
+                ele.select();
+                document.execCommand("copy"); 
+                message.success('复制成功');
+              }}
+              onOk={() => { this.setState({ linkVisible: false }) }}
+            >
+              <Input id="linkUrl" value={this.state.linkUrl} readOnly/>
+            </Modal>
           </div>
         );
       }
