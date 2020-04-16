@@ -26,8 +26,9 @@ export default connect(({ classificationList }: any) => ({ classificationList })
     }
 
     async componentDidMount() {
+      const terrace_id = localStorage.getItem('terrace_id')
      await getAllRoles({
-        terrace_id: 1,//平台id
+        terrace_id,//平台id
         is_category: 0
       }).then((res) => {
         this.setState({ typeData:res.data })
