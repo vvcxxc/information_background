@@ -72,8 +72,9 @@ export default class AddArticle extends React.Component {
     //分类选择
     onChangeClassHuizhang = (num: any, e: any) => {
         let classList = this.state.classList;
-        classList[num].selectCheck = e.target.checked
-        this.setState({ classList })
+        if (e.target.checked == false) { classList[num].qualityCheck = false }
+        classList[num].selectCheck = e.target.checked;
+        this.setState({ classList });
     }
 
     //分类下拉
@@ -92,8 +93,12 @@ export default class AddArticle extends React.Component {
     //精品选择
     onChangeQualityHuizhang = (num: any, e: any) => {
         let classList = this.state.classList;
-        classList[num].qualityCheck = e.target.checked;
-        this.setState({ classList })
+        if (classList[num].selectCheck) {
+            classList[num].qualityCheck = e.target.checked;
+            this.setState({ classList })
+        } else {
+            this.showMessage('选择失败', '请先选择对应分类')
+        }
     }
     //精品输入数字排序
     editorInputQualityNum = (num: any, e: any) => {
@@ -177,6 +182,7 @@ export default class AddArticle extends React.Component {
     }
     //提交
     submitContent = async () => {
+
         let terrace_id = localStorage.getItem('terrace_id');
         if (!this.state.title) {
             this.showMessage('发布失败', '请填写标题')
@@ -196,9 +202,15 @@ export default class AddArticle extends React.Component {
         }
         let classList = this.state.classList;
         let data_category = [], data_role = [];
+
+
+
         for (let i in classList) {
-            classList[i].selectCheck && data_category.push({ category_id: classList[i].selectValue, rank_order: classList[i].inputNum ? classList[i].inputNum : '0' })
-            classList[i].qualityCheck && data_role.push({ role_id: classList[i].id, rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0' })
+            classList[i].selectCheck && data_category.push({
+                is_superior: classList[i].qualityCheck ? 1 : 0, superior_rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0',
+                terrace_role_id: classList[i].id, category_id: classList[i].selectValue, rank_order: classList[i].inputNum ? classList[i].inputNum : '0'
+            })
+            classList[i].qualityCheck && data_role.push({ terrace_role_id: classList[i].id, role_id: classList[i].id, rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0' })
         }
         // if (!data_role.length) {
         //     this.showMessage('发布失败', '请选择文章分类')
@@ -308,9 +320,9 @@ export default class AddArticle extends React.Component {
                             classList.map((item: any, index: any) => {
                                 return (
                                     <div className={styles.chooseContent} key={item.id}>
-                                        <Checkbox className={styles.chooseRadio} onChange={this.onChangeClassHuizhang.bind(this, index)}>{item.role_name}</Checkbox>
+                                        <Checkbox className={styles.chooseRadio} onChange={this.onChangeClassHuizhang.bind(this, index)} checked={classList[index].selectCheck}>{item.role_name}</Checkbox>
                                         <div className={styles.chooseSelect} style={{ display: item.selectCheck ? 'block' : 'none' }}>
-                                            <Select className={styles.chooseSelectItem} onChange={this.selectClassHuizhang.bind(this, index)}>
+                                            <Select className={styles.chooseSelectItem} onChange={this.selectClassHuizhang.bind(this, index)} >
                                                 {
                                                     item.article_category.map((item2: any, index: any) => {
                                                         return (<Option value={item2.id} key={item2.id}>{item2.category_name}</Option>)
@@ -332,7 +344,7 @@ export default class AddArticle extends React.Component {
                             classList.map((item: any, index: any) => {
                                 return (
                                     <div className={styles.chooseContent} key={item.id}>
-                                        <Checkbox className={styles.chooseRadio} onChange={this.onChangeQualityHuizhang.bind(this, index)}>{item.role_name}</Checkbox>
+                                        <Checkbox className={styles.chooseRadio} onChange={this.onChangeQualityHuizhang.bind(this, index)} checked={classList[index].qualityCheck} >{item.role_name}</Checkbox>
                                         <input style={{ display: item.qualityCheck ? 'block' : 'none' }} className={styles.chooseSelectInput} type="number" placeholder="输入数字排序" onChange={this.editorInputQualityNum.bind(this, index)} defaultValue='0' />
                                     </div>
                                 )

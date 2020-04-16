@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 // 获取文章列表
 interface listArticlesType {
-  terrace_id:string | number, //平台id
+  terrace_id: string | number, //平台id
   page?: string | number,      //页数
   per_page?: string | number,   //每页几条
   terrace_role_id: string | number // 角色
@@ -43,3 +43,18 @@ export const getAddBanner = (data: getAddBannerType) => {
     data
   })
 }
+//编辑getbanner
+export const getBannerInfo = (params: any) => {
+  return request('/admin/banner/' + params.id, {
+    method: 'GET'
+  })
+}
+
+//编辑banner
+export const putBannerInfo = (data: any) => {
+  return request('/admin/banner/' + data.id, {
+    method: 'PUT',
+    data
+  })
+}
+

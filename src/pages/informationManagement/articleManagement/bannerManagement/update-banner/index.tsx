@@ -1,138 +1,190 @@
 import React, { Component } from 'react'
 import {
   Breadcrumb, Select, Form, Radio,
-  Table, Input, InputNumber, Popconfirm
+  Table, Input, Button, notification
 } from 'antd';
 import UploadBox from "@/components/uploadBox"
 import { connect } from 'dva'
 import styles from './index.less'
+import { history } from 'umi'
 
+import { getBannerInfo, getListArticles, putBannerInfo } from '../servers'
 const { Option } = Select;
 
-interface Props {
-  dispatch: (data: any) => void,
-  choose_type: Number,
-  choose_location: Number,
-  allowed_show: Number,
-  upload_type: Number,
-  allowed_click: Number
-}
 
-export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class UpdateBanner extends Component<Props> {
+export default class UpdateBanner extends Component {
   state = {
-    banner_type: 0,
-    imgUrl: '',
+    id: 0,
+    terrace_id: 0,
+    terrace_role_id: 0,
+    imgUrl: '',// 上传bannar图片地址
     value: 1,
     data: [],//表格组件
-    pagination: {},//表格组件
+    pagination: { current: 1, pageSize: 5 },//表格组件
     loading: false,
     operation_index: 0,
     currentPage: 1,
     currentPageSize: 5,
+
+    rank_order: 0,//排序
+    terraceRole: [],//选择位置（角色）
+    ListArticles: [],//文章数组
+    external_url: '',//外链
+    banner_type: 1,// banner类型:1图片2文章
+    choose_location: 0,
+    is_show: 0,//是否直接显示
+    allowed_click: 0,//可点击跳转外链
+    text_image_type: 1,//文章图0上传新图1默认封面
+    article_id: 0,//选中的文章id
+    total: 0,
+    article_title: '',
+    role_name:'',
+    flag: false
   }
 
+  componentDidMount() {
 
-  handleChange = (value) => {
-    console.log(`selected ${value}`);
+    getBannerInfo({ id: this.props.location.query.id }).then(res => {
+      this.setState({
+        id: res.data.id,
+        terrace_id: res.data.terrace_id,
+        terrace_role_id: res.data.terrace_role_id,
+        is_show: res.data.is_show,//可显示
+        banner_type: res.data.banner_type,//1图片2文章,
+        imgUrl: res.data.banner_cover,
+        article_id: res.data.article_id,
+        rank_order: res.data.rank_order,
+        allowed_click: res.data.external_url ? 1 : 0,//可跳转
+        external_url: res.data.external_url,//外链
+        text_image_type: res.data.is_use_article_cover,
+        article_title: res.data.article && res.data.article.article_title ? res.data.article.article_title : '',
+        role_name:res.data.terrace_role && res.data.terrace_role.role_name ? res.data.terrace_role.role_name : '',
+        flag: true // 判断用
+      }, () => {
+        res.data.banner_type == 2 && this.getArticleList(res.data.terrace_role_id)
+      })
+    })
   }
+  // 获取文章列表数据
+  getArticleList = (terrace_role_id: any) => {
+    const { pagination } = this.state
+    getListArticles({
+      terrace_id: this.state.terrace_id,
+      page: pagination.current,
+      per_page: pagination.pageSize,
+      terrace_role_id
+    })
+      .then(res => {
+        this.setState({
+          ListArticles: res.data.map((item: any, _: number) => {
+            return {
+              key: item.id,
+              title: item.article_title,          //标题
+              author: item.article_author,
+              image: item.author_cover,           //标题图片
+              type: item.is_show,                 //是否已上架
+              time: item.created_at,              //发布时间
+              read_number: item.read_num,         //阅读量
+              belong_to: item.data_category.map((value: any, index: number) => { //分类名称
+                return value.category.category_name
+              })
+              ,
+              belong_id: item.id,
+              operation: _ + 1
+            }
+          }),
+          total: res.meta.pagination.total
+        })
+      })
 
-  getUploadImage = (data) => {
-    console.log(data, '得到上传图片的数据')
   }
-
+  // checked 选中状态
+  onChangeChecked = (type: string, e: any) => {
+    if (type == 'allowed-show') {
+      this.setState({ is_show: e.target.value })
+    }
+    else if (type == 'allowed-click') {
+      this.setState({ allowed_click: e.target.value })
+    } else if (type == 'upload-banner') {
+      this.setState({ text_image_type: e.target.value })
+    }
+  }
+  //上传封面图
+  getUploadImage = (type: string, url: string) => {
+    //两种封面图归为一个字段好了
+    this.setState({ imgUrl: url })
+  }
+  // 点击表格 分页
+  handleTableChange = async (pagination_props: any) => {
+    console.log('handleTableChange', pagination_props)
+    this.setState({ pagination: pagination_props, total: pagination_props.total }, () => {
+      this.getArticleList(this.state.terrace_role_id);
+    })
+  };
+  // 外链
+  getInput = (e: any) => {
+    this.setState({ external_url: e.target.value.trim() })
+  }
   // 成功的回调
   onFinish = () => {
-
+    let { id, terrace_id, terrace_role_id, banner_type, imgUrl, external_url, allowed_click, is_show, rank_order, article_id, text_image_type } = this.state;
+    putBannerInfo({
+      id,
+      terrace_id,
+      terrace_role_id,
+      banner_type,
+      banner_cover: text_image_type == 0 ? imgUrl : undefined,
+      article_id,
+      external_url: allowed_click ? external_url : '',
+      is_show,
+      rank_order,
+      is_use_article_cover: text_image_type,
+    }).then(res => {
+      if (res.code == 200) {
+        notification.open({
+          message: '编辑成功',
+          description: res.message,
+        });
+        setTimeout(() => {
+          history.push({ "pathname": '/informationManagement/articleManagement/bannerManagement/bannerList' })
+        }, 1500)
+      } else {
+        notification.open({
+          message: '编辑失败',
+          description: res.message,
+        });
+      }
+    })
   }
 
   //失败回调中校验 
-  onFinishFailed = () => {
-
+  onFinishFailed = (err: any) => {
+    notification.open({
+      message: '编辑失败',
+      description: err,
+    });
   }
 
-  // checked 选中状态
-  onChangeChecked = (data: string, e: any) => {
-    this.dispatchAddProps('setAddBanner/setAddProps', {
-      [data]: e.target.value
-    })
-  }
-
-  handleTableChange = (pagination, filters, sorter) => {
-    console.log(
-      pagination, 'pagination', filters, 'filters', sorter,
-      'sorter'
-    )
-  };
-
-
-  recordOperation_index = (e: any) => {
-    this.setState({ operation_index: e.target.value })
-  }
-
-  // 设置bannar类型 和 位置
-  setBannarType = (data: any, bannar_type: string) => {
-    this.dispatchAddProps('setAddBanner/setAddProps', {
-      [data]: bannar_type
-    })
-  }
-
-  // 处理 dva 赋值
-  dispatchAddProps = (type: string, payload: Object) => {
-    this.props.dispatch({
-      type,
-      payload
-    })
+  // 选择文章
+  recordOperation_index = (item: any, e: any) => {
+    this.setState({ article_id: item.belong_id })
   }
 
   changePageSize = (dd1, ddd2, cd3, dd4) => {
-    // dd1返回这个
-    // current: 3 //你点击的页数
-    // pageSize: 5 这个是一页多少条么。。。。
-    // defaultPageSize: 5
-    // showSizeChanger: true
-    // showQuickJumper: false
-    // total: 111 总数
     console.log(dd1, ddd2, cd3, dd4, 'ioiooi')
   }
+  sortInput = (e: any) => {
+    this.setState({ rank_order: e.target.value })
+  }
 
-
-  // 编辑页面 依靠后台传值来觉得是显示图片， 还是文章 
-  // 今日没完成点击分页触发，对接接口，如果有旧数据， 分页表格上面怎么显示出来
   render() {
     const {
-      currentPage,
-      currentPageSize,
+      text_image_type
     } = this.state
-    const meta = [
-      {
-        key: '1',
-        number: 1,
-        title: '第一标题',
-        author: '麒麟作者',
-        image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
-        type: '已上架',
-        time: "2020-02-18 05：37：15",
-        read_number: '80',
-        belong_to: '创客 新手上路',
-        operation: 1
-      },
-      {
-        key: '2',
-        number: '1',
-        title: '第一标题',
-        author: '麒麟作者',
-        image: 'https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=620351645,3109707469&fm=26&gp=0.jpg',
-        type: '已上架',
-        time: "2020-02-18 05：37：15",
-        read_number: '80',
-        belong_to: '创客 新手上路',
-        operation: 2
-      }
-    ];
-    const columns = [
+    const columnss = [
       {
         title: '编号',
-        dataIndex: 'number',
+        dataIndex: 'key',
         width: '8%',
         align: 'center'
       },
@@ -153,8 +205,9 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
         dataIndex: 'image',
         width: '10%',
         align: 'center',
-        render: value => <img style={{
-          width: '100%'
+        render: (value: any) => <img style={{
+          width: '100%',
+          height: 'auto'
         }} src={value} alt="" />
 
       },
@@ -180,35 +233,41 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
         title: '所属分类',
         dataIndex: 'belong_to',
         width: '15%',
-        align: 'center'
+        align: 'center',
+        render: (item: any) => <div>
+          {
+            item.map((res: any) => {
+              return <div key={res}>{res}</div>
+            })
+          }
+        </div>
       },
       {
         title: '操作',
         dataIndex: 'operation',
         width: '10%',
         align: 'center',
-        render: (item: any) => <Radio.Group onChange={this.recordOperation_index} value={this.state.operation_index} >
-          <Radio value={item} />
+        render: (item: any, res: any) => <Radio.Group onChange={this.recordOperation_index.bind(this, res)} value={this.state.article_id} >
+          <Radio value={res.belong_id} />
         </Radio.Group>
       }
     ];
-    const { banner_type } = this.state
     const {
-      choose_type,
-      choose_location,
-      allowed_show,
-      upload_type,
-      allowed_click
-    } = this.props
+      banner_type,
+      external_url,
+      is_show,
+      allowed_click,
+      ListArticles,
+      pagination,
+      flag
+    } = this.state
     return (
       <div className={styles.add_banner_page}>
         <Breadcrumb className={styles.bread_box}>
-          <Breadcrumb.Item onClick={() => {
-            console.log(this.props, 'props')
-          }}>资讯管理</Breadcrumb.Item>
+          <Breadcrumb.Item >资讯管理</Breadcrumb.Item>
           <Breadcrumb.Item>文章管理</Breadcrumb.Item>
           <Breadcrumb.Item>banner管理</Breadcrumb.Item>
-          <Breadcrumb.Item>添加banner</Breadcrumb.Item>
+          <Breadcrumb.Item>编辑banner</Breadcrumb.Item>
         </Breadcrumb>
 
         <Form
@@ -219,77 +278,104 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
           onFinishFailed={this.onFinishFailed}    //提交表单验证失败
         >
           < Form.Item
-            label="请选择banner类型"
+            label="banner类型"
             name="choose_type"
           >
-            文章
+            {
+              this.state.banner_type == 1 ? '图片' : '文章'
+            }
           </Form.Item>
           < Form.Item
-            label="请选择banner位置"
+            label="所属角色"
             name="choose_location"
           >
-          （创客）资讯中心
+            {this.state.role_name}
           </Form.Item>
           < Form.Item
-            label="是否直接显示"
-            name="upload-Image"
+            label="排序"
+            name="rank_order"
           >
-            <Radio.Group
-              onChange={this.onChangeChecked.bind(this, 'allowed_show')}
-              value={allowed_show}
-              style={{ paddingLeft: '15px' }}
-            >
-              <Radio value={0}>是</Radio>
-              <Radio value={1}>否</Radio>
-            </Radio.Group>
-          </Form.Item>
+            {
+              flag ? <Input defaultValue={this.state.rank_order} onChange={this.sortInput} style={{ width: 100 }} type='number' /> : null
+            }
 
+          </Form.Item>
           {
-            choose_type == 1 ? <Form.Item /* banner类型为图片 */
+            flag ? < Form.Item
+              label="是否直接显示"
+              name="allowedShow"
+            >
+              <Radio.Group
+                onChange={this.onChangeChecked.bind(this, 'allowed-show')}
+                defaultValue={is_show}
+                style={{ paddingLeft: '15px' }}
+              >
+                <Radio value={0}>否</Radio>
+                <Radio value={1}>是</Radio>
+              </Radio.Group>
+            </Form.Item> : null
+          }
+          {
+            banner_type == 1 ? <Form.Item /* banner类型为图片 */
               label="上传bannar图片"
               name="upload-Image"
               className={styles.flex_start}
             >
               <UploadBox
-                onChange={this.getUploadImage}
+                onChange={this.getUploadImage.bind(this, 'upload_image')}
                 imgUrl={this.state.imgUrl}
               />
             </Form.Item> : null
           }
           {
-            choose_type == 2 ? <Form.Item
+            flag && banner_type == 1 ? <Form.Item
+              label="是否可点击"
+              name="allowed-click"
+            >
+              <Radio.Group
+                onChange={this.onChangeChecked.bind(this, 'allowed-click')}
+                defaultValue={allowed_click}
+              >
+                <Radio value={0}>否</Radio>
+                <Radio value={1}>是</Radio>
+              </Radio.Group>
+            </Form.Item> : null
+          }
+          {
+            banner_type == 1 && allowed_click == 1 ? <Form.Item
+              label="添加外链接"
+              name="input"
+            >
+              <Input
+                onChange={this.getInput}
+                value={external_url.trim()}
+                defaultValue={external_url.trim()}
+              />
+            </Form.Item> : null
+          }
+          {
+            banner_type == 2 ? <Form.Item
               label="上传bannar图片"
-              name="upload-Image"
+              name="choose_type2"
               style={{ margin: '10px 0px' }}
             >
               <Radio.Group
-                onChange={this.onChangeChecked.bind(this, 'upload_type')}
-                value={upload_type}
+                onChange={this.onChangeChecked.bind(this, 'upload-banner')}
+                defaultValue={text_image_type}
                 style={{ margin: '5px 0' }}>
-                <Radio value={1}>自定义图片</Radio>
-                <Radio value={2}>使用文章封面图</Radio>
+                <Radio value={0}>自定义图片</Radio>
+                <Radio value={1}>使用文章封面图</Radio>
               </Radio.Group>
-              <UploadBox
-                onChange={this.getUploadImage}
-                imgUrl={this.state.imgUrl}
-              />
+              {
+                text_image_type == 1 ? null : <UploadBox
+                  onChange={this.getUploadImage.bind(this, 'upload-banner')}
+                  imgUrl={this.state.imgUrl}
+                />
+              }
             </Form.Item> : null
           }
           {
-            choose_type == 1 ? <Form.Item
-              label="是否可点击"
-              name="checked"
-            >
-              <Radio.Group
-                onChange={this.onChangeChecked.bind(this, 'upload_type')}
-                value={allowed_click}>
-                <Radio value={1}>否</Radio>
-                <Radio value={2}>是</Radio>
-              </Radio.Group>
-            </Form.Item> : null
-          }
-          {
-            choose_type == 2 ? <Form.Item
+            banner_type == 2 ? <Form.Item
               label="选择文章"
               name="choose"
               className={styles.chooseText}
@@ -298,17 +384,17 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
                 rowClassName="editable-row"
                 position='topCenter'
                 size="small"
-                columns={columns}
-                dataSource={meta}
+                columns={columnss}
+                dataSource={ListArticles}
                 bordered
                 scroll={{ x: 1200, y: 400 }}
                 pagination={{
-                  current: currentPage,
-                  defaultPageSize: currentPageSize,
+                  current: pagination.current,
+                  defaultPageSize: pagination.pageSize,
                   showSizeChanger: true,
                   showQuickJumper: false,
-                  total: 111,
-                  showTotal: () => `共${111}条`
+                  total: this.state.total,
+                  showTotal: () => `共${this.state.total}条`
                 }}
                 loading={this.state.loading}
                 onChange={this.handleTableChange}
@@ -317,9 +403,16 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
             </Form.Item> : null
           }
 
+          <Form.Item className={styles.submit_box}>
+            <Button htmlType="submit" type="primary">
+              确认修改
+            </Button>
+            <Button htmlType="button" style={{ margin: '0 38px' }} onClick={() => { window.history.back(); }}>
+              取消
+            </Button>
+          </Form.Item>
         </Form>
-
       </div>
     )
   }
-})
+}

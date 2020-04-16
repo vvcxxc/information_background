@@ -26,8 +26,10 @@ export default connect(({ classificationList }: any) => ({ classificationList })
     }
 
     async componentDidMount() {
+      console.log(this.props)
+      const terrace_id = localStorage.getItem('terrace_id')
      await getAllRoles({
-        terrace_id: 1,//平台id
+        terrace_id,//平台id
         is_category: 0
       }).then((res) => {
         this.setState({ typeData:res.data })
@@ -52,6 +54,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
 
     // 标题的校验规则
     validationRules = (rule: any, value: any, callback: any) => {
+      console.log(rule,value,'val')
       if (!value) {
         callback('标题不能为空')
         return
@@ -74,6 +77,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
         message.error('所属角色不能为空');
         return
       }
+      console.log(addProps.category_name,'222')
 
       addClasasification(addProps)
         .then(res => {
@@ -112,6 +116,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
     render() {
       const { typeData, tailLayout } = this.state
       const { showType, addProps,rank_order } = this.props.classificationList.addPage
+      console.log(addProps.category_name,'addProps.category_name')
       const menu = (
         <Menu>
           {
@@ -125,6 +130,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
           }
         </Menu>
       );
+      console.log(addProps.category_name)
       return (
         <div className={style.add_classification}>
           <main className={style.add_content}>
@@ -138,9 +144,9 @@ export default connect(({ classificationList }: any) => ({ classificationList })
               <Form.Item
                 label="分类标题"
                 name="分类标题"
-                rules={[
-                  { required: true, validator: this.validationRules.bind(this)}
-                ]}
+                // rules={[
+                //   { required: true, validator: this.validationRules.bind(this)}
+                // ]}
               >
                 <Input
                   onChange={this.getInput}
@@ -158,7 +164,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
                   value={rank_order}
                   type='number'
                   defaultValue={rank_order}
-                  placeholder="不可多于6个字"
+                  placeholder="请输入数字"
                 />
               </Form.Item>
               <Form.Item
