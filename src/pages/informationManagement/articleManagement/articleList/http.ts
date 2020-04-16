@@ -9,12 +9,12 @@ export function getListData(article_title: any, article_author: any, terrace_rol
             method: 'GET',
             params: {
                 terrace_id: localStorage.getItem('terrace_id'),
-                // orderBy: "rank_order",   
                 article_title,
                 article_author,
                 terrace_role_id,
                 is_show,
                 category_id,
+                is_superiod: 0,
                 page,
                 per_page
             }

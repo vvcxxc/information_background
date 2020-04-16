@@ -223,12 +223,13 @@ export default Form.create()(
             }
           },
           {
-            title: '精品',
+            title: '角色',
             dataIndex: 'terrace_role_id',
             key: 'terrace_role_id',
             render: (text: any, record: any) => {
-              return record.data_role.map((item: any) => (
-                <span>{item.role.role_name + "(" + item.rank_order + ")"},</span>
+              return record.data_category.map((item: any) => (
+                <span>{item.is_superior == 1 ? item.category.category_name + "(" + item.superior_rank_order + ")," : ""}</span>
+
               )
               )
             }
@@ -268,13 +269,13 @@ export default Form.create()(
         const { loading, total, dataList, articleCategoryList, allRoleList } = this.state;
         return (
           <div className={styles.article_list}>
-             <Breadcrumb>
-                <Breadcrumb.Item>资讯管理</Breadcrumb.Item>
-                <Breadcrumb.Item>
+            <Breadcrumb>
+              <Breadcrumb.Item>资讯管理</Breadcrumb.Item>
+              <Breadcrumb.Item>
                 文章管理
                 </Breadcrumb.Item>
-                <Breadcrumb.Item>文章列表</Breadcrumb.Item>
-              </Breadcrumb>
+              <Breadcrumb.Item>文章列表</Breadcrumb.Item>
+            </Breadcrumb>
             <Form>
               <Row
                 gutter={{
@@ -298,10 +299,10 @@ export default Form.create()(
                   </FormItem>
                 </Col>
                 <Col md={8} sm={24}>
-                  <FormItem label="精品">
+                  <FormItem label="所属角色">
                     {getFieldDecorator('roleName', { initialValue: roleName })(
                       <Select
-                        placeholder="请选择精品"
+                        placeholder="请选择角色"
                         style={{
                           width: '100%',
                         }}
