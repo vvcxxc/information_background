@@ -32,7 +32,8 @@ interface Props {
   text_image: string,
   text_image_type: string | number,
   form: any,
-  rank_order: number
+  rank_order: number,
+  is_use_article_cover: number
 }
 
 export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class AddBanner extends Component<Props> {
@@ -59,6 +60,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
 
   // 获取文章列表配置参数
   componentDidMount = async () => {
+    console.log(this.props.is_use_article_cover)
     // await getListArticles({
     //   terrace_id: 1,
     //   page: 1
@@ -145,6 +147,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
           is_use_article_cover: 1
         })
       }else {
+        console.log(3232)
         this.dispatchAddProps('setAddBanner/setAddProps', {
           is_use_article_cover: 0
         })
@@ -233,7 +236,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
       is_use_article_cover // 是否使用封面图
     } = this.props
     var imageProps;
-
+    console.log(is_use_article_cover,'isis')
     if (!choose_type) return message.error('banner类型不能为空');
     if (!choose_location) return message.error('banner位置不能为空');
     switch (Number(choose_type)) {
