@@ -78,14 +78,17 @@ export default class AddArticle extends React.Component {
                                     classList[i].selectCheck = true;
                                     classList[i].selectValue = data_category[j].category_id;
                                     classList[i].inputNum = data_category[j].rank_order;
+
+                                    classList[i].qualityCheck = data_category[j].is_superior?true:false;
+                                    classList[i].qualityInputNum = data_category[j].superior_rank_order;
                                 }
                             }
-                            for (let k in data_role) {
-                                if (classList[i].id == data_role[k].terrace_role_id) {
-                                    classList[i].qualityCheck = true;
-                                    classList[i].qualityInputNum = data_role[k].rank_order;
-                                }
-                            }
+                            // for (let k in data_role) {
+                            //     if (classList[i].id == data_role[k].terrace_role_id) {
+                            //         classList[i].qualityCheck = true;
+                            //         classList[i].qualityInputNum = data_role[k].rank_order;
+                            //     }
+                            // }
                         }
                         this.setState({
                             classList, articleId: id, title: article_title, auth: article_author, readNum: read_num, titleFileImg: author_cover,
@@ -244,7 +247,10 @@ export default class AddArticle extends React.Component {
         let classList = this.state.classList;
         let data_category = [], data_role = [];
         for (let i in classList) {
-            classList[i].selectCheck && data_category.push({ terrace_role_id: classList[i].id, category_id: classList[i].selectValue, rank_order: classList[i].inputNum ? classList[i].inputNum : '0' })
+            classList[i].selectCheck && data_category.push({
+                is_superior: classList[i].qualityCheck ? 1 : 0, superior_rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0',
+                terrace_role_id: classList[i].id, category_id: classList[i].selectValue, rank_order: classList[i].inputNum ? classList[i].inputNum : '0'
+            })
             classList[i].qualityCheck && data_role.push({ terrace_role_id: classList[i].id, role_id: classList[i].id, rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0' })
         }
         // if (!data_role.length) {
