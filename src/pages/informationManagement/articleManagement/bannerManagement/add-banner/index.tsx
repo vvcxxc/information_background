@@ -416,7 +416,7 @@ export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class
 
           </Form.Item>
           < Form.Item
-            label="请选择banner位置"
+            label="请选择所属角色"
             name="choose_location"
           >
             <Select
