@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Input, Button, Select, Tabs, Divider, Modal, message,Breadcrumb  } from 'antd';
+import { Table, Row, Col, Input, Button, Select, Tabs, Divider, Modal, message, Breadcrumb } from 'antd';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
 import { getListData, deleteArticle } from './http';
 import styles from './index.less';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { history } from 'umi';
 
 const { confirm } = Modal;
 
@@ -134,6 +135,14 @@ export default Form.create()(
                 });
             }
 
+            handleDetailItem = (record: any) => {
+                history.push('/informationManagement/articleManagement/previewArticle?id=' + record.id);
+            }
+
+            handleEditItem = (record: any) => {
+                history.push('/informationManagement/articleManagement/editorArticle?id=' + record.id);
+            }
+
             render() {
                 const columns = [
                     {
@@ -186,9 +195,9 @@ export default Form.create()(
                         key: 'action',
                         render: (text: any, record: any) => (
                             <span>
-                                <a>查看</a>
+                                <a onClick={this.handleDetailItem.bind(this, record)}>查看</a>
                                 <Divider type="vertical" />
-                                <a>编辑</a>
+                                <a onClick={this.handleEditItem.bind(this, record)}>编辑</a>
                                 <Divider type="vertical" />
                                 <a onClick={this.handleDeleteItem.bind(this, record)}>移除</a>
                             </span>
@@ -211,13 +220,13 @@ export default Form.create()(
                 const { loading, dataList, total } = this.state;
                 return (
                     <div className={styles.classify_article_list}>
-                      <Breadcrumb>
-                        <Breadcrumb.Item>资讯管理</Breadcrumb.Item>
-                        <Breadcrumb.Item>
-                        分类管理
+                        <Breadcrumb>
+                            <Breadcrumb.Item>资讯管理</Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                分类管理
                         </Breadcrumb.Item>
-                        <Breadcrumb.Item>分类文章管理</Breadcrumb.Item>
-                      </Breadcrumb>
+                            <Breadcrumb.Item>分类文章管理</Breadcrumb.Item>
+                        </Breadcrumb>
                         <Form>
                             <Row
                                 gutter={{

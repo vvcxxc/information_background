@@ -6,6 +6,7 @@ import { connect } from 'dva';
 import { getListData, getAllRole, deleteBanner } from './http';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import styles from './index.less';
+import { history } from 'umi';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -181,6 +182,10 @@ export default Form.create()(
         });
       }
 
+      handleEditItem = (record: any) => {
+        history.push('/informationManagement/articleManagement/bannerManagement/update-banner?id=' + record.id);
+      }
+
       render() {
         const columns = [
           {
@@ -238,7 +243,7 @@ export default Form.create()(
             key: 'action',
             render: (text, record) => (
               <span>
-                <a>查看</a>
+                <a onClick={this.handleEditItem.bind(this, record)}>编辑</a>
                 <Divider type="vertical" />
                 <a onClick={this.handleDeleteItem.bind(this, record)}>删除</a>
               </span>
