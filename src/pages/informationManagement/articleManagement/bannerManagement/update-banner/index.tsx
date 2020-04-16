@@ -311,8 +311,8 @@ export default class UpdateBanner extends Component {
                 defaultValue={is_show}
                 style={{ paddingLeft: '15px' }}
               >
-                <Radio value={0}>否</Radio>
                 <Radio value={1}>是</Radio>
+                <Radio value={0}>否</Radio>
               </Radio.Group>
             </Form.Item> : null
           }
