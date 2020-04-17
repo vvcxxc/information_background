@@ -61,18 +61,19 @@ export default class UpdateBanner extends Component {
         role_name:res.data.terrace_role && res.data.terrace_role.role_name ? res.data.terrace_role.role_name : '',
         flag: true // 判断用
       }, () => {
-        res.data.banner_type == 2 && this.getArticleList(res.data.terrace_role_id)
+        res.data.banner_type == 2 && this.getArticleList(res.data.terrace_role_id,res.data.article_id)
       })
     })
   }
   // 获取文章列表数据
-  getArticleList = (terrace_role_id: any) => {
+  getArticleList = (terrace_role_id: any,articles_id: any) => {
     const { pagination } = this.state
     getListArticles({
       terrace_id: this.state.terrace_id,
       page: pagination.current,
       per_page: pagination.pageSize,
-      terrace_role_id
+      terrace_role_id,
+      articles_id
     })
       .then(res => {
         this.setState({
@@ -118,7 +119,7 @@ export default class UpdateBanner extends Component {
   handleTableChange = async (pagination_props: any) => {
     console.log('handleTableChange', pagination_props)
     this.setState({ pagination: pagination_props, total: pagination_props.total }, () => {
-      this.getArticleList(this.state.terrace_role_id);
+      this.getArticleList(this.state.terrace_role_id,this.state.article_id);
     })
   };
   // 外链
@@ -157,7 +158,7 @@ export default class UpdateBanner extends Component {
     })
   }
 
-  //失败回调中校验 
+  //失败回调中校验
   onFinishFailed = (err: any) => {
     notification.open({
       message: '编辑失败',
@@ -310,8 +311,8 @@ export default class UpdateBanner extends Component {
                 defaultValue={is_show}
                 style={{ paddingLeft: '15px' }}
               >
-                <Radio value={0}>否</Radio>
                 <Radio value={1}>是</Radio>
+                <Radio value={0}>否</Radio>
               </Radio.Group>
             </Form.Item> : null
           }
