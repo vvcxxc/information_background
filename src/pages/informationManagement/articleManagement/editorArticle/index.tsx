@@ -79,7 +79,7 @@ export default class AddArticle extends React.Component {
                                     classList[i].selectValue = data_category[j].category_id;
                                     classList[i].inputNum = data_category[j].rank_order;
 
-                                    classList[i].qualityCheck = data_category[j].is_superior?true:false;
+                                    classList[i].qualityCheck = data_category[j].is_superior ? true : false;
                                     classList[i].qualityInputNum = data_category[j].superior_rank_order;
                                 }
                             }
@@ -246,7 +246,14 @@ export default class AddArticle extends React.Component {
         }
         let classList = this.state.classList;
         let data_category = [], data_role = [];
+
         for (let i in classList) {
+
+            if (classList[i].selectCheck && !classList[i].selectValue) {
+                this.showMessage('发布失败', '请下拉选择发布分类')
+                return;
+            }
+
             classList[i].selectCheck && data_category.push({
                 is_superior: classList[i].qualityCheck ? 1 : 0, superior_rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0',
                 terrace_role_id: classList[i].id, category_id: classList[i].selectValue, rank_order: classList[i].inputNum ? classList[i].inputNum : '0'

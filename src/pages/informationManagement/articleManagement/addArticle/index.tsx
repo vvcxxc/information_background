@@ -197,7 +197,7 @@ export default class AddArticle extends React.Component {
             return;
         }
         if (!this.state.dateString || !this.state.timeString) {
-            this.showMessage('发布失败', '请上选择发布时间')
+            this.showMessage('发布失败', '请选择发布时间')
             return;
         }
         let classList = this.state.classList;
@@ -206,6 +206,12 @@ export default class AddArticle extends React.Component {
 
 
         for (let i in classList) {
+
+            if(classList[i].selectCheck&&!classList[i].selectValue){
+                this.showMessage('发布失败', '请下拉选择发布分类')
+                return;
+            }
+
             classList[i].selectCheck && data_category.push({
                 is_superior: classList[i].qualityCheck ? 1 : 0, superior_rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0',
                 terrace_role_id: classList[i].id, category_id: classList[i].selectValue, rank_order: classList[i].inputNum ? classList[i].inputNum : '0'
