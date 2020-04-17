@@ -58,7 +58,8 @@ export default Form.create()(
                 await this.setState({
                     loading: true
                 })
-                getListData(article_title, is_show, category_id, page, per_page).then((res: any) => {
+                const terrace_role_id = this.props.location.query.terrace_role_id
+                getListData(article_title, is_show, category_id, page, per_page,terrace_role_id).then((res: any) => {
                     // console.log('res', res)
                     this.setState({
                         dataList: res.data,
