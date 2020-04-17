@@ -3,18 +3,18 @@ import Request from '@/utils/request';
 /**
  * 获取列表页
  */
-export function getListData(article_title: any, article_author: any, terrace_role_id: any, is_show: any, category_id: any, page: any, per_page: any) {
+export function getListData(article_title: any, article_author: any, terrace_role_id: any, is_show: any, category_id: any, is_superiod: any, page: any, per_page: any) {
     return new Promise((resolve, reject) => {
         Request('/admin/article', {
             method: 'GET',
             params: {
                 terrace_id: localStorage.getItem('terrace_id'),
-                article_title,
-                article_author,
-                terrace_role_id,
-                is_show,
-                category_id,
-                is_superiod: 0,
+                article_title,   // 文章标题
+                article_author,  // 发布作者
+                terrace_role_id, // 所属角色
+                is_show,         // 发布状态
+                category_id,     // 所属分类
+                is_superiod,  //是否精品
                 page,
                 per_page
             }
@@ -30,12 +30,13 @@ export function getListData(article_title: any, article_author: any, terrace_rol
 /**
  * 获取所有文章分类
  */
-export function getArticleCategory() {
+export function getArticleCategory(terrace_role_id: any) {
     return new Promise((resolve, reject) => {
         Request('/admin/common/getArticleCategory', {
             method: 'GET',
             params: {
-                terrace_id: localStorage.getItem('terrace_id')
+                terrace_id: localStorage.getItem('terrace_id'),
+                terrace_role_id
             }
         }).then(res => {
             resolve(res);
