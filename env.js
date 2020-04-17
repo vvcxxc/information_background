@@ -9,6 +9,11 @@ const configs = {
     API: 'http://test.api.counsel_terrace.tdianyi.com',
 
   },
+  // 预发布环境
+  release: {
+    API: 'http://release.api.counsel_terrace.tdianyi.com',
+
+  },
 
   // 本地
   local: {
