@@ -50,11 +50,11 @@ export default Form.create()(
       }
 
 
-      requestListData = async (article_title: any, article_author: any, terrace_role_id: any, is_show: any, category_id: any, is_superiod: any, page: any, per_page: any) => {
+      requestListData = async (article_title: any, article_author: any, terrace_role_id: any, is_show: any, category_id: any, is_superior: any, page: any, per_page: any) => {
         await this.setState({
           loading: true
         })
-        getListData(article_title, article_author, terrace_role_id, is_show, category_id, is_superiod, page, per_page).then((res: any) => {
+        getListData(article_title, article_author, terrace_role_id, is_show, category_id, is_superior, page, per_page).then((res: any) => {
           this.setState({
             dataList: res.data,
             loading: false,

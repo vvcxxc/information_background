@@ -3,7 +3,7 @@ import Request from '@/utils/request';
 /**
  * 获取列表页
  */
-export function getListData(article_title: any, article_author: any, terrace_role_id: any, is_show: any, category_id: any, is_superiod: any, page: any, per_page: any) {
+export function getListData(article_title: any, article_author: any, terrace_role_id: any, is_show: any, category_id: any, is_superior: any, page: any, per_page: any) {
     return new Promise((resolve, reject) => {
         Request('/admin/article', {
             method: 'GET',
@@ -14,7 +14,7 @@ export function getListData(article_title: any, article_author: any, terrace_rol
                 terrace_role_id, // 所属角色
                 is_show,         // 发布状态
                 category_id,     // 所属分类
-                is_superiod,  //是否精品
+                is_superior,  //是否精品
                 page,
                 per_page
             }
