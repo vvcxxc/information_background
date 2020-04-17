@@ -7,6 +7,7 @@ import {
 } from '@/pages/informationManagement/classifyToManage/servers'
 import { connect } from 'dva'
 import style from './index.less'
+import { history } from 'umi';
 
 interface Porps {
   dispatch: (_: any) => null,
@@ -25,8 +26,10 @@ export default connect(({ classificationList }: any) => ({ classificationList })
     }
 
     async componentDidMount() {
+      console.log(this.props)
+      const terrace_id = localStorage.getItem('terrace_id')
      await getAllRoles({
-        terrace_id: 1,//平台id 
+        terrace_id,//平台id
         is_category: 0
       }).then((res) => {
         this.setState({ typeData:res.data })
@@ -38,6 +41,10 @@ export default connect(({ classificationList }: any) => ({ classificationList })
     getInput = (e: any) => {
       this.dispatchAddProps('classificationList/setAddProps', { category_name: e.target.value.trim() })
     }
+    // 排序
+    sortInput = (e: any) => {
+      this.dispatchAddProps('classificationList/setAddProps', { rank_order: e.target.value.trim() })
+    }
 
     // 选择角色
     handleMenuClick = (data: any) => {
@@ -47,6 +54,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
 
     // 标题的校验规则
     validationRules = (rule: any, value: any, callback: any) => {
+      console.log(rule,value,'val')
       if (!value) {
         callback('标题不能为空')
         return
@@ -69,17 +77,24 @@ export default connect(({ classificationList }: any) => ({ classificationList })
         message.error('所属角色不能为空');
         return
       }
+      console.log(addProps.category_name,'222')
 
       addClasasification(addProps)
         .then(res => {
-          this.dispatchAddProps('classificationList/clearAddData',{})
-          message.error(message);
+          console.log(res)
+          if(res.status_code){
+            message.error(res.message);
+          }else {
+            this.dispatchAddProps('classificationList/clearAddData',{})
+            message.success('添加成功');
+            history.push('/informationManagement/classifyToManage/classifyList')
+          }
         }).catch(() => {
           console.log('catch')
         })
     }
 
-    //失败回调中校验 
+    //失败回调中校验
     onFinishFailed = () => {
 
     }
@@ -87,7 +102,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
     // 取消提交
     cancelSubmit = async() => {
       await this.dispatchAddProps('classificationList/clearAddData', {})
-      await window.history.back(-1); 
+      await window.history.back(-1);
     }
 
     // 处理 dva 赋值
@@ -100,7 +115,8 @@ export default connect(({ classificationList }: any) => ({ classificationList })
 
     render() {
       const { typeData, tailLayout } = this.state
-      const { showType, addProps } = this.props.classificationList.addPage
+      const { showType, addProps,rank_order } = this.props.classificationList.addPage
+      console.log(addProps.category_name,'addProps.category_name')
       const menu = (
         <Menu>
           {
@@ -114,6 +130,7 @@ export default connect(({ classificationList }: any) => ({ classificationList })
           }
         </Menu>
       );
+      console.log(addProps.category_name)
       return (
         <div className={style.add_classification}>
           <main className={style.add_content}>
@@ -127,15 +144,27 @@ export default connect(({ classificationList }: any) => ({ classificationList })
               <Form.Item
                 label="分类标题"
                 name="分类标题"
-                rules={[
-                  { required: true, validator: this.validationRules.bind(this)}
-                ]}
+                // rules={[
+                //   { required: true, validator: this.validationRules.bind(this)}
+                // ]}
               >
                 <Input
                   onChange={this.getInput}
                   value={addProps.category_name.trim()}
                   defaultValue={addProps.category_name.trim()}
                   placeholder="不可多于6个字"
+                />
+              </Form.Item>
+              <Form.Item
+                label="排序"
+                name="排序"
+              >
+                <Input
+                  onChange={this.sortInput}
+                  value={rank_order}
+                  type='number'
+                  defaultValue={rank_order}
+                  placeholder="请输入数字"
                 />
               </Form.Item>
               <Form.Item

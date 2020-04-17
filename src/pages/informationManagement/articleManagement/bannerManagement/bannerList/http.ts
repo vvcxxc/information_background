@@ -9,7 +9,8 @@ export function getListData(article_title: any, is_show: any, banner_type: any, 
         Request('/admin/banner', {
             method: 'GET',
             params: {
-                terrace_id: 1,
+                terrace_id: localStorage.getItem('terrace_id'),
+                orderBy: "rank_order",
                 article_title,
                 is_show,
                 banner_type,
@@ -34,7 +35,7 @@ export function getAllRole() {
         Request('/admin/common/getTerraceRole', {
             method: 'GET',
             params: {
-                terrace_id: 1,
+                terrace_id: localStorage.getItem('terrace_id'),
                 is_category: 0
             }
         }).then(res => {

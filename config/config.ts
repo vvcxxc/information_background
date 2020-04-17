@@ -155,7 +155,22 @@ export default defineConfig({
                       name: 'classifyArticleList',
                       path: '/informationManagement/classifyToManage/classifyArticleList/:id',
                       component: './informationManagement/classifyToManage/classifyArticleList',
-                    }
+                    },
+                    {
+                      path: '/informationManagement/classifyToManage/classificationList',
+                      routes: [
+                        {
+                          name: 'add-classification',
+                          path: 'add-classification',
+                          component: './informationManagement/classifyToManage/classificationList/add-classification',
+                        },
+                        {
+                          name: 'update-classification',
+                          path: 'update-classification',
+                          component: './informationManagement/classifyToManage/classificationList/update-classification',
+                        },
+                      ],
+                    }//end
                   ],
                 },
                 {
@@ -168,21 +183,7 @@ export default defineConfig({
                     },
                   ],
                 },
-                {
-                  path: '/informationManagement/classifyToManage/classificationList',
-                  routes: [
-                    {
-                      name: 'add-classification',
-                      path: 'add-classification',
-                      component: './informationManagement/classifyToManage/classificationList/add-classification',
-                    },
-                    {
-                      name: 'update-classification',
-                      path: 'update-classification',
-                      component: './informationManagement/classifyToManage/classificationList/update-classification',
-                    },
-                  ],
-                }//end
+
               ],
             },
             {

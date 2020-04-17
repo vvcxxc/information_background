@@ -25,7 +25,7 @@ export async function getArticle(id: any) {
 export async function editorArticle(id: any, data: object) {
     return request('/admin/article/' + id, {
         method: 'PUT',
-        params: data,
+        data,
     });
 }
 

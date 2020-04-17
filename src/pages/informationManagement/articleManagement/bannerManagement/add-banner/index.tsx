@@ -1,15 +1,15 @@
 import React, { Component } from 'react'
 import {
-  Breadcrumb, Select, Radio,
+  Breadcrumb, Select, Form, Radio,
   Table, Input, InputNumber, Popconfirm,
   Button,
   message
 } from 'antd';
 import UploadBox from "@/components/uploadBox"
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
+// import { Form } from '@ant-design/compatible';
+// import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva'
-
+import { history } from 'umi';
 import {
   getListArticles, // 获取文章列表
   getTerraceRole,  // 获取所有角色
@@ -20,7 +20,7 @@ import styles from './index.less'
 const { Option } = Select;
 interface Props {
   dispatch: (data: any) => void,
-  choose_type: string ,
+  choose_type: string,
   choose_location: string,
   allowed_show: number,
   upload_type: number,
@@ -29,13 +29,14 @@ interface Props {
   upload_image: string,
   chooseTextId: string,
   outside_chain: string,
-  text_image: string ,
+  text_image: string,
   text_image_type: string | number,
-  form: any;
+  form: any,
+  rank_order: number,
+  is_use_article_cover: number
 }
 
-export default Form.create()(
-  connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class AddBanner extends Component<Props> {
+export default connect((setAddBanner: any) => (setAddBanner.setAddBanner))(class AddBanner extends Component<Props> {
   state = {
     banner_type: 0,
     imgUrl: '',
@@ -53,14 +54,51 @@ export default Form.create()(
     tailLayout: {
       wrapperCol: { offset: 0, span: 16 },
     },
+
+    total: 100
   }
 
   // 获取文章列表配置参数
-    componentDidMount = async () => { 
-    console.log('form',this.props)
-    await getListArticles({
-      terrace_id: 1,
-      page: 1
+  componentDidMount = async () => {
+    console.log(this.props.is_use_article_cover)
+    // await getListArticles({
+    //   terrace_id: 1,
+    //   page: 1
+    // })
+    //   .then(res => {
+    //     this.dispatchAddProps('setAddBanner/setAddProps', {
+    //       ['pagination']: {
+    //         current: 1,       //当前页码
+    //         pageSize: 5,      //每页条数
+    //         total: res.data.length,//条数总和
+    //       }
+    //     })
+    //   })
+    //获取文章列表数据
+    // await this.getArticleList()
+    const terrace_id = localStorage.getItem('terrace_id')
+    getTerraceRole({// 获取所有角色
+      terrace_id,
+      is_category: 0
+    })
+      .then(res => {
+        this.setState({
+          terraceRole: res.data,
+          total: res.data.length / this.props.pagination.pageSize
+        })
+      })
+
+  }
+
+  // 获取文章列表数据
+  getArticleList = () => {
+    const { pagination, choose_location } = this.props
+    const terrace_id = localStorage.getItem('terrace_id')
+    getListArticles({
+      terrace_role_id: choose_location,
+      terrace_id,
+      page: pagination.current,
+      per_page: pagination.pageSize
     })
       .then(res => {
         this.dispatchAddProps('setAddBanner/setAddProps', {
@@ -70,28 +108,6 @@ export default Form.create()(
             total: res.data.length,//条数总和
           }
         })
-      })
-    //获取文章列表数据
-    await this.getArticleList()
-    getTerraceRole({// 获取所有角色
-      terrace_id: 1,
-      is_category: 0
-    })
-      .then(res => {
-        this.setState({ terraceRole: res.data })
-      })
-
-  }
-
-  // 获取文章列表数据
-  getArticleList = () => {
-    const { pagination } = this.props
-    getListArticles({
-      terrace_id: 1,
-      page: pagination.current,
-      per_page: pagination.pageSize
-    })
-      .then(res => {
         this.setState({
           ListArticles: res.data.map((item: any, _: number) => {
             return {
@@ -125,17 +141,40 @@ export default Form.create()(
 
   //  选中状态 --> 是否直接显示   上传bannar图片   是否可点击
   onChangeChecked = (data: string, e: any) => {
+    if(data == 'text_image_type'){
+      if(e.target.value == 2){
+        this.dispatchAddProps('setAddBanner/setAddProps', {
+          is_use_article_cover: 1
+        })
+      }else {
+        console.log(3232)
+        this.dispatchAddProps('setAddBanner/setAddProps', {
+          is_use_article_cover: 0
+        })
+      }
+    }
     this.dispatchAddProps('setAddBanner/setAddProps', {
       [data]: e.target.value
     })
   }
 
   // 设置bannar类型 和 位置
-  setBannarType = (data: any, bannar_type: string) => {
-    console.log(data, 'data', bannar_type,'bannar_type')
-    this.dispatchAddProps('setAddBanner/setAddProps', {
+  setBannarType = async(data: any, bannar_type: string) => {
+    const {choose_type, choose_location} = this.props
+
+    if(data == 'choose_type' && bannar_type == 1){
+      await this.dispatchAddProps('setAddBanner/setAddProps', {
+        is_use_article_cover: 0
+      })
+    }
+    await this.dispatchAddProps('setAddBanner/setAddProps', {
       [data]: bannar_type
     })
+    if (data == 'choose_location' && choose_type == 2) {
+      this.getArticleList()
+    }else if(data == 'choose_type' && choose_location){
+      this.getArticleList()
+    }
   }
 
   // 处理 dva 赋值
@@ -161,15 +200,16 @@ export default Form.create()(
     // current: 3 //点击的页数
     // pageSize: 5 一页多少条
     // defaultPageSize: 5  一页多少条数据
-    // showSizeChanger: true 
+    // showSizeChanger: true
     // showQuickJumper: false
     // total: 111 总数
   };
 
   // 选择文章
-  recordOperation_index = (id: Number, e: any) => {
+  recordOperation_index = (item: Number, e: any) => {
+    console.log(item, e)
     this.dispatchAddProps('setAddBanner/setAddProps', {
-      chooseTextId: id,
+      chooseTextId: item.belong_id,
     })
   }
 
@@ -177,10 +217,7 @@ export default Form.create()(
     console.log(dd1, ddd2, cd3, dd4, 'ioiooi')
   }
 
-  // 取消提交
-  cancelSubmit = async () => {
-    this.dispatchAddProps('setAddBanner/clearAddProps', {})
-  }
+
 
   // 点击提交表单 成功的回调
   onFinish = () => {
@@ -194,17 +231,19 @@ export default Form.create()(
       upload_type,//上传bannar图片类型 是自定义还是使用文章封面图
       outside_chain,
       text_image, // 上传bannar图片地址
-      text_image_type// 上传bannar图片类型
+      text_image_type,// 上传bannar图片类型
+      rank_order, // 排序
+      is_use_article_cover // 是否使用封面图
     } = this.props
     var imageProps;
-
+    console.log(is_use_article_cover,'isis')
     if (!choose_type) return message.error('banner类型不能为空');
     if (!choose_location) return message.error('banner位置不能为空');
     switch (Number(choose_type)) {
       case 1://图片
         if (upload_type != 1 && !upload_image) return message.error('图片不能为空');
         if (allowed_click == 2 && !outside_chain) return message.error('外链不能为空');
-        imageProps = 
+        imageProps =
           upload_type == 1 || !upload_image ? undefined : upload_image
         break;
       case 2://文章
@@ -214,28 +253,48 @@ export default Form.create()(
           text_image_type == 2 || !text_image ? undefined : text_image
         break;
     }
+    const terrace_id = localStorage.getItem('terrace_id')
     getAddBanner({
-      terrace_id: 1,
+      terrace_id,
       banner_type: choose_type,      // banner类型:1图片2文章
       terrace_role_id: choose_location,  // 平台角色id
       article_id: Number(choose_type) == 2 && chooseTextId ? chooseTextId : undefined,       // 文章id(banner_type为1时传0)
       banner_cover: imageProps,     // 封面图  upload_type为1的时候 不传参数
       external_url: allowed_click == 2 ? outside_chain : undefined,    // 需要跳转的url
       is_show: allowed_show,          // 是否显示：1显示0隐藏
-      rank_order: 0        // 排序  默认0
+      rank_order,        // 排序  默认0
+      is_use_article_cover
     })
       .then(res => {
-        message.success(res.message);
-        const { form } = this.props
-        form.resetFields();
-        this.dispatchAddProps('setAddBanner/clearAddProps', {})
+        if (res.status_code) {
+          message.error(res.message);
+        } else {
+          message.success(res.message);
+          this.dispatchAddProps('setAddBanner/clearAddProps', {})
+          history.goBack()
+        }
+
+        // window.history.back();
       })
 
+  }
+  // 取消提交
+  cancelSubmit = async () => {
+    this.dispatchAddProps('setAddBanner/clearAddProps', {})
+    history.goBack()
   }
 
   // 输入框赋值
   getInput = (e: any) => {
     this.dispatchAddProps('setAddBanner/setAddProps', { outside_chain: e.target.value.trim() })
+  }
+
+  sortInput = (e: any) => {
+    this.dispatchAddProps('setAddBanner/setAddProps', { rank_order: e.target.value })
+  }
+
+  componentWillUnmount(){
+    this.dispatchAddProps('setAddBanner/clearAddProps', {})
   }
 
 
@@ -251,14 +310,16 @@ export default Form.create()(
       chooseTextId,
       upload_image,
       text_image_type,
-      text_image
+      text_image,
+      rank_order
     } = this.props
     const {
       currentPage,
       currentPageSize,
       terraceRole,
       ListArticles,
-      tailLayout
+      tailLayout,
+      total
     } = this.state
     const columnss = [
       {
@@ -326,8 +387,8 @@ export default Form.create()(
         dataIndex: 'operation',
         width: '10%',
         align: 'center',
-        render: (item: any) => <Radio.Group onChange={this.recordOperation_index.bind(this, item)} value={chooseTextId} >
-          <Radio value={item} />
+        render: (item: any, res: any) => <Radio.Group onChange={this.recordOperation_index.bind(this, res)} value={chooseTextId} >
+          <Radio value={res.belong_id} />
         </Radio.Group>
       }
     ];
@@ -347,21 +408,17 @@ export default Form.create()(
           name="basic"
           initialValues={{ remember: true }}
           onFinish={this.onFinish}               //验证成功
-          // onFinishFailed={this.onFinishFailed} //验证失败
         >
           < Form.Item
             label="请选择banner类型"
             name="choose_type"
-            
           >
             <Select
-              // defaultValue={choose_type ? choose_type:'请选择banner类型'}
+              defaultValue={choose_type ? choose_type : "请选择banner类型"}
               style={{ width: 300 }}
               onChange={this.setBannarType.bind(this, 'choose_type')}
               value={choose_type}
-              allowClear={true}
-            // optionLabelProp={choose_type}
-            placeholder={'请选择banner类型'}
+              placeholder={'请选择banner类型'}
             >
               <Option value={1}>图片</Option>
               <Option value={2}>文章</Option>
@@ -369,12 +426,13 @@ export default Form.create()(
 
           </Form.Item>
           < Form.Item
-            label="请选择banner位置"
+            label="请选择所属角色"
             name="choose_location"
           >
             <Select
-              defaultValue={choose_location}
-              placeholder={'请选择banner位置'}
+              defaultValue={choose_location ? choose_location : '请选择所属角色'}
+              value={choose_location}
+              // placeholder={'请选择banner位置'}
               style={{ width: 300 }}
               onChange={this.setBannarType.bind(this, 'choose_location')}
             >
@@ -386,6 +444,12 @@ export default Form.create()(
             </Select>
           </Form.Item>
           < Form.Item
+            label="排序"
+            name="rank_order"
+          >
+            <Input value={rank_order} onChange={this.sortInput} style={{width: 100}} type='number'/>
+          </Form.Item>
+          < Form.Item
             label="是否直接显示"
             name="allowed_show"
           >
@@ -395,13 +459,13 @@ export default Form.create()(
               value={allowed_show}
               style={{ paddingLeft: '15px' }}
             >
-              <Radio value={0}>是</Radio>
-              <Radio value={1}>否</Radio>
+              <Radio value={1}>是</Radio>
+              <Radio value={0}>否</Radio>
             </Radio.Group>
           </Form.Item>
 
           {
-            choose_type == 1 ? <Form.Item /* banner类型为图片 */
+            Number(choose_type) == 1 ? <Form.Item
               label="上传bannar图片"
               name="upload-Image"
               className={styles.flex_start}
@@ -413,7 +477,7 @@ export default Form.create()(
             </Form.Item> : null
           }
           {
-            choose_type == 2 ? <Form.Item
+            Number(choose_type) == 2 ? <Form.Item
               label="上传bannar图片"
               name="text_image_type"
               style={{ margin: '10px 0px' }}
@@ -426,16 +490,15 @@ export default Form.create()(
                 <Radio value={2}>使用文章封面图</Radio>
               </Radio.Group>
               {
-                text_image_type==2  ? null : <UploadBox
+                text_image_type == 2 ? null : <UploadBox
                   onChange={this.getUploadImage.bind(this, 'text_image')}
                   imgUrl={text_image}
                 />
               }
-
             </Form.Item> : null
           }
           {
-            choose_type == 1 ? <Form.Item
+            Number(choose_type) == 1 ? <Form.Item
               label="是否可点击"
               name="checked"
             >
@@ -449,7 +512,7 @@ export default Form.create()(
             </Form.Item> : null
           }
           {
-            choose_type == 1 && allowed_click == 2 ? <Form.Item
+            Number(choose_type) == 1 && allowed_click == 2 ? <Form.Item
               label="添加外链接"
               name="input"
             >
@@ -461,7 +524,7 @@ export default Form.create()(
             </Form.Item> : null
           }
           {
-            choose_type == 2 ? <Form.Item
+            Number(choose_type) == 2 ? <Form.Item
               label="选择文章"
               name="choose"
               className={styles.chooseText}
@@ -479,7 +542,7 @@ export default Form.create()(
                   defaultPageSize: pagination.pageSize,
                   showSizeChanger: true,
                   showQuickJumper: false,
-                  total: Number(pagination.total) / Number(pagination.pageSize) ? Number(pagination.total) / Number(pagination.pageSize) : 5,
+                  total: pagination.total,
                   showTotal: () => `共${pagination.total}条`
                 }}
                 loading={this.state.loading}
@@ -489,7 +552,11 @@ export default Form.create()(
             </Form.Item> : null
           }
 
+
           <Form.Item {...tailLayout} className={styles.submit_box}>
+            {
+              console.log(pagination.total / pagination.pageSize, 'Number(pagination.total) / Number(pagination.pageSiz)')
+            }
             <Button htmlType="submit" type="primary">
               确认添加
             </Button>
@@ -502,4 +569,4 @@ export default Form.create()(
       </div>
     )
   }
-}))
+})

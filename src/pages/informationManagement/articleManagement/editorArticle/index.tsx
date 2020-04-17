@@ -11,6 +11,8 @@ import 'braft-editor/dist/index.css';
 import request from '@/utils/request';
 import moment from 'moment';
 import { getTerraceRole, getArticle, editorArticle } from './service';
+import { history } from 'umi'
+
 export default class AddArticle extends React.Component {
 
     state = {
@@ -76,18 +78,21 @@ export default class AddArticle extends React.Component {
                                     classList[i].selectCheck = true;
                                     classList[i].selectValue = data_category[j].category_id;
                                     classList[i].inputNum = data_category[j].rank_order;
+
+                                    classList[i].qualityCheck = data_category[j].is_superior ? true : false;
+                                    classList[i].qualityInputNum = data_category[j].superior_rank_order;
                                 }
                             }
-                            for (let k in data_role) {
-                                if (classList[i].id == data_role[k].terrace_role_id) {
-                                    classList[i].qualityCheck = true;
-                                    classList[i].qualityInputNum = data_role[k].rank_order;
-                                }
-                            }
+                            // for (let k in data_role) {
+                            //     if (classList[i].id == data_role[k].terrace_role_id) {
+                            //         classList[i].qualityCheck = true;
+                            //         classList[i].qualityInputNum = data_role[k].rank_order;
+                            //     }
+                            // }
                         }
                         this.setState({
                             classList, articleId: id, title: article_title, auth: article_author, readNum: read_num, titleFileImg: author_cover,
-                            isShelvesValue: is_show == 1 ? 1 : 0,
+                            isShelvesValue: is_show == 1 ? 1 : 2,
                             editorState: BraftEditor.createEditorState(content),
                             showLoading: false,
                             dateString: publish_time.split(' ')[0],
@@ -111,8 +116,9 @@ export default class AddArticle extends React.Component {
     //分类选择
     onChangeClassHuizhang = (num: any, e: any) => {
         let classList = this.state.classList;
-        classList[num].selectCheck = e.target.checked
-        this.setState({ classList })
+        if (e.target.checked == false) { classList[num].qualityCheck = false }
+        classList[num].selectCheck = e.target.checked;
+        this.setState({ classList });
     }
 
     //分类下拉
@@ -131,8 +137,12 @@ export default class AddArticle extends React.Component {
     //精品选择
     onChangeQualityHuizhang = (num: any, e: any) => {
         let classList = this.state.classList;
-        classList[num].qualityCheck = e.target.checked;
-        this.setState({ classList })
+        if (classList[num].selectCheck) {
+            classList[num].qualityCheck = e.target.checked;
+            this.setState({ classList })
+        } else {
+            this.showMessage('选择失败', '请先选择对应分类')
+        }
     }
     //精品输入数字排序
     editorInputQualityNum = (num: any, e: any) => {
@@ -236,18 +246,28 @@ export default class AddArticle extends React.Component {
         }
         let classList = this.state.classList;
         let data_category = [], data_role = [];
+
         for (let i in classList) {
-            classList[i].selectCheck && data_category.push({ category_id: classList[i].selectValue, rank_order: classList[i].inputNum ? classList[i].inputNum : '0' })
-            classList[i].qualityCheck && data_role.push({ role_id: classList[i].id, rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0' })
+
+            if (classList[i].selectCheck && !classList[i].selectValue) {
+                this.showMessage('发布失败', '请下拉选择发布分类')
+                return;
+            }
+
+            classList[i].selectCheck && data_category.push({
+                is_superior: classList[i].qualityCheck ? 1 : 0, superior_rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0',
+                terrace_role_id: classList[i].id, category_id: classList[i].selectValue, rank_order: classList[i].inputNum ? classList[i].inputNum : '0'
+            })
+            classList[i].qualityCheck && data_role.push({ terrace_role_id: classList[i].id, role_id: classList[i].id, rank_order: classList[i].qualityInputNum ? classList[i].qualityInputNum : '0' })
         }
-        if (!data_role.length) {
-            this.showMessage('发布失败', '请选择文章分类')
-            return;
-        }
-        if (!data_role.length) {
-            this.showMessage('发布失败', '请选择精品设置')
-            return;
-        }
+        // if (!data_role.length) {
+        //     this.showMessage('发布失败', '请选择文章分类')
+        //     return;
+        // }
+        // if (!data_role.length) {
+        //     this.showMessage('发布失败', '请选择精品设置')
+        //     return;
+        // }
         this.setState({ showLoading: true });
         let data = {
             terrace_id,//平台id
@@ -270,7 +290,7 @@ export default class AddArticle extends React.Component {
                         description: res.message,
                     });
                     setTimeout(() => {
-                        window.history.back();
+                        history.push({ "pathname": '/informationManagement/articleManagement/articleList' })
                     }, 1500)
                 } else {
                     notification.open({

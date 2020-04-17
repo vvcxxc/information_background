@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Input, Button, Select, Divider, Modal, message } from 'antd';
+import { Table, Row, Col, Input, Button, Select, Divider, Modal, message, Breadcrumb } from 'antd';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { connect } from 'dva';
@@ -21,6 +21,8 @@ interface Props {
 export default Form.create()(
   connect(({ articleList }: any) => ({ articleList }))(
     class ArticleList extends Component<Props> {
+      formRef = React.createRef();
+
       state = {
         loading: false,
         total: 0,
@@ -36,10 +38,11 @@ export default Form.create()(
           roleName,
           publishStatus,
           articleCategory,
+          isGood,
           currentPage,
           currentPageSize,
         } = this.props.articleList;
-        this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, currentPage, currentPageSize);
+        this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, isGood, currentPage, currentPageSize);
 
         this.requestArticleCategory();
 
@@ -47,11 +50,11 @@ export default Form.create()(
       }
 
 
-      requestListData = async (article_title: any, article_author: any, terrace_role_id: any, is_show: any, category_id: any, page: any, per_page: any) => {
+      requestListData = async (article_title: any, article_author: any, terrace_role_id: any, is_show: any, category_id: any, is_superior: any, page: any, per_page: any) => {
         await this.setState({
           loading: true
         })
-        getListData(article_title, article_author, terrace_role_id, is_show, category_id, page, per_page).then((res: any) => {
+        getListData(article_title, article_author, terrace_role_id, is_show, category_id, is_superior, page, per_page).then((res: any) => {
           this.setState({
             dataList: res.data,
             loading: false,
@@ -61,7 +64,7 @@ export default Form.create()(
       }
 
       requestArticleCategory = () => {
-        getArticleCategory().then((res: any) => {
+        getArticleCategory("").then((res: any) => {
           this.setState({
             articleCategoryList: res.data
           })
@@ -85,6 +88,7 @@ export default Form.create()(
         const roleName = this.props.form.getFieldValue('roleName');
         const publishStatus = this.props.form.getFieldValue('publishStatus');
         const articleCategory = this.props.form.getFieldValue('articleCategory');
+        const isGood = this.props.form.getFieldValue('isGood');
         await this.props.dispatch({
           type: 'articleList/setFussyForm',
           payload: {
@@ -93,10 +97,11 @@ export default Form.create()(
             roleName,
             publishStatus,
             articleCategory,
+            isGood
           },
         });
         const { currentPage, currentPageSize } = this.props.articleList;
-        this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, currentPage, currentPageSize);
+        this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, isGood, currentPage, currentPageSize);
       };
 
       /**
@@ -129,7 +134,8 @@ export default Form.create()(
         let roleName = this.props.form.getFieldValue('roleName');
         let publishStatus = this.props.form.getFieldValue('publishStatus');
         let articleCategory = this.props.form.getFieldValue('articleCategory');
-        this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, currentPage, currentPageSize);
+        let isGood = this.props.form.getFieldValue('isGood');
+        this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, isGood, currentPage, currentPageSize);
       };
 
       handleDeleteItem = (record: any) => {
@@ -151,10 +157,11 @@ export default Form.create()(
                   roleName,
                   publishStatus,
                   articleCategory,
+                  isGood,
                   currentPage,
                   currentPageSize,
                 } = _this.props.articleList;
-                _this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, currentPage, currentPageSize);
+                _this.requestListData(articleTitle, publishAuthor, roleName, publishStatus, articleCategory, isGood, currentPage, currentPageSize);
               }
             })
           },
@@ -162,6 +169,19 @@ export default Form.create()(
             console.log('Cancel');
           },
         });
+      }
+
+      handleSelectItem = (key: any, item: any) => {
+        // console.log(key, item)
+        getArticleCategory(key).then((res: any) => {
+          this.setState({
+            articleCategoryList: res.data
+          }, () => {
+            this.props.form.setFieldsValue({
+              articleCategory: undefined
+            })
+          })
+        })
       }
 
       render() {
@@ -217,7 +237,7 @@ export default Form.create()(
             key: 'category_name',
             render: (text: any, record: any) => {
               return record.data_category.map((item: any) => (
-                <span>{item.category.category_name}</span>
+                <span>{item.category.category_name + "-" + item.terrace_role.role_name + "(" + item.rank_order + ")"},</span>
               )
               )
             }
@@ -227,8 +247,9 @@ export default Form.create()(
             dataIndex: 'terrace_role_id',
             key: 'terrace_role_id',
             render: (text: any, record: any) => {
-              return record.data_role.map((item: any) => (
-                <span>{item.role.role_name},</span>
+              return record.data_category.map((item: any) => (
+                <span>{item.is_superior == 1 ? item.terrace_role.role_name + "(" + item.superior_rank_order + ")," : ""}</span>
+
               )
               )
             }
@@ -261,6 +282,7 @@ export default Form.create()(
           roleName,
           publishStatus,
           articleCategory,
+          isGood,
           currentPage,
           currentPageSize,
         } = this.props.articleList;
@@ -268,7 +290,14 @@ export default Form.create()(
         const { loading, total, dataList, articleCategoryList, allRoleList } = this.state;
         return (
           <div className={styles.article_list}>
-            <Form>
+            <Breadcrumb>
+              <Breadcrumb.Item>资讯管理</Breadcrumb.Item>
+              <Breadcrumb.Item>
+                文章管理
+                </Breadcrumb.Item>
+              <Breadcrumb.Item>文章列表</Breadcrumb.Item>
+            </Breadcrumb>
+            <Form ref={this.formRef}>
               <Row
                 gutter={{
                   md: 24,
@@ -291,13 +320,14 @@ export default Form.create()(
                   </FormItem>
                 </Col>
                 <Col md={8} sm={24}>
-                  <FormItem label="精品">
+                  <FormItem label="所属角色">
                     {getFieldDecorator('roleName', { initialValue: roleName })(
                       <Select
-                        placeholder="请选择精品"
+                        placeholder="请选择角色"
                         style={{
                           width: '100%',
                         }}
+                        onSelect={this.handleSelectItem}
                       >
                         {
                           allRoleList.map((item: any) => (
@@ -332,57 +362,81 @@ export default Form.create()(
                   </FormItem>
                 </Col>
                 <Col md={8} sm={24}>
-                  <FormItem label="所属分类">
+                  <FormItem label="所属分类" name="articleCategory">
                     {getFieldDecorator('articleCategory', { initialValue: articleCategory })(
-                      <Select
-                        placeholder="请选择所属分类"
-                        style={{
-                          width: '100%',
-                        }}
-                      >
-                        {
-                          articleCategoryList.map((item: any) => (
-                            <option value={item.id}>{item.category_name}</option>
-                          ))
-                        }
-                      </Select>,
-                    )}
+                    <Select
+                      placeholder="请选择所属分类"
+                      style={{
+                        width: '100%',
+                      }}
+                    >
+                      {
+                        articleCategoryList.map((item: any) => (
+                          <option value={item.id}>{item.category_name}</option>
+                        ))
+                      }
+                    </Select>,
+                  )}
                   </FormItem>
                 </Col>
-                <Col md={8} sm={24}>
-                  <span>
-                    <Button type="primary" htmlType="submit" onClick={this.handleSearch}>
-                      查询
-                    </Button>
-                    <Button
+              <Col md={8} sm={24}>
+                <FormItem label="是否精品">
+                  {getFieldDecorator('isGood', { initialValue: isGood })(
+                    <Select
+                      placeholder="请选择是否精品"
                       style={{
-                        marginLeft: 8,
+                        width: '100%',
                       }}
-                      onClick={this.handleFormReset}
                     >
-                      重置
-                    </Button>
-                  </span>
-                </Col>
+                      <option value={0}>否</option>
+                      <option value={1}>是</option>
+                    </Select>,
+                  )}
+                </FormItem>
+              </Col>
               </Row>
-            </Form>
-            <Table
-              columns={columns}
-              dataSource={dataList}
-              loading={loading}
-              onChange={this.handleChange}
-              pagination={{
-                current: currentPage,
-                defaultPageSize: currentPageSize,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                total,
-                showTotal: () => {
-                  return `共${total}条`;
-                },
+            <Row
+              gutter={{
+                md: 24,
+                lg: 24,
+                xl: 48,
               }}
-            />
-          </div>
+              style={{ marginBottom: "20px" }}
+            >
+              <Col md={8} sm={24}>
+                <span>
+                  <Button type="primary" htmlType="submit" onClick={this.handleSearch}>
+                    查询
+                    </Button>
+                  <Button
+                    style={{
+                      marginLeft: 8,
+                    }}
+                    onClick={this.handleFormReset}
+                  >
+                    重置
+                    </Button>
+                </span>
+              </Col>
+            </Row>
+            </Form>
+          <Table
+            columns={columns}
+            dataSource={dataList}
+            loading={loading}
+            onChange={this.handleChange}
+            pagination={{
+              current: currentPage,
+              defaultPageSize: currentPageSize,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              total,
+              showTotal: () => {
+                return `共${total}条`;
+              },
+            }}
+          />
+          </div >
         );
       }
     },
